@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LogOut, ChevronDown, ChevronRight, Plus, Search, Bell, PanelLeft, Sun, Moon,
+  LogOut, ChevronRight, Plus, Search, Bell, PanelLeft, Sun, Moon,
   LayoutGrid, Ticket, Clock3, Users, ShieldAlert, FileText, Package, TriangleAlert,
   House, User, KeyRound, Car, ChartColumn, History, SlidersHorizontal,
   ScanLine, UserPlus, Route, Siren, Activity,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
+import api from '@/api/axios';
 
 /**
  * One design system, three deliberately different shells, matching the Figma frames:
@@ -276,8 +277,8 @@ const ResidentShell = ({ children }) => {
             <NavLink to="/resident/dashboard" end className={pill}><House className="w-[18px] h-[18px]" aria-hidden="true" /> Home</NavLink>
             <NavLink to="/resident/passes" className={pill}><Ticket className="w-[18px] h-[18px]" aria-hidden="true" /> Passes</NavLink>
             <NavLink to="/planned/household" className={pill}><Users className="w-[18px] h-[18px]" aria-hidden="true" /> Household</NavLink>
-            <NavLink to="/planned/my-home" className={pill}><KeyRound className="w-[18px] h-[18px]" aria-hidden="true" /> My home <ChevronDown className="w-4 h-4" aria-hidden="true" /></NavLink>
-            <NavLink to="/planned/activity" className={pill}><Activity className="w-[18px] h-[18px]" aria-hidden="true" /> Activity <ChevronDown className="w-4 h-4" aria-hidden="true" /></NavLink>
+            <NavLink to="/planned/my-home" className={pill}><KeyRound className="w-[18px] h-[18px]" aria-hidden="true" /> My home</NavLink>
+            <NavLink to="/planned/activity" className={pill}><Activity className="w-[18px] h-[18px]" aria-hidden="true" /> Activity</NavLink>
           </nav>
           <div className="flex items-center gap-2 shrink-0">
             {prop && (
@@ -289,9 +290,9 @@ const ResidentShell = ({ children }) => {
             <Link to="/resident/passes#new-pass" className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
               <Plus className="w-4 h-4" aria-hidden="true" /> New visitor pass
             </Link>
-            <Link to="/planned/activity" aria-label="Notifications, 1 unread" className="relative w-11 h-11 rounded-full border border-line flex items-center justify-center hover:bg-surface-subtle">
+            <Link to="/planned/activity" aria-label="Notifications, 3 unread" className="relative w-11 h-11 rounded-full border border-line flex items-center justify-center hover:bg-surface-subtle">
               <Bell className="w-5 h-5 text-ink" aria-hidden="true" />
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-home-ink text-brand-on text-[11px] font-bold flex items-center justify-center">1</span>
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-home-ink text-brand-on text-[11px] font-bold flex items-center justify-center">3</span>
             </Link>
             <div ref={ref} className="relative">
               <button onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu} aria-label="Account menu"
@@ -354,11 +355,28 @@ const GuardShell = ({ children }) => {
   useEffect(() => { try { localStorage.setItem('vistara-guard-theme', theme); } catch { /* storage unavailable */ } }, [theme]);
   const loc = useLocation();
 
+  // Consistency: rail badge and approvals pill use the same live numbers as the console.
+  const [live, setLive] = useState({ inside: null, approvals: 0 });
+  useEffect(() => {
+    let off = false;
+    const pull = async () => {
+      try {
+        const r = await api.get('/dashboard/guard');
+        if (!off) setLive({ inside: r.data.data.today.inside, approvals: r.data.data.approvalsWaiting || 0 });
+      } catch {
+        try { const s = await api.get('/guard/stats'); if (!off) setLive({ inside: s.data.data?.currently_inside ?? null, approvals: 0 }); } catch { /* offline: keep last */ }
+      }
+    };
+    pull();
+    const t = setInterval(pull, 30000);
+    return () => { off = true; clearInterval(t); };
+  }, [loc.pathname]);
+
   const rail = (active) =>
     `relative flex flex-col items-center justify-center gap-1 w-[88px] h-[68px] rounded-rail text-[13px] font-semibold transition-colors ${active ? 'bg-g-accent-soft text-g-accent-ink' : 'text-g-bar-text-2 hover:bg-g-bar-chip hover:text-g-bar-text'}`;
   const items = [
     { to: '/guard/manual-entry', icon: UserPlus, label: 'Walk-in' },
-    { to: '/guard/logs?status=checked_in', icon: Users, label: 'Inside', badge: 3, active: loc.pathname === '/guard/logs' && loc.search.includes('checked_in') },
+    { to: '/guard/logs?status=checked_in', icon: Users, label: 'Inside', badge: live.inside || null, active: loc.pathname === '/guard/logs' && loc.search.includes('checked_in') },
     { to: '/guard/logs', icon: History, label: 'Gate log', active: loc.pathname === '/guard/logs' && !loc.search.includes('checked_in') },
     { to: '/planned/incidents', icon: TriangleAlert, label: 'Incidents' },
     { to: '/planned/patrol', icon: Route, label: 'Patrol' },
@@ -408,7 +426,9 @@ const GuardShell = ({ children }) => {
               <span className={`w-2 h-2 rounded-full ${online ? 'bg-g-ok' : 'bg-g-warn'}`} aria-hidden="true" />
               {online ? 'Online · synced' : 'Offline · queued'}
             </span>
-            <Link to="/guard/manual-entry" className="hidden lg:inline-flex items-center h-11 px-4 rounded-full bg-g-warn-bg text-g-warn text-[14px] font-bold">1 approval waiting</Link>
+            {live.approvals > 0 && (
+              <Link to="/guard/manual-entry" className="hidden lg:inline-flex items-center h-11 px-4 rounded-full bg-g-warn-bg text-g-warn text-[14px] font-bold">{live.approvals} approval{live.approvals > 1 ? 's' : ''} waiting</Link>
+            )}
             <button onClick={() => setTheme(theme === 'night' ? 'day' : 'night')} aria-label={theme === 'night' ? 'Switch to Day mode' : 'Switch to Night mode'}
               className="w-11 h-11 rounded-full bg-g-bar-chip text-g-bar-text flex items-center justify-center">
               {theme === 'night' ? <Sun className="w-5 h-5" aria-hidden="true" /> : <Moon className="w-5 h-5" aria-hidden="true" />}
@@ -440,6 +460,9 @@ const GuardShell = ({ children }) => {
 /* ─── AppLayout: pick the shell by role ──────────────────────────────────────── */
 const AppLayout = ({ children }) => {
   const { user } = useAuth();
+  const { pathname } = useLocation();
+  // New page starts at the top (SPA navigation otherwise keeps the old scroll position).
+  useEffect(() => { if (!window.location.hash) window.scrollTo(0, 0); }, [pathname]);
   if (user?.role === 'guard') return <GuardShell>{children}</GuardShell>;
   if (user?.role === 'resident') return <ResidentShell>{children}</ResidentShell>;
   return <AdminShell>{children}</AdminShell>;

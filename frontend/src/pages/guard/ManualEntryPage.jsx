@@ -12,7 +12,7 @@ const ManualEntryPage = () => (
         <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to console
       </Link>
     </div>
-    <div className="rounded-card bg-surface-card p-5">
+    <div className="rounded-card bg-g-surface border border-g-border p-5">
       <ManualEntryForm />
     </div>
   </div>

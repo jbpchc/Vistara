@@ -134,11 +134,11 @@ const ManualEntryForm = () => {
       <Card className="border-border/50 shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <ClipboardSignature className="w-5 h-5 text-orange-600" />
+            <div className="w-10 h-10 rounded-lg bg-g-warn-bg flex items-center justify-center">
+              <ClipboardSignature className="w-5 h-5 text-g-warn" />
             </div>
             <div>
-              <CardTitle className="text-xl font-display text-gray-800">Manual Visitor Entry</CardTitle>
+              <CardTitle className="text-xl font-display text-g-text">Manual Visitor Entry</CardTitle>
               <CardDescription>Search for a resident's property and log visitor details.</CardDescription>
             </div>
           </div>
@@ -149,13 +149,13 @@ const ManualEntryForm = () => {
 
             {/* ── Predictive Property Search ─────────────────────────────── */}
             <div className="space-y-2" ref={searchRef}>
-              <Label htmlFor="property-search" className="font-medium text-gray-700">
-                Property Search <span className="text-red-500">*</span>
+              <Label htmlFor="property-search" className="font-medium text-g-text">
+                Property Search <span className="text-g-danger">*</span>
               </Label>
-              <p className="text-xs text-gray-400">Type Block number, Lot number, or Resident Name</p>
+              <p className="text-xs text-g-text-2">Type Block number, Lot number, or Resident Name</p>
 
               <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-g-text-2">
                   {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 </div>
                 <Input
@@ -168,14 +168,14 @@ const ManualEntryForm = () => {
                     if (selected) setSelected(null); 
                   }}
                   onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
-                  className="pl-10 pr-10 border-gray-300 focus-visible:ring-green-700"
+                  className="pl-10 pr-10 border-g-border-strong focus-visible:ring-green-700"
                   autoComplete="off"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={handleClearSelection}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-800 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-g-text-2 hover:text-g-text transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -183,9 +183,9 @@ const ManualEntryForm = () => {
 
                 {/* Dropdown */}
                 {showDropdown && (
-                  <div className="absolute z-50 w-full mt-1 rounded-xl border bg-white shadow-xl max-h-72 overflow-y-auto animate-fade-in">
+                  <div className="absolute z-50 w-full mt-1 rounded-xl border bg-g-surface shadow-xl max-h-72 overflow-y-auto animate-fade-in">
                     {searchResults.length === 0 ? (
-                      <div className="px-4 py-6 text-center text-sm text-gray-400">
+                      <div className="px-4 py-6 text-center text-sm text-g-text-2">
                         No properties found. Try a different search term.
                       </div>
                     ) : (
@@ -194,17 +194,17 @@ const ManualEntryForm = () => {
                           key={prop.property_id}
                           type="button"
                           onClick={() => handleSelectProperty(prop)}
-                          className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                          className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-g-surface-2 transition-colors border-b border-g-border last:border-0"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
-                            <Home className="w-4 h-4 text-green-700" />
+                          <div className="w-8 h-8 rounded-lg bg-g-ok-bg flex items-center justify-center shrink-0 mt-0.5">
+                            <Home className="w-4 h-4 text-g-ok" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm text-gray-800">
+                            <p className="font-semibold text-sm text-g-text">
                               Block {prop.block}, Lot {prop.lot}
-                              {prop.street && <span className="text-gray-400 font-normal"> — {prop.street}</span>}
+                              {prop.street && <span className="text-g-text-2 font-normal"> — {prop.street}</span>}
                             </p>
-                            <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                            <p className="text-xs text-g-text-2 flex items-center gap-1 mt-0.5">
                               <User className="w-3 h-3" />
                               {prop.resident_name}
                             </p>
@@ -219,19 +219,19 @@ const ManualEntryForm = () => {
 
             {/* ── Auto-filled Resident Info ─────────────────── */}
             {selected && (
-              <div className="rounded-xl border border-green-200 bg-green-50 p-4 space-y-3 animate-fade-in">
-                <div className="flex items-center gap-2 text-green-800">
+              <div className="rounded-xl border border-g-ok/40 bg-g-ok-bg p-4 space-y-3 animate-fade-in">
+                <div className="flex items-center gap-2 text-g-accent-ink">
                   <CheckCircle2 className="w-4 h-4" />
                   <p className="text-sm font-semibold">Property Selected</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-gray-500 text-xs">Block / Lot</p>
-                    <p className="font-semibold text-gray-800">Block {selected.block}, Lot {selected.lot}</p>
+                    <p className="text-g-text-2 text-xs">Block / Lot</p>
+                    <p className="font-semibold text-g-text">Block {selected.block}, Lot {selected.lot}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs">Resident</p>
-                    <p className="font-semibold text-gray-800">{selected.resident_name}</p>
+                    <p className="text-g-text-2 text-xs">Resident</p>
+                    <p className="font-semibold text-g-text">{selected.resident_name}</p>
                   </div>
                 </div>
               </div>
@@ -240,7 +240,7 @@ const ManualEntryForm = () => {
             {/* ── Visitor Details ────────────────────────────────────────── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="visitor_name" className="text-gray-700">Visitor Name <span className="text-red-500">*</span></Label>
+                <Label htmlFor="visitor_name" className="text-g-text">Visitor Name <span className="text-g-danger">*</span></Label>
                 <Input
                   id="visitor_name"
                   name="visitor_name"
@@ -249,19 +249,19 @@ const ManualEntryForm = () => {
                   value={form.visitor_name}
                   onChange={handleFormChange}
                   disabled={isSubmitting}
-                  className="border-gray-300 focus-visible:ring-green-700"
+                  className="border-g-border-strong focus-visible:ring-green-700"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="id_type" className="text-gray-700">Valid ID Type</Label>
+                <Label htmlFor="id_type" className="text-g-text">Valid ID Type</Label>
                 <select
                   id="id_type"
                   name="id_type"
                   value={form.id_type}
                   onChange={handleFormChange}
                   disabled={isSubmitting}
-                  className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-700"
+                  className="w-full h-10 px-3 border border-g-border-strong rounded-md text-sm bg-g-surface focus:outline-none focus:ring-2 focus:ring-g-accent"
                 >
                   <option value="Drivers License">Driver's License</option>
                   <option value="Passport">Passport</option>
@@ -274,7 +274,7 @@ const ManualEntryForm = () => {
 
               {form.id_type === 'Other' && (
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="other_id" className="text-gray-700">Specify Other ID</Label>
+                  <Label htmlFor="other_id" className="text-g-text">Specify Other ID</Label>
                   <Input
                     id="other_id"
                     name="other_id"
@@ -283,13 +283,13 @@ const ManualEntryForm = () => {
                     value={form.other_id}
                     onChange={handleFormChange}
                     disabled={isSubmitting}
-                    className="border-gray-300 focus-visible:ring-green-700"
+                    className="border-g-border-strong focus-visible:ring-green-700"
                   />
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="purpose" className="text-gray-700">Purpose of Visit</Label>
+                <Label htmlFor="purpose" className="text-g-text">Purpose of Visit</Label>
                 <Input
                   id="purpose"
                   name="purpose"
@@ -298,11 +298,11 @@ const ManualEntryForm = () => {
                   value={form.purpose}
                   onChange={handleFormChange}
                   disabled={isSubmitting}
-                  className="border-gray-300 focus-visible:ring-green-700"
+                  className="border-g-border-strong focus-visible:ring-green-700"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="vehicle_plate" className="text-gray-700">Vehicle Plate (Optional)</Label>
+                <Label htmlFor="vehicle_plate" className="text-g-text">Vehicle Plate (Optional)</Label>
                 <Input
                   id="vehicle_plate"
                   name="vehicle_plate"
@@ -311,13 +311,13 @@ const ManualEntryForm = () => {
                   value={form.vehicle_plate}
                   onChange={handleFormChange}
                   disabled={isSubmitting}
-                  className="border-gray-300 focus-visible:ring-green-700"
+                  className="border-g-border-strong focus-visible:ring-green-700"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes" className="text-gray-700">Guard Notes</Label>
+              <Label htmlFor="notes" className="text-g-text">Guard Notes</Label>
               <textarea
                 id="notes"
                 name="notes"
@@ -327,7 +327,7 @@ const ManualEntryForm = () => {
                 onChange={handleFormChange}
                 disabled={isSubmitting}
                 className={cn(
-                  'flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm',
+                  'flex w-full rounded-md border border-g-border-strong bg-g-surface px-3 py-2 text-sm',
                   'placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-700',
                   'disabled:opacity-50 resize-none transition-all'
                 )}
@@ -338,7 +338,7 @@ const ManualEntryForm = () => {
             <button
               id="manual-entry-submit-btn"
               type="submit"
-              className="w-full h-12 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full h-12 flex items-center justify-center gap-2 bg-g-warn hover:bg-g-warn/90 text-g-on-accent font-bold rounded-lg transition-all active:scale-[0.98] disabled:opacity-50"
               disabled={isSubmitting || !selected}
             >
               {isSubmitting ? (

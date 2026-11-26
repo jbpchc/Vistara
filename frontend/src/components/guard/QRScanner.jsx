@@ -19,62 +19,62 @@ const ResultOverlay = ({ result, onReset }) => {
   return (
     <div className={`flex flex-col items-center justify-center py-10 rounded-xl border-2 ${
       granted
-        ? 'bg-green-50 border-green-400'
-        : 'bg-red-50 border-red-400'
+        ? 'bg-g-ok-bg border-g-ok'
+        : 'bg-g-danger-bg border-g-danger'
     }`}>
       {/* Icon */}
       {granted
-        ? <CheckCircle2 className="w-20 h-20 text-green-500" />
-        : <XCircle      className="w-20 h-20 text-red-500"   />
+        ? <CheckCircle2 className="w-20 h-20 text-g-ok" />
+        : <XCircle      className="w-20 h-20 text-g-danger"   />
       }
 
       {/* Status */}
-      <p className={`mt-3 text-3xl font-black tracking-wide ${granted ? 'text-green-700' : 'text-red-700'}`}>
+      <p className={`mt-3 text-3xl font-black tracking-wide ${granted ? 'text-g-ok' : 'text-g-danger'}`}>
         {granted ? 'ACCESS GRANTED' : 'ACCESS DENIED'}
       </p>
 
       {/* Details */}
       {granted && result.data && (
-        <div className="mt-4 w-full max-w-sm bg-white border border-green-200 rounded-xl px-5 py-4 space-y-1.5">
+        <div className="mt-4 w-full max-w-sm bg-g-surface border border-g-ok/40 rounded-xl px-5 py-4 space-y-1.5">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Guest</span>
-            <span className="font-bold text-gray-800">{result.data.guest_name}</span>
+            <span className="text-g-text-2">Guest</span>
+            <span className="font-bold text-g-text">{result.data.guest_name}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Property</span>
-            <span className="font-semibold text-gray-700">Blk {result.data.block}, Lot {result.data.lot}</span>
+            <span className="text-g-text-2">Property</span>
+            <span className="font-semibold text-g-text">Blk {result.data.block}, Lot {result.data.lot}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Resident</span>
-            <span className="font-semibold text-gray-700">{result.data.resident_name}</span>
+            <span className="text-g-text-2">Resident</span>
+            <span className="font-semibold text-g-text">{result.data.resident_name}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Date</span>
-            <span className="font-semibold text-gray-700">{result.data.expected_date}</span>
+            <span className="text-g-text-2">Date</span>
+            <span className="font-semibold text-g-text">{result.data.expected_date}</span>
           </div>
         </div>
       )}
 
       {!granted && (
-        <p className="mt-2 text-sm text-red-600 font-medium">
+        <p className="mt-2 text-sm text-g-danger font-medium">
           {result?.message || 'Invalid or expired pass.'}
         </p>
       )}
 
       {/* Auto-reset bar */}
       <div className="mt-5 w-full max-w-sm">
-        <div className={`h-1 rounded-full ${granted ? 'bg-green-200' : 'bg-red-200'} overflow-hidden`}>
+        <div className={`h-1 rounded-full ${granted ? 'bg-g-ok-bg' : 'bg-g-danger-bg'} overflow-hidden`}>
           <div
-            className={`h-full rounded-full ${granted ? 'bg-green-500' : 'bg-red-500'}`}
+            className={`h-full rounded-full ${granted ? 'bg-g-ok' : 'bg-g-danger-solid'}`}
             style={{ animation: 'shrink 4s linear forwards' }}
           />
         </div>
-        <p className="text-center text-xs text-gray-400 mt-1.5">Auto-resetting in 4 seconds…</p>
+        <p className="text-center text-xs text-g-text-2 mt-1.5">Auto-resetting in 4 seconds…</p>
       </div>
 
       <button
         onClick={onReset}
-        className="mt-4 h-10 px-6 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded-lg transition-all"
+        className="mt-4 h-10 px-6 bg-g-accent hover:bg-g-accent/90 text-g-on-accent text-sm font-semibold rounded-lg transition-all"
       >
         <RefreshCw className="w-4 h-4 inline mr-2" />
         Scan Next
@@ -105,45 +105,45 @@ const ConfirmOverlay = ({ result, qr_token, onConfirm, onCancel }) => {
   };
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-5 anim-fade-in">
+    <div className="bg-g-surface-2 border border-g-border rounded-xl p-5 space-y-5 anim-fade-in">
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-2">
-          <CheckCircle2 className="w-6 h-6 text-green-700" />
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-g-ok-bg rounded-full mb-2">
+          <CheckCircle2 className="w-6 h-6 text-g-ok" />
         </div>
-        <h3 className="font-bold text-gray-800 text-lg">Verify Guest Entry</h3>
-        <p className="text-xs text-gray-400 mt-0.5">QR Code is valid. Record arrival details below.</p>
+        <h3 className="font-bold text-g-text text-lg">Verify Guest Entry</h3>
+        <p className="text-xs text-g-text-2 mt-0.5">QR Code is valid. Record arrival details below.</p>
       </div>
 
       {/* Guest Details */}
-      <div className="bg-white border border-gray-100 rounded-lg p-4 grid grid-cols-2 gap-x-4 gap-y-3 text-xs sm:text-sm">
+      <div className="bg-g-surface border border-g-border rounded-lg p-4 grid grid-cols-2 gap-x-4 gap-y-3 text-xs sm:text-sm">
         <div>
-          <p className="text-xs text-gray-400 font-medium">Guest Name</p>
-          <p className="font-bold text-gray-800 truncate">{result.data.guest_name}</p>
+          <p className="text-xs text-g-text-2 font-medium">Guest Name</p>
+          <p className="font-bold text-g-text truncate">{result.data.guest_name}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium">Resident Host</p>
-          <p className="font-semibold text-gray-800 truncate">{result.data.resident_name}</p>
+          <p className="text-xs text-g-text-2 font-medium">Resident Host</p>
+          <p className="font-semibold text-g-text truncate">{result.data.resident_name}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium">Property Location</p>
-          <p className="font-semibold text-gray-800">Blk {result.data.block}, Lot {result.data.lot}</p>
+          <p className="text-xs text-g-text-2 font-medium">Property Location</p>
+          <p className="font-semibold text-g-text">Blk {result.data.block}, Lot {result.data.lot}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 font-medium">Visit Purpose</p>
-          <p className="font-semibold text-gray-700 italic truncate">"{result.data.purpose}"</p>
+          <p className="text-xs text-g-text-2 font-medium">Visit Purpose</p>
+          <p className="font-semibold text-g-text italic truncate">"{result.data.purpose}"</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Entry Mode Toggle */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider">Entry Mode</label>
-          <div className="flex bg-gray-200 rounded-lg p-1 gap-1">
+          <label className="block text-xs font-bold text-g-text-2 uppercase tracking-wider">Entry Mode</label>
+          <div className="flex bg-g-surface-2 rounded-lg p-1 gap-1">
             <button
               type="button"
               onClick={() => setEntryMode('vehicle')}
               className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${
-                entryMode === 'vehicle' ? 'bg-green-800 text-white shadow-sm' : 'text-gray-600 hover:text-gray-800'
+                entryMode === 'vehicle' ? 'bg-g-accent text-g-on-accent shadow-sm' : 'text-g-text-2 hover:text-g-text'
               }`}
             >
               Vehicle
@@ -152,7 +152,7 @@ const ConfirmOverlay = ({ result, qr_token, onConfirm, onCancel }) => {
               type="button"
               onClick={() => setEntryMode('walkin')}
               className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${
-                entryMode === 'walkin' ? 'bg-green-800 text-white shadow-sm' : 'text-gray-600 hover:text-gray-800'
+                entryMode === 'walkin' ? 'bg-g-accent text-g-on-accent shadow-sm' : 'text-g-text-2 hover:text-g-text'
               }`}
             >
               Walk-in
@@ -163,27 +163,27 @@ const ConfirmOverlay = ({ result, qr_token, onConfirm, onCancel }) => {
         {/* Plate Number (Conditional) */}
         {entryMode === 'vehicle' && (
           <div className="space-y-1.5 anim-fade-in">
-            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider">Plate Number <span className="text-red-500">*</span></label>
+            <label className="block text-xs font-bold text-g-text-2 uppercase tracking-wider">Plate Number <span className="text-g-danger">*</span></label>
             <input
               type="text"
               required
               placeholder="e.g. ABC 1234"
               value={plateNumber}
               onChange={(e) => setPlateNumber(e.target.value)}
-              className="w-full h-10 px-3 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent uppercase font-semibold font-mono"
+              className="w-full h-10 px-3 border border-g-border-strong rounded-lg text-sm bg-g-surface focus:outline-none focus:ring-2 focus:ring-g-accent focus:border-transparent uppercase font-semibold font-mono"
             />
           </div>
         )}
 
         {/* Guard Notes */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider">Guard Notes (Optional)</label>
+          <label className="block text-xs font-bold text-g-text-2 uppercase tracking-wider">Guard Notes (Optional)</label>
           <input
             type="text"
             placeholder="e.g. black sedan, plumber service"
             value={guardNotes}
             onChange={(e) => setGuardNotes(e.target.value)}
-            className="w-full h-10 px-3 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent"
+            className="w-full h-10 px-3 border border-g-border-strong rounded-lg text-sm bg-g-surface focus:outline-none focus:ring-2 focus:ring-g-accent focus:border-transparent"
           />
         </div>
 
@@ -193,14 +193,14 @@ const ConfirmOverlay = ({ result, qr_token, onConfirm, onCancel }) => {
             type="button"
             onClick={onCancel}
             disabled={submitting}
-            className="flex-1 h-11 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+            className="flex-1 h-11 border border-g-border-strong rounded-lg text-sm font-semibold text-g-text-2 hover:bg-g-surface-2 disabled:opacity-50 transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting || (entryMode === 'vehicle' && !plateNumber.trim())}
-            className="flex-1 h-11 bg-green-800 hover:bg-green-900 text-white text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+            className="flex-1 h-11 bg-g-accent hover:bg-g-accent/90 text-g-on-accent text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
           >
             {submitting ? (
               <><Loader2 className="w-4 h-4 spin" /> Processing…</>
@@ -216,7 +216,8 @@ const ConfirmOverlay = ({ result, qr_token, onConfirm, onCancel }) => {
 
 /* ─── QR Scanner ─────────────────────────────────────────────────────────────── */
 const QRScanner = () => {
-  const [tab, setTab]         = useState('camera');
+  // "Enter code manually" on the console opens this page with ?manual=1
+  const [tab, setTab]         = useState(() => (new URLSearchParams(window.location.search).get('manual') ? 'manual' : 'camera'));
   const [phase, setPhase]     = useState('idle'); // idle | scanning | validating | done
   const [result, setResult]   = useState(null);
   const [token, setToken]     = useState('');
@@ -357,26 +358,26 @@ const QRScanner = () => {
       <style>{`@keyframes shrink { from { width: 100%; } to { width: 0%; } }`}</style>
 
       <div className="max-w-2xl mx-auto space-y-4 anim-fade-in">
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-g-surface border border-g-border rounded-xl shadow-sm overflow-hidden">
 
           {/* ── Header ────────────────────────────────────────── */}
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="px-5 py-4 border-b border-g-border flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center">
-                <ScanLine className="w-5 h-5 text-green-800" />
+              <div className="w-9 h-9 bg-g-ok-bg rounded-lg flex items-center justify-center">
+                <ScanLine className="w-5 h-5 text-g-accent-ink" />
               </div>
               <div>
-                <p className="font-bold text-gray-800 text-sm">QR Pass Validator</p>
-                <p className="text-xs text-gray-400">Scan or enter a pass token</p>
+                <p className="font-bold text-g-text text-sm">QR Pass Validator</p>
+                <p className="text-xs text-g-text-2">Scan or enter a pass token</p>
               </div>
             </div>
             {/* Status pill */}
             <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-              phase === 'scanning'   ? 'bg-blue-100 text-blue-700'   :
-              phase === 'validating' ? 'bg-yellow-100 text-yellow-700' :
-              result?.valid ? 'bg-green-100 text-green-800' :
-              result        ? 'bg-red-100 text-red-700'     :
-              'bg-gray-100 text-gray-500'
+              phase === 'scanning'   ? 'bg-g-info-bg text-g-info'   :
+              phase === 'validating' ? 'bg-g-warn-bg text-g-warn' :
+              result?.valid ? 'bg-g-ok-bg text-g-accent-ink' :
+              result        ? 'bg-g-danger-bg text-g-danger'     :
+              'bg-g-surface-2 text-g-text-2'
             }`}>
               {phase === 'scanning'   && '● Live'}
               {phase === 'validating' && '⏳ Checking…'}
@@ -388,7 +389,7 @@ const QRScanner = () => {
 
           <div className="p-5 space-y-4">
             {/* ── Tab Switch ──────────────────────────────────── */}
-            <div className="flex bg-gray-100 rounded-lg p-1">
+            <div className="flex bg-g-surface-2 rounded-lg p-1">
               {[
                 { id: 'camera', Icon: Camera,   label: 'Camera Scan'   },
                 { id: 'manual', Icon: KeyRound, label: 'Manual Token'  },
@@ -399,8 +400,8 @@ const QRScanner = () => {
                   onClick={() => switchTab(id)}
                   className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${
                     tab === id
-                      ? 'bg-white text-gray-800 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      ? 'bg-g-surface text-g-text shadow-sm'
+                      : 'text-g-text-2 hover:text-g-text'
                   }`}
                 >
                   <Icon className="w-4 h-4" /> {label}
@@ -428,18 +429,18 @@ const QRScanner = () => {
                     {phase === 'scanning' && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                          <div className="w-64 h-64 relative">
-                            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
-                            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
-                            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
-                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg"></div>
+                            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-g-surface rounded-tl-lg"></div>
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-g-surface rounded-tr-lg"></div>
+                            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-g-surface rounded-bl-lg"></div>
+                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-g-surface rounded-br-lg"></div>
                          </div>
                       </div>
                     )}
 
                     {phase === 'validating' && (
-                      <div className="absolute inset-0 bg-white/90 flex flex-col items-center justify-center gap-3">
-                        <Loader2 className="w-12 h-12 text-green-800 spin" />
-                        <p className="text-sm font-semibold text-gray-600">Validating pass…</p>
+                      <div className="absolute inset-0 bg-g-surface/90 flex flex-col items-center justify-center gap-3">
+                        <Loader2 className="w-12 h-12 text-g-accent-ink spin" />
+                        <p className="text-sm font-semibold text-g-text-2">Validating pass…</p>
                       </div>
                     )}
                   </div>
@@ -465,10 +466,10 @@ const QRScanner = () => {
                 ) : (
                   <form onSubmit={handleManual} className="space-y-4">
                     <div>
-                      <label htmlFor="qr-token-input" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                      <label htmlFor="qr-token-input" className="block text-sm font-semibold text-g-text mb-1.5">
                         QR Token / Pass ID
                       </label>
-                      <p className="text-xs text-gray-400 mb-2">Paste the JWT token from the resident's QR pass.</p>
+                      <p className="text-xs text-g-text-2 mb-2">Paste the JWT token from the resident's QR pass.</p>
                       <div className="flex gap-2">
                         <input
                           id="qr-token-input"
@@ -476,14 +477,14 @@ const QRScanner = () => {
                           onChange={e => setToken(e.target.value)}
                           placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…"
                           disabled={validating}
-                          className="flex-1 h-10 px-3 border border-gray-300 rounded-lg text-xs font-mono text-gray-800 bg-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent disabled:opacity-60"
+                          className="flex-1 h-10 px-3 border border-g-border-strong rounded-lg text-xs font-mono text-g-text bg-g-surface placeholder:text-g-text-2 focus:outline-none focus:ring-2 focus:ring-g-accent focus:border-transparent disabled:opacity-60"
                         />
                         <button
                           type="button"
                           id="paste-token-btn"
                           onClick={handlePaste}
                           title="Paste from clipboard"
-                          className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all"
+                          className="w-10 h-10 border border-g-border-strong rounded-lg flex items-center justify-center text-g-text-2 hover:text-g-text hover:bg-g-surface-2 transition-all"
                         >
                           <ClipboardPaste className="w-4 h-4" />
                         </button>
@@ -495,7 +496,7 @@ const QRScanner = () => {
                       id="validate-token-btn"
                       type="submit"
                       disabled={validating || !token.trim()}
-                      className="w-full h-12 rounded-lg text-sm font-bold text-white bg-green-800 hover:bg-green-900 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                      className="w-full h-12 rounded-lg text-sm font-bold text-g-on-accent bg-g-accent hover:bg-g-accent/90 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                     >
                       {validating
                         ? <><Loader2 className="w-5 h-5 spin" /> Validating…</>
@@ -515,9 +516,9 @@ const QRScanner = () => {
         </div>
 
         {/* Tip box */}
-        <div className="flex items-start gap-2.5 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
-          <AlertCircle className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-700">
+        <div className="flex items-start gap-2.5 bg-g-info-bg border border-g-info/30 rounded-xl px-4 py-3">
+          <AlertCircle className="w-4 h-4 text-g-info shrink-0 mt-0.5" />
+          <p className="text-xs text-g-info">
             <strong>Tip:</strong> Each QR pass is valid for one-time use only on its designated date.
             Passes auto-reset after 4 seconds for fast throughput.
           </p>

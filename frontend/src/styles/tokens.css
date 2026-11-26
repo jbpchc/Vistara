@@ -130,6 +130,25 @@
   --g-on-fab-rgb: 19 33 15;
   --g-border-strong: #6B7F71;
   --g-border-strong-rgb: 107 127 113;
+  --background: 142 21% 7%;
+  --foreground: 90 24% 93%;
+  --card: 147 19% 12%;
+  --card-foreground: 90 24% 93%;
+  --popover: 147 19% 12%;
+  --popover-foreground: 90 24% 93%;
+  --primary: 75 67% 59%;
+  --primary-foreground: 107 38% 9%;
+  --secondary: 152 19% 16%;
+  --secondary-foreground: 90 24% 93%;
+  --muted: 152 19% 16%;
+  --muted-foreground: 136 9% 68%;
+  --accent: 90 38% 16%;
+  --accent-foreground: 77 69% 69%;
+  --destructive: 357 68% 46%;
+  --destructive-foreground: 90 24% 93%;
+  --border: 147 16% 22%;
+  --input: 138 9% 46%;
+  --ring: 75 67% 59%;
 }
 [data-app="guard"][data-theme="day"] {
   --g-canvas: #EEF1EA;
@@ -184,4 +203,23 @@
   --g-on-fab-rgb: 19 33 15;
   --g-border-strong: #7C8C81;
   --g-border-strong-rgb: 124 140 129;
+  --background: 86 20% 93%;
+  --foreground: 150 23% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 150 23% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 150 23% 10%;
+  --primary: 134 29% 19%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 80 23% 95%;
+  --secondary-foreground: 150 23% 10%;
+  --muted: 80 23% 95%;
+  --muted-foreground: 145 10% 34%;
+  --accent: 90 37% 89%;
+  --accent-foreground: 134 29% 19%;
+  --destructive: 4 76% 40%;
+  --destructive-foreground: 40 36% 95%;
+  --border: 98 16% 87%;
+  --input: 139 7% 52%;
+  --ring: 134 29% 19%;
 }
