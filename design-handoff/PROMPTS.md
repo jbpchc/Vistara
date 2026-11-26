@@ -88,7 +88,10 @@ Prompts are quoted **verbatim**, including our original spelling and capitalisat
 - Caught the mismatch between the coded dashboards and the Figma frames (#17).
 - Limited backend work to the core flows (#23).
 
-## 5. Techniques the AI used (coding difficulty)
+## 5. Techniques the AI used
+
+Architecture, state management and design trade-offs are explained in [`TECHNICAL-NOTES.md`](../TECHNICAL-NOTES.md).
+
 
 - **Programmatic design through the Figma Plugin API:**
   - variables with Night and Day modes;

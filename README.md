@@ -26,6 +26,7 @@ There are three role-based portals on one design system:
 | User flows and edge cases | Three clickable Figma prototypes (links in HANDOFF.md), plus the live demo above |
 | Human-centred design and accessibility | [ISO 9241-210 & WCAG report](design-handoff/docs/ISO-9241-210_and_Accessibility.md) and `contrast.json` (68/68 pairs pass AA) |
 | Design system | Figma variables exported to code tokens by `design-handoff/tokens/build_tokens.py` |
+| Architecture, interactive logic and technical decisions | [TECHNICAL-NOTES.md](TECHNICAL-NOTES.md) |
 | Developer handoff | Dev Mode annotations and redlines in Figma, the handoff PDF, and HANDOFF.md §7 (design-to-code status) |
 
 ## Run locally
