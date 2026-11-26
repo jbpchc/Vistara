@@ -1,10 +1,11 @@
-# Render Blueprint — deploys the Vistara API and web app together.
-# Render dashboard → New → Blueprint → pick this repo. Secrets marked sync:false are asked for once.
+# Render Blueprint: deploys the Vistara API. The web app stays on GitHub Pages.
+# Render dashboard → New → Blueprint → pick this repo. Values marked sync:false are asked for once.
 services:
   - type: web
     name: vistara-api
     runtime: node
     plan: free
+    region: singapore
     rootDir: backend
     buildCommand: npm ci
     startCommand: npm start
@@ -28,19 +29,9 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 8h
+      # GitHub Pages origin (no path). Add more origins separated by commas.
       - key: FRONTEND_URL
-        sync: false
-
-  - type: web
-    name: vistara-web
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm ci && npx vite build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        sync: false
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+        value: https://jbpchc.github.io
+      # Creates the demo accounts on the first start with an empty database.
+      - key: SEED_ON_START
+        value: "true"

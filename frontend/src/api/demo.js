@@ -18,10 +18,10 @@ const daysFromNow = (n) => { const d = new Date(); d.setDate(d.getDate() + n); r
 
 /* ─── Seed data ─────────────────────────────────────────────────────────────── */
 const users = [
-  { id: 1, username: 'admin_demo',    email: 'admin@vistara.demo',    role: 'admin',    is_active: true, createdAt: minutesAgo(90000) },
+  { id: 1, username: 'admin_test',    email: 'admin@vistara.demo',    role: 'admin',    is_active: true, createdAt: minutesAgo(90000) },
   { id: 2, username: 'guard_alpha',   email: 'guard1@vistara.demo',   role: 'guard',    is_active: true, createdAt: minutesAgo(80000) },
   { id: 3, username: 'guard_beta',    email: 'guard2@vistara.demo',   role: 'guard',    is_active: true, createdAt: minutesAgo(70000) },
-  { id: 4, username: 'juan_delacruz', email: 'juan@vistara.demo',     role: 'resident', is_active: true, createdAt: minutesAgo(60000) },
+  { id: 4, username: 'juan_dela_cruz', email: 'juan@vistara.demo',     role: 'resident', is_active: true, createdAt: minutesAgo(60000) },
   { id: 5, username: 'maria_santos',  email: 'maria@vistara.demo',    role: 'resident', is_active: true, createdAt: minutesAgo(50000) },
   { id: 6, username: 'paolo_reyes',   email: 'paolo@vistara.demo',    role: 'resident', is_active: true, createdAt: minutesAgo(40000) },
 ];
@@ -61,7 +61,22 @@ let passes = [
 let nextId = 100;
 
 // A walk-in waiting for the demo resident's approval (Figma H01 alert).
-let residentWalkin = { guest: 'Juan Reyes', purpose: 'Lalamove delivery', address: 'Avila St., Block 5, Lot 12', vehicle: 'Motorcycle 123 ABC', requestedAt: new Date().toISOString(), windowSec: 180 };
+let walkins = [
+  { id: 1, status: 'pending', guest: 'Juan Reyes', purpose: 'Lalamove delivery', address: 'Avila St., Block 5, Lot 12', vehicle: 'Motorcycle 123 ABC',
+    requestedAt: new Date().toISOString(), windowSec: 180, PropertyId: 1, resident: { name: 'Juan Dela Cruz', contact: '0917 555 0101' } },
+];
+const pendingFor = (propId) => walkins.find((w) => w.status === 'pending' && (propId == null || w.PropertyId === propId));
+const tickWalkins = () => walkins.forEach((w) => {
+  const age = (Date.now() - new Date(w.requestedAt)) / 1000;
+  // Demo only: guard-created requests are approved by a simulated resident after 8 s.
+  if (w.status === 'pending' && w.simulated && age > 8) Object.assign(w, { status: 'approved', decidedAt: new Date().toISOString() });
+  if (w.status === 'pending' && age > w.windowSec) w.status = 'expired';
+});
+let incidents = [
+  { id: 142, code: 'INC-2026-0142', type: 'facility', severity: 'critical', title: 'Barrier damage at main gate', description: 'Barrier arm hit by a delivery truck; stuck half open.', location: 'Main Gate', status: 'open', createdAt: minutesAgo(152), reportedBy: 'guard_alpha' },
+  { id: 141, code: 'INC-2026-0141', type: 'visitor', severity: 'high', title: 'Visitor refused to show ID', description: null, location: 'Main Gate', status: 'open', createdAt: minutesAgo(400), reportedBy: 'guard_beta' },
+  { id: 140, code: 'INC-2026-0140', type: 'security', severity: 'normal', title: 'Streetlight out near Block 8', description: null, location: 'Toledo St.', status: 'resolved', createdAt: minutesAgo(3000), reportedBy: 'guard_alpha', resolvedBy: 'admin_test', resolution: 'Electrician replaced the bulb.' },
+];
 
 let activity = passes
   .filter((p) => p.scanned_at)
@@ -105,7 +120,7 @@ const currentUser = () => {
 const routes = [
   ['post', /^\/auth\/login$/, (_, body) => {
     const u = users.find((x) => x.username === String(body.username || '').trim());
-    if (!u) return [401, { success: false, message: 'Demo: use admin_demo, guard_alpha or juan_delacruz (any password).' }];
+    if (!u) return [401, { success: false, message: 'Demo: use admin_test, guard_alpha or juan_dela_cruz (any password).' }];
     return [200, loginPayload(u)];
   }],
 
@@ -239,7 +254,7 @@ const routes = [
     return [200, { success: true, data: {
       gate: { open: true, inside: 24, updated: new Date().toISOString() },
       attention: [
-        { id: 'inc', kind: 'incident', severity: 'critical', title: 'Barrier damage at main gate', meta: 'INC-2026-0142 · open 2h 32m · reported by M. Arevalo', action: 'Open incident' },
+        ...incidents.filter((i) => i.status === 'open' && i.severity === 'critical').map((i) => ({ id: `inc-${i.id}`, kind: 'incident', severity: 'critical', title: i.title, meta: `${i.code} · ${i.location} · reported by ${i.reportedBy}`, action: 'Open incident' })),
         { id: 'ovr', kind: 'overstay', severity: 'overdue', title: '2 visitors overstaying', meta: 'Camella St. B5 L12 · expected exit 9:30 AM', action: 'Notify hosts' },
         { id: 'doc', kind: 'documents', severity: 'overdue', title: '4 documents waiting more than 3 days', meta: 'Oldest: Juan Dela Cruz · OR/CR · submitted 3 days ago', action: 'Review' },
         { id: 'lea', kind: 'leases', severity: 'upcoming', title: '6 leases expiring within 30 days', meta: 'Next: Maria Santos · Acacia St. B2 L8 · 22 days left', action: 'Send reminders' },
@@ -280,7 +295,7 @@ const routes = [
   }],
 
   ['get', /^\/dashboard\/resident$/, () => [200, { success: true, data: {
-    walkin: residentWalkin,
+    walkin: (tickWalkins(), pendingFor(1) || null),
     setup: { done: 3, total: 5, steps: [
       { label: 'Confirm profile', state: 'done' }, { label: 'Add household members', state: 'current' },
       { label: 'Add tenants if leased', state: 'done' }, { label: 'Register vehicles', state: 'done' },
@@ -306,23 +321,66 @@ const routes = [
       { icon: 'doc', time: minutesAgo(50), title: 'Your OR needs a clearer copy', body: 'The HOA rejected your OR for NBC 1234: image is blurred.', action: 'Re-upload document' },
     ],
   } }]],
-  ['post', /^\/dashboard\/resident\/walkin$/, (_, b) => {
-    if (residentWalkin) {
-      if (b.decision === 'approve') {
-        const p = mkPass({ id: nextId++, guest: residentWalkin.guest, prop: 1, status: 'checked_in', in: 0, purpose: residentWalkin.purpose });
-        passes.unshift(p);
-        activity.push({ id: nextId++, GatePassId: p.id, action: 'entry', scanned_at: p.scanned_at, scanned_by: 2 });
-      }
-      residentWalkin = null;
+  // Walk-in approvals
+  ['post', /^\/walkins$/, (_, b) => {
+    const prop = properties.find((x) => x.id === +b.property_id); const r = residentOf(prop);
+    const w = { id: nextId++, status: 'pending', guest: b.visitor_name, purpose: b.purpose, vehicle: b.vehicle_plate, requestedAt: new Date().toISOString(), windowSec: 180,
+      PropertyId: prop?.id, simulated: true, address: prop ? `${prop.street}, Block ${prop.block}, Lot ${prop.lot}` : '', resident: r ? { name: r.full_name, contact: r.contact_number } : null };
+    walkins.unshift(w);
+    return [201, { success: true, message: 'Resident notified. Waiting for approval.', data: w }];
+  }],
+  ['get', /^\/walkins\/mine$/, () => { tickWalkins(); return [200, { success: true, data: walkins.filter((w) => w.status === 'pending' && w.PropertyId === 1) }]; }],
+  ['get', /^\/walkins\/(\d+)$/, ([id]) => { tickWalkins(); const w = walkins.find((x) => x.id === +id); return w ? [200, { success: true, data: w }] : [404, { success: false, message: 'Request not found.' }]; }],
+  ['post', /^\/walkins\/(\d+)\/decision$/, ([id], b) => {
+    tickWalkins(); const w = walkins.find((x) => x.id === +id);
+    if (!w || w.status !== 'pending') return [409, { success: false, message: `This request is already ${w?.status || 'gone'}.` }];
+    Object.assign(w, { status: b.decision === 'approve' ? 'approved' : 'denied', decidedAt: new Date().toISOString(), decisionNote: b.note || null });
+    if (b.decision === 'approve' && !w.simulated) {
+      // Nobody is at the demo gate tablet, so admit straight away to keep the data consistent.
+      const p = mkPass({ id: nextId++, guest: w.guest, prop: w.PropertyId, status: 'checked_in', in: 0, purpose: w.purpose });
+      passes.unshift(p); activity.push({ id: nextId++, GatePassId: p.id, action: 'entry', scanned_at: p.scanned_at, scanned_by: 2 });
+      w.status = 'admitted';
     }
-    return [200, { success: true, message: b.decision === 'approve' ? 'Visitor approved — the guard has been notified.' : 'Visitor denied — the guard has been notified.' }];
+    return [200, { success: true, message: b.decision === 'approve' ? 'Visitor approved — the guard has been notified.' : 'Visitor denied — the guard has been notified.', data: w }];
+  }],
+  ['post', /^\/walkins\/(\d+)\/admit$/, ([id], b) => {
+    tickWalkins(); const w = walkins.find((x) => x.id === +id);
+    if (!w) return [404, { success: false, message: 'Request not found.' }];
+    if (w.status !== 'approved' && !(w.status === 'expired' && b.override_reason)) return [409, { success: false, message: 'Wait for the resident, or give a reason to admit after the time runs out.' }];
+    const p = mkPass({ id: nextId++, guest: w.guest, prop: w.PropertyId, status: 'checked_in', in: 0, purpose: w.purpose, plate: w.vehicle });
+    p.scanned_by = currentUser()?.id || 2; passes.unshift(p);
+    activity.push({ id: nextId++, GatePassId: p.id, action: 'entry', scanned_at: p.scanned_at, scanned_by: p.scanned_by });
+    w.status = 'admitted';
+    return [200, { success: true, message: 'Entry logged.', data: w }];
+  }],
+
+  // Incidents & SOS
+  ['get', /^\/incidents$/, (_, __, q) => {
+    const st = q.get('status'); const rank = { critical: 0, high: 1, normal: 2 };
+    const rows = incidents.filter((i) => !st || i.status === st).sort((a, b) => (a.status === b.status ? rank[a.severity] - rank[b.severity] : a.status === 'open' ? -1 : 1));
+    return [200, { success: true, data: rows }];
+  }],
+  ['post', /^\/incidents\/sos$/, () => {
+    const id = nextId++; const i = { id, code: `INC-2026-${String(id).padStart(4, '0')}`, type: 'sos', severity: 'critical', title: 'SOS from Main Gate', description: 'Emergency alert raised from the guard tablet.', location: 'Main Gate', status: 'open', createdAt: new Date().toISOString(), reportedBy: currentUser()?.username };
+    incidents.unshift(i); return [201, { success: true, message: 'SOS sent. The HOA office has been alerted.', data: i }];
+  }],
+  ['post', /^\/incidents$/, (_, b) => {
+    if (!b.title?.trim()) return [400, { success: false, message: 'A short title is required.' }];
+    const id = nextId++; const i = { id, code: `INC-2026-${String(id).padStart(4, '0')}`, type: b.type || 'other', severity: b.severity || 'normal', title: b.title, description: b.description || null, location: b.location || 'Main Gate', status: 'open', createdAt: new Date().toISOString(), reportedBy: currentUser()?.username };
+    incidents.unshift(i); return [201, { success: true, message: `Incident ${i.code} reported. The HOA office has been notified.`, data: i }];
+  }],
+  ['patch', /^\/incidents\/(\d+)\/resolve$/, ([id], b) => {
+    const i = incidents.find((x) => x.id === +id);
+    if (!i) return [404, { success: false, message: 'Incident not found.' }];
+    if (!b.resolution?.trim()) return [400, { success: false, message: 'Add a short resolution note before closing.' }];
+    Object.assign(i, { status: 'resolved', resolution: b.resolution, resolvedBy: currentUser()?.username, resolvedAt: new Date().toISOString() }); return [200, { success: true, message: `${i.code} resolved.`, data: i }];
   }],
 
   ['get', /^\/dashboard\/guard$/, () => {
     const today = activity.filter((a) => isToday(a.scanned_at));
     return [200, { success: true, data: {
       shift: 'Day shift · 7 AM–7 PM',
-      approvalsWaiting: residentWalkin ? 1 : 0,
+      approvalsWaiting: (tickWalkins(), walkins.filter((w) => w.status === 'pending').length),
       notice: { title: 'HOA notice · 1–5 PM', body: 'Acacia St. road works — send deliveries via Service Gate' },
       today: { entries: 43 + today.filter((a) => a.action === 'entry').length, exits: 41 + today.filter((a) => a.action === 'exit').length, inside: passes.filter((p) => p.status === 'checked_in').length },
       lastScans: [...activity].sort((a, b) => new Date(b.scanned_at) - new Date(a.scanned_at)).slice(0, 2).map((a) => ({ name: passes.find((p) => p.id === a.GatePassId)?.guest_name, time: a.scanned_at, dir: a.action })),
@@ -362,7 +420,7 @@ export const demoAdapter = async (config) => {
 };
 
 export const DEMO_ACCOUNTS = [
-  { role: 'Admin', username: 'admin_demo', note: 'HOA office' },
-  { role: 'Resident', username: 'juan_delacruz', note: 'Homeowner, B5 L12' },
+  { role: 'Admin', username: 'admin_test', note: 'HOA office' },
+  { role: 'Resident', username: 'juan_dela_cruz', note: 'Homeowner, B5 L12' },
   { role: 'Guard', username: 'guard_alpha', note: 'Tablet console' },
 ];

@@ -155,10 +155,10 @@ const LoginForm = () => {
               </button>
             </form>
 
-            {IS_DEMO && (
+            {(IS_DEMO || import.meta.env.VITE_QUICK_LOGIN === 'true') && (
               <div className="mt-8 rounded-2xl border border-line bg-surface-subtle p-4">
-                <p className="text-[13px] font-bold uppercase tracking-[0.08em] text-ink-muted">Demo — no backend</p>
-                <p className="mt-1 text-[14px] text-ink-muted">Pick a role to explore. Sample data resets when you reload.</p>
+                <p className="text-[13px] font-bold uppercase tracking-[0.08em] text-ink-muted">{IS_DEMO ? 'Demo — sample data' : 'Demo accounts'}</p>
+                <p className="mt-1 text-[14px] text-ink-muted">{IS_DEMO ? 'Pick a role to explore. Sample data resets when you reload.' : 'Pick a role to sign in with a test account (password Password@123).'}</p>
                 <div className="mt-3 grid gap-2">
                   {DEMO_ACCOUNTS.map((a) => (
                     <button
@@ -169,7 +169,7 @@ const LoginForm = () => {
                         setError('');
                         setLoading(true);
                         try {
-                          const u = await login(a.username, 'demo');
+                          const u = await login(a.username, 'Password@123');
                           navigate(ROLE_REDIRECT[u.role] || '/login', { replace: true });
                         } catch (err) {
                           setError(err.response?.data?.message || 'Demo login failed.');

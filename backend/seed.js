@@ -10,7 +10,7 @@ const seedDatabase = async () => {
     await sequelize.authenticate();
     
     // Ensure tables exist
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
 
     // 1. Create Admins and Guards
     const passHash = await bcrypt.hash('Password@123', 10);
@@ -71,11 +71,15 @@ const seedDatabase = async () => {
     console.log('- guard_alpha / Password@123');
     console.log('- juan_dela_cruz / Password@123');
     
-    process.exit(0);
   } catch (error) {
     console.error('❌ Seeding failed:', error);
-    process.exit(1);
+    throw error;
   }
 };
 
-seedDatabase();
+module.exports = { seedDatabase };
+
+// `npm run seed` runs this file directly.
+if (require.main === module) {
+  seedDatabase().then(() => process.exit(0)).catch(() => process.exit(1));
+}

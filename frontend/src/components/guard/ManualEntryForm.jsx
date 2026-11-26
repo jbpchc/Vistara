@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import WalkinWaiting from '@/components/guard/WalkinWaiting';
 
 const ManualEntryForm = () => {
   const { toast } = useToast();
@@ -29,6 +30,7 @@ const ManualEntryForm = () => {
     notes: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [request, setRequest] = useState(null); // pending walk-in approval
 
   const debouncedQuery = useDebounce(searchQuery, 350);
 
@@ -104,7 +106,8 @@ const ManualEntryForm = () => {
 
     setIsSubmitting(true);
     try {
-      await api.post('/logs/manual', {
+      // Ask the resident first (Figma G04 → G05). The guard admits once they approve.
+      const r = await api.post('/walkins', {
         property_id: selected.property_id,
         visitor_name: form.visitor_name.trim(),
         visitor_id: finalId,
@@ -112,22 +115,27 @@ const ManualEntryForm = () => {
         vehicle_plate: form.vehicle_plate.trim(),
         notes: form.notes.trim(),
       });
-
-      toast({
-        variant: 'success',
-        title: '✅ Entry Logged Successfully',
-        description: `${form.visitor_name} visiting Block ${selected.block} Lot ${selected.lot}`,
-      });
-
-      setForm({ visitor_name: '', id_type: 'Drivers License', other_id: '', purpose: '', vehicle_plate: '', notes: '' });
-      handleClearSelection();
+      setRequest(r.data.data);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to log entry. Please try again.';
-      toast({ variant: 'destructive', title: 'Log Failed', description: msg });
+      const msg = err.response?.data?.message || 'Could not send the request. Please try again.';
+      toast({ variant: 'destructive', title: 'Request failed', description: msg });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (request) {
+    return (
+      <WalkinWaiting
+        request={request}
+        onDone={() => {
+          setRequest(null);
+          setForm({ visitor_name: '', id_type: 'Drivers License', other_id: '', purpose: '', vehicle_plate: '', notes: '' });
+          handleClearSelection();
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in max-w-3xl mx-auto">
@@ -338,13 +346,13 @@ const ManualEntryForm = () => {
             <button
               id="manual-entry-submit-btn"
               type="submit"
-              className="w-full h-12 flex items-center justify-center gap-2 bg-g-warn hover:bg-g-warn/90 text-g-on-accent font-bold rounded-lg transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full h-12 flex items-center justify-center gap-2 bg-g-accent hover:bg-g-accent/90 text-g-on-accent font-bold rounded-full transition-all active:scale-[0.98] disabled:opacity-50"
               disabled={isSubmitting || !selected}
             >
               {isSubmitting ? (
-                <><Loader2 className="w-5 h-5 animate-spin" /> Logging Entry…</>
+                <><Loader2 className="w-5 h-5 animate-spin" /> Sending request…</>
               ) : (
-                <><ClipboardSignature className="w-5 h-5" /> Log Visitor Entry</>
+                <><ClipboardSignature className="w-5 h-5" /> Ask resident to approve</>
               )}
             </button>
           </form>

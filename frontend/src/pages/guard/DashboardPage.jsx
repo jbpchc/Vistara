@@ -140,7 +140,7 @@ const GuardDashboard = () => {
                 {d.expected.map((e) => (
                   <li key={e.name} className="flex items-start gap-3">
                     {e.vehicle ? <Car className="w-5 h-5 mt-0.5 text-g-text-2" aria-hidden="true" /> : <Ticket className="w-5 h-5 mt-0.5 text-g-text-2" aria-hidden="true" />}
-                    <span><span className="block text-[16px] font-semibold text-g-text">{e.name}</span><span className="block text-[14px] text-g-text-2">{format(new Date(e.time), 'h:mm a')} · {e.where}</span></span>
+                    <span><span className="block text-[16px] font-semibold text-g-text">{e.name}</span><span className="block text-[14px] text-g-text-2">{e.time ? format(new Date(e.time), 'h:mm a') : 'Today'} · {e.where}</span></span>
                   </li>
                 ))}
               </ul>
@@ -153,7 +153,7 @@ const GuardDashboard = () => {
       <div className="mt-6 rounded-card border border-g-border bg-g-surface p-4 flex flex-wrap gap-3">
         <Link to="/guard/scan?manual=1" className="inline-flex items-center h-14 px-6 rounded-full bg-g-accent text-g-on-accent text-[17px] font-semibold">Enter code manually</Link>
         <Link to="/guard/manual-entry" className="inline-flex items-center h-14 px-6 rounded-full border border-g-border text-g-text text-[17px] font-semibold hover:border-g-accent">Walk-in (no pass)</Link>
-        <Link to="/planned/incidents" className="inline-flex items-center h-14 px-6 rounded-full border border-g-border text-g-text text-[17px] font-semibold hover:border-g-accent">Report incident</Link>
+        <Link to="/guard/incidents" className="inline-flex items-center h-14 px-6 rounded-full border border-g-border text-g-text text-[17px] font-semibold hover:border-g-accent">Report incident</Link>
       </div>
     </div>
   );

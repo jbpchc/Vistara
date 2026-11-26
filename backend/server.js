@@ -17,6 +17,7 @@ const logsRoutes     = require('./routes/logs.routes');
 const passesRoutes   = require('./routes/passes.routes');
 const adminRoutes    = require('./routes/admin.routes');
 const guardRoutes    = require('./routes/guard.routes');
+const coreRoutes     = require('./routes/dashboard.routes'); // dashboards, walk-ins, incidents
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -66,7 +67,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
     status: 'OK',
-    service: 'Camella GuardTrack API',
+    service: 'Vistara API',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
   });
@@ -80,6 +81,7 @@ app.use('/api/logs',       logsRoutes);
 app.use('/api/passes',     passesRoutes);
 app.use('/api/admin',      adminRoutes);
 app.use('/api/guard',      guardRoutes);
+app.use('/api',            coreRoutes);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((req, res) => {
@@ -102,6 +104,14 @@ const startServer = async () => {
   // Sync all models — avoiding { alter: true } because of MySQL unique key duplication bug
   await sequelize.sync();
   console.log('✅ Database synchronized.');
+
+  // First deploy on an empty database: create the demo accounts and sample data.
+  if (process.env.SEED_ON_START === 'true') {
+    const { User } = require('./models');
+    if ((await User.count()) === 0) {
+      await require('./seed').seedDatabase();
+    }
+  }
 
   app.listen(PORT, () => {
     console.log(`🚀 Camella GuardTrack API running on http://localhost:${PORT}`);

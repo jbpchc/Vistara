@@ -1,4 +1,4 @@
-# Deploys the frontend to GitHub Pages in demo mode (no backend needed).
+# Deploys the frontend to GitHub Pages: live mode if VITE_API_BASE_URL is set, demo mode otherwise.
 # Live URL: https://jbpchc.github.io/Vistara/
 # One-time setup: repo Settings → Pages → Source: "GitHub Actions".
 name: Deploy demo to GitHub Pages
@@ -31,10 +31,14 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
-      - name: Build (demo mode, served from /Vistara/)
+      # Live mode when the repo variable VITE_API_BASE_URL is set (Settings → Secrets and variables
+      # → Actions → Variables), e.g. https://vistara-api.onrender.com/api. Otherwise demo mode.
+      - name: Build (served from /Vistara/)
         run: npx vite build
         env:
-          VITE_DEMO: "true"
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_DEMO: ${{ vars.VITE_API_BASE_URL == '' && 'true' || 'false' }}
+          VITE_QUICK_LOGIN: "true"
           VITE_BASE: /${{ github.event.repository.name }}/
       # GitHub Pages has no SPA rewrites: serve index.html for deep links like /Vistara/admin/dashboard
       - run: cp dist/index.html dist/404.html

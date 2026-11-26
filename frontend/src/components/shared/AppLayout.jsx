@@ -72,9 +72,9 @@ const ADMIN_NAV = [
     { to: '/planned/watchlist', icon: ShieldAlert, label: 'Watchlist' },
   ] },
   { group: 'Review queues', items: [
-    { to: '/planned/documents', icon: FileText, label: 'Documents', badge: 12 },
-    { to: '/planned/item-passes', icon: Package, label: 'Item gate passes', badge: 7 },
-    { to: '/planned/incidents', icon: TriangleAlert, label: 'Incidents', badge: 5 },
+    { to: '/planned/documents', icon: FileText, label: 'Documents' },
+    { to: '/planned/item-passes', icon: Package, label: 'Item gate passes' },
+    { to: '/admin/incidents', icon: TriangleAlert, label: 'Incidents', badgeKey: 'incidents' },
   ] },
   { group: 'Registry', items: [
     { to: '/admin/properties', icon: House, label: 'Properties' },
@@ -92,10 +92,10 @@ const ADMIN_NAV = [
 
 const ADMIN_TITLES = {
   '/admin/dashboard': 'Dashboard', '/admin/residents': 'Residents & households', '/admin/users': 'Users & roles',
-  '/admin/properties': 'Properties', '/guard/logs': 'Gate log',
+  '/admin/properties': 'Properties', '/guard/logs': 'Gate log', '/admin/incidents': 'Incidents',
 };
 
-const AdminSidebar = ({ open, onToggle, insideCount }) => {
+const AdminSidebar = ({ open, onToggle, counts }) => {
   const { user } = useAuth();
   const loc = useLocation();
   const [menu, setMenu] = useState(false);
@@ -126,7 +126,7 @@ const AdminSidebar = ({ open, onToggle, insideCount }) => {
             <ul className="space-y-0.5">
               {items.map((it) => {
                 const active = isActive(it);
-                const badge = it.badgeKey === 'inside' ? insideCount : it.badge;
+                const badge = it.badgeKey ? (counts[it.badgeKey] || null) : it.badge;
                 return (
                   <li key={it.label}>
                     <Link to={it.to} title={open ? undefined : it.label} aria-current={active ? 'page' : undefined}
@@ -214,9 +214,26 @@ const AdminShell = ({ children }) => {
 
   const title = loc.pathname.startsWith('/planned') ? 'Planned screen' : ADMIN_TITLES[loc.pathname] || 'Dashboard';
 
+  // Live counts for the sidebar badges and the gate status pill.
+  const [counts, setCounts] = useState({ inside: null, incidents: null });
+  useEffect(() => {
+    let off = false;
+    const pull = async () => {
+      const [s, i] = await Promise.allSettled([api.get('/guard/stats'), api.get('/incidents?status=open')]);
+      if (off) return;
+      setCounts({
+        inside: s.status === 'fulfilled' ? s.value.data.data?.currently_inside ?? null : null,
+        incidents: i.status === 'fulfilled' ? (i.value.data.data || []).length : null,
+      });
+    };
+    pull();
+    const t = setInterval(pull, 30000);
+    return () => { off = true; clearInterval(t); };
+  }, [loc.pathname]);
+
   return (
     <div className="flex min-h-screen bg-surface-canvas">
-      <AdminSidebar open={open} onToggle={() => setOpen((o) => !o)} insideCount={24} />
+      <AdminSidebar open={open} onToggle={() => setOpen((o) => !o)} counts={counts} />
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-[76px] px-6 lg:px-10 flex items-center justify-between gap-4 sticky top-0 z-30 bg-surface-canvas/90 backdrop-blur">
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[14px]">
@@ -231,7 +248,7 @@ const AdminShell = ({ children }) => {
                 <span className={`w-2 h-2 rounded-full ${online ? 'bg-status-ok' : 'bg-status-warn'}`} />
               </span>
               <span className="font-semibold text-ink">{online ? 'Gate open' : 'Offline'}</span>
-              <span className="text-ink-muted">· 24 inside · updated {format(now, 'h:mm a')}</span>
+              <span className="text-ink-muted">· {counts.inside ?? '—'} inside · updated {format(now, 'h:mm a')}</span>
             </span>
             <form role="search" onSubmit={(e) => { e.preventDefault(); navigate(`/guard/logs${q ? `?search=${encodeURIComponent(q)}` : ''}`); }}
               className="hidden md:flex items-center gap-2 h-11 pl-4 pr-2 w-[260px] rounded-full border border-input bg-surface-card focus-within:ring-2 focus-within:ring-brand">
@@ -241,9 +258,8 @@ const AdminShell = ({ children }) => {
               <kbd className="h-7 min-w-[28px] px-2 rounded-lg bg-surface-subtle text-[13px] font-mono text-ink-muted flex items-center justify-center">/</kbd>
             </form>
             <NewMenu />
-            <Link to="/planned/notifications" aria-label="Notifications, 3 unread" className="relative w-11 h-11 rounded-full border border-line bg-surface-card flex items-center justify-center hover:bg-surface-subtle">
+            <Link to="/planned/notifications" aria-label="Notifications" className="relative w-11 h-11 rounded-full border border-line bg-surface-card flex items-center justify-center hover:bg-surface-subtle">
               <Bell className="w-5 h-5 text-ink" aria-hidden="true" />
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-status-danger text-brand-on text-[11px] font-bold flex items-center justify-center">3</span>
             </Link>
           </div>
         </header>
@@ -290,9 +306,8 @@ const ResidentShell = ({ children }) => {
             <Link to="/resident/passes#new-pass" className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
               <Plus className="w-4 h-4" aria-hidden="true" /> New visitor pass
             </Link>
-            <Link to="/planned/activity" aria-label="Notifications, 3 unread" className="relative w-11 h-11 rounded-full border border-line flex items-center justify-center hover:bg-surface-subtle">
+            <Link to="/planned/activity" aria-label="Notifications" className="relative w-11 h-11 rounded-full border border-line flex items-center justify-center hover:bg-surface-subtle">
               <Bell className="w-5 h-5 text-ink" aria-hidden="true" />
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-home-ink text-brand-on text-[11px] font-bold flex items-center justify-center">3</span>
             </Link>
             <div ref={ref} className="relative">
               <button onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu} aria-label="Account menu"
@@ -325,21 +340,25 @@ const ResidentShell = ({ children }) => {
 const SosButton = () => {
   const [state, setState] = useState('idle'); // idle | holding | sent
   const timer = useRef(null);
-  const start = () => { setState('holding'); timer.current = setTimeout(() => setState('sent'), 2000); };
+  const send = async () => {
+    try { await api.post('/incidents/sos', { location: 'Main Gate' }); setState('sent'); }
+    catch { setState('failed'); }
+  };
+  const start = () => { if (state !== 'idle') return; setState('holding'); timer.current = setTimeout(send, 2000); };
   const cancel = () => { if (state === 'holding') { clearTimeout(timer.current); setState('idle'); } };
-  useEffect(() => { if (state === 'sent') { const t = setTimeout(() => setState('idle'), 4000); return () => clearTimeout(t); } }, [state]);
+  useEffect(() => { if (state === 'sent' || state === 'failed') { const t = setTimeout(() => setState('idle'), 5000); return () => clearTimeout(t); } return undefined; }, [state]);
   return (
     <button
       onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel}
       onKeyDown={(e) => { if ((e.key === ' ' || e.key === 'Enter') && state === 'idle') start(); }} onKeyUp={cancel}
       aria-label="SOS — press and hold for 2 seconds to alert the HOA office"
-      className={`relative overflow-hidden flex flex-col items-center justify-center gap-0.5 w-[88px] h-[76px] rounded-[20px] text-g-bar-text select-none ${state === 'sent' ? 'bg-g-ok-bg text-g-ok' : 'bg-g-danger-solid'}`}
+      className={`relative overflow-hidden flex flex-col items-center justify-center gap-0.5 w-[88px] h-[76px] rounded-[20px] text-g-bar-text select-none ${state === 'sent' ? 'bg-g-ok-bg text-g-ok' : state === 'failed' ? 'bg-g-warn-bg text-g-warn' : 'bg-g-danger-solid'}`}
     >
       {state === 'holding' && <span className="absolute inset-y-0 left-0 bg-black/25 animate-[sosfill_2s_linear_forwards]" />}
       <Siren className="relative w-6 h-6" aria-hidden="true" />
-      <span className="relative text-[14px] font-bold">{state === 'sent' ? 'Sent' : 'SOS'}</span>
-      <span className="relative text-[11px] opacity-90">{state === 'sent' ? 'Office alerted' : state === 'holding' ? 'Keep holding' : 'Hold 2s'}</span>
-      <span role="status" className="sr-only">{state === 'sent' ? 'SOS alert sent to the HOA office' : ''}</span>
+      <span className="relative text-[14px] font-bold">{state === 'sent' ? 'Sent' : state === 'failed' ? 'Retry' : 'SOS'}</span>
+      <span className="relative text-[11px] opacity-90">{state === 'sent' ? 'Office alerted' : state === 'failed' ? 'Call office' : state === 'holding' ? 'Keep holding' : 'Hold 2s'}</span>
+      <span role="status" className="sr-only">{state === 'sent' ? 'SOS alert sent to the HOA office' : state === 'failed' ? 'SOS could not be sent. Call the HOA office.' : ''}</span>
     </button>
   );
 };
@@ -378,7 +397,7 @@ const GuardShell = ({ children }) => {
     { to: '/guard/manual-entry', icon: UserPlus, label: 'Walk-in' },
     { to: '/guard/logs?status=checked_in', icon: Users, label: 'Inside', badge: live.inside || null, active: loc.pathname === '/guard/logs' && loc.search.includes('checked_in') },
     { to: '/guard/logs', icon: History, label: 'Gate log', active: loc.pathname === '/guard/logs' && !loc.search.includes('checked_in') },
-    { to: '/planned/incidents', icon: TriangleAlert, label: 'Incidents' },
+    { to: '/guard/incidents', icon: TriangleAlert, label: 'Incidents' },
     { to: '/planned/patrol', icon: Route, label: 'Patrol' },
     { to: '/planned/more', icon: LayoutGrid, label: 'More' },
   ];

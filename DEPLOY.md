@@ -1,72 +1,50 @@
 # Deploying Vistara
 
-## Option A: GitHub Pages demo (no backend). Used for the semi-final.
-The frontend is built with `VITE_DEMO=true`, so a fake in-browser API (`frontend/src/api/demo.js`) answers every request with sample data.
-The login screen shows **Continue as Admin / Resident / Guard** buttons. Changes reset when the page is reloaded.
-
-1. Go to repo **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**.
-2. Push to `main`, or open **Actions → Deploy demo to GitHub Pages → Run workflow**.
-3. The site goes live at **https://jbpchc.github.io/Vistara/**.
-
-> GitHub Pages on a **private** repo needs GitHub Pro. It's free with the GitHub Student Developer Pack. Otherwise make the repo public.
-
-To run the demo locally: `cd frontend && VITE_DEMO=true npm run dev`.
-
-## Option B: Full stack (real database). Use this for the final defense.
-
-The whole setup is free:
-
-| Part | Host | Why |
+| Part | Host | Notes |
 |---|---|---|
-| Database (MySQL) | **TiDB Cloud Starter** | It speaks MySQL, so the Sequelize code works unchanged. Free tier, no card. |
-| API (`backend/`) | **Render web service** (free) | Node and Express, deployed from GitHub. |
-| Web app (`frontend/`) | **Render static site** (free) | Always on, with no cold start. |
+| Web app (`frontend/`) | **GitHub Pages** — https://jbpchc.github.io/Vistara/ | Built by `.github/workflows/deploy-pages.yml` on every push |
+| API (`backend/`) | **Render** free web service | `render.yaml` blueprint |
+| Database | **TiDB Cloud Starter** (MySQL-compatible, free) | TLS required (`DB_SSL=true`) |
 
-> The free API **sleeps after 15 minutes idle**, and the first request then takes about 1 minute.
-> Open the site about 2 minutes before anyone grades or demos it.
+Without the API, the web app runs in **demo mode** (in-browser sample data). Once the repo variable
+`VITE_API_BASE_URL` is set, Pages rebuilds in **live mode** against the real API and database.
 
-## 1. Database: TiDB Cloud (about 5 min)
-1. Sign up at https://tidbcloud.com and create a **Starter** cluster. Pick a region close to Singapore.
-2. In **Connect**, choose "General" / Node.js. Note the host, the port (4000), the user (it looks like `xxxx.root`) and the password.
-3. Open the **SQL Editor** and run:
-   ```sql
-   CREATE DATABASE vistara;
-   ```
+## 1. Database — TiDB Cloud (~5 min)
+1. Sign up at https://tidbcloud.com → create a **Starter** cluster (region: Singapore if offered).
+2. **Connect** → note **host**, **port 4000**, **user** (looks like `xxxx.root`) and generate a **password**.
+3. **SQL Editor** → run `CREATE DATABASE vistara;`
 
-## 2. API and web app: Render Blueprint (about 10 min)
-1. Sign up at https://render.com with GitHub and allow access to `jbpchc/Vistara`.
-2. Go to **New → Blueprint**, pick `Vistara`, and click **Apply**. It reads `render.yaml` and creates `vistara-api` and `vistara-web`.
-3. When asked, fill in these values:
+## 2. API — Render (~5 min)
+1. Sign up at https://render.com with GitHub; allow access to `jbpchc/Vistara`.
+2. **New → Blueprint** → pick `Vistara` → **Apply**.
+3. Fill in `DB_HOST`, `DB_USER`, `DB_PASSWORD` from TiDB. Everything else is preset.
+4. Wait for **Live**, then open `https://<your-service>.onrender.com/api/health` → `"status":"OK"`.
+   The first start creates the tables and the demo accounts (`SEED_ON_START=true`).
 
-   | Key | Value |
-   |---|---|
-   | `DB_HOST` | Host from TiDB |
-   | `DB_USER` | User from TiDB |
-   | `DB_PASSWORD` | Password from TiDB |
-   | `FRONTEND_URL` | `https://vistara-web.onrender.com`. Use the real URL Render shows. |
-   | `VITE_API_BASE_URL` | `https://vistara-api.onrender.com/api`. Keep the `/api` at the end. |
+## 3. Switch the web app to live mode (~1 min)
+1. GitHub repo → **Settings → Secrets and variables → Actions → Variables → New repository variable**
+   - Name: `VITE_API_BASE_URL`  Value: `https://<your-service>.onrender.com/api`
+2. **Actions → Deploy demo to GitHub Pages → Run workflow** (or push any commit).
 
-4. Wait until both services show **Live**. The API creates its tables on first start (`sequelize.sync`).
-5. Check that the API is up: open `https://vistara-api.onrender.com/api/health`. It should return `"status":"OK"`.
+## Accounts (created by the seed)
+| Role | Username | Password |
+|---|---|---|
+| Admin | `admin_test` | `Password@123` |
+| Guard | `guard_alpha` | `Password@123` |
+| Resident | `juan_dela_cruz` | `Password@123` |
 
-## 3. Demo accounts
-In Render, go to **vistara-api → Shell** and run:
-```bash
-npm run seed
-```
-This creates the accounts `admin_test`, `guard_alpha` and `juan_dela_cruz`. All use the password from `seed.js`.
-**Change these passwords after grading.** The site is public.
+The login screen shows **Continue as Admin / Resident / Guard** buttons for these accounts.
+Change the passwords after grading — the site is public.
 
-## 4. Finish
-- Put the web URL in `README.md` under "Deployed link".
-- If you changed `FRONTEND_URL` or `VITE_API_BASE_URL`, redeploy that service.
-  - Vite reads `VITE_*` only at build time.
+## Notes
+- The free API **sleeps after 15 minutes idle**; the first request then takes ~1 minute. Open the site a couple of minutes before a demo.
+- To test the full flow: Guard → Walk-in (no pass) → *Ask resident to approve* → in another browser, Resident → **Approve** → Guard → **Admit**.
+- Local development without MySQL: `DB_DIALECT=sqlite DB_STORAGE=./dev.db SEED_ON_START=true JWT_SECRET=dev npm start` (needs `npm i --no-save sqlite3`).
 
 ## Troubleshooting
-| Symptom | Cause → fix |
+| Symptom | Fix |
 |---|---|
-| The API log shows `Database connection failed` | Wrong TiDB host, user or password, or `DB_SSL` isn't `true` → fix the env vars in Render and redeploy. |
-| The browser console shows a CORS error | `FRONTEND_URL` doesn't exactly match the site URL. It must use https and have no trailing slash. |
-| Login does nothing; requests go to `/api/...` on the static site | `VITE_API_BASE_URL` was missing at build → set it, then go to **Manual Deploy → Clear cache & deploy**. |
-| Refreshing `/admin/dashboard` gives a 404 | The SPA rewrite is missing → it's in `render.yaml`; reapply the Blueprint. |
-| The first load is very slow | The free API was asleep. Wait about 1 minute. |
+| API log: `Database connection failed` | Check TiDB host/user/password; `DB_SSL` must be `true` |
+| Browser: CORS error | `FRONTEND_URL` must be exactly `https://jbpchc.github.io` (no path, no trailing slash) |
+| Site still shows "Demo — sample data" | Variable name must be `VITE_API_BASE_URL`; re-run the Pages workflow |
+| First load very slow | Free API was asleep — wait ~1 minute |

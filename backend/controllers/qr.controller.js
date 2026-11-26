@@ -2,7 +2,7 @@
 
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
-const { GatePass, Property, Resident, ActivityLog } = require('../models');
+const { GatePass, Property, Resident, ActivityLog, ScanDenial } = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -104,6 +104,15 @@ const generatePass = async (req, res) => {
  * Validates a QR token, marks pass as 'used', logs the guard's ID.
  */
 const validatePass = async (req, res) => {
+  // Record every refused scan so the HOA dashboard can show denied scans.
+  const sendJson = res.json.bind(res);
+  res.json = (body) => {
+    if (body && body.valid === false && body.reason) {
+      ScanDenial.create({ reason: body.reason, guest_name: body.data?.guest_name || null, scanned_by: req.user?.id || null })
+        .catch((e) => console.error('[QR] denial log failed:', e.message));
+    }
+    return sendJson(body);
+  };
   try {
     const { qr_token, check_only = false, plate_number = '', is_walkin = false, notes = '' } = req.body;
 

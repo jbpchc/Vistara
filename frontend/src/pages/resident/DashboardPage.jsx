@@ -37,7 +37,7 @@ const WalkinAlert = ({ w, onDecide, busy }) => {
       <div className="min-w-0">
         <p id="walkin-title" className="flex items-center gap-2 text-[15px] font-bold text-status-danger"><DoorOpen className="w-5 h-5" aria-hidden="true" /> A visitor is waiting at the gate</p>
         <p className="mt-2 text-[17px] font-semibold text-ink">{w.guest} · {w.purpose}</p>
-        <p className="mt-1 text-[14px] text-ink-muted">{w.address} · {w.vehicle}</p>
+        <p className="mt-1 text-[14px] text-ink-muted">{[w.address, w.vehicle].filter(Boolean).join(' · ')}</p>
         <p className="mt-2.5 flex items-center gap-2 text-[13px]">
           <Badge variant="warning">Waiting</Badge>
           <span className="font-semibold text-status-danger tabular-nums">{format(new Date(w.requestedAt), 'h:mm a')} · {left > 0 ? `${mm}:${ss} left to respond` : 'Time is up — the guard will call you'}</span>
@@ -244,12 +244,13 @@ const ResidentDashboard = () => {
       .catch(() => legacyFeed().then(setD).catch(() => setError(true)))
       .finally(() => setUpdated(new Date()));
   }, []);
-  useEffect(() => { load(); }, [load]);
+  // Poll so a walk-in request shows up without refreshing (the guard is waiting).
+  useEffect(() => { load(); const t = setInterval(load, 10000); return () => clearInterval(t); }, [load]);
 
   const decide = async (decision) => {
     setBusy(true);
     try {
-      const r = await api.post('/dashboard/resident/walkin', { decision });
+      const r = await api.post(`/walkins/${d.walkin.id}/decision`, { decision });
       toast({ variant: 'success', title: decision === 'approve' ? 'Visitor approved' : 'Visitor denied', description: r.data.message });
       load();
     } catch {

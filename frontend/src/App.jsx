@@ -23,6 +23,8 @@ const ResidentDashboard = lazy(() => import('@/pages/resident/DashboardPage'));
 const CreatePassPage    = lazy(() => import('@/pages/resident/CreatePassPage'));
 const ResidentPasses    = lazy(() => import('@/pages/resident/PassesPage'));
 const PlannedPage       = lazy(() => import('@/pages/shared/PlannedPage'));
+const AdminIncidents    = lazy(() => import('@/pages/admin/IncidentsPage'));
+const GuardIncidents    = lazy(() => import('@/pages/guard/IncidentsPage'));
 
 // Admin
 const AdminDashboard    = lazy(() => import('@/pages/admin/DashboardPage'));
@@ -90,6 +92,13 @@ const App = () => (
               <ProtectedRoute roles="resident"><AppLayout><ResidentPasses /></AppLayout></ProtectedRoute>
             } />
             <Route path="/resident/create-pass" element={<Navigate to="/resident/passes#new-pass" replace />} />
+
+            <Route path="/admin/incidents" element={
+              <ProtectedRoute roles="admin"><AppLayout><AdminIncidents /></AppLayout></ProtectedRoute>
+            } />
+            <Route path="/guard/incidents" element={
+              <ProtectedRoute roles={GUARD_ADMIN}><AppLayout><GuardIncidents /></AppLayout></ProtectedRoute>
+            } />
 
             {/* ── Designed in Figma, not built yet (all roles) ──────── */}
             <Route path="/planned/:slug" element={

@@ -26,10 +26,10 @@ const SEVERITY = {
   overdue: { variant: 'warning', label: 'Overdue' },
   upcoming: { variant: 'neutral', label: 'Upcoming' },
 };
-const KIND_ICON = { incident: TriangleAlert, overstay: UserX, documents: FileText, leases: KeyRound, vehicles: Car };
-const KIND_LINK = { incident: '/planned/incidents', overstay: '/guard/logs?status=checked_in', documents: '/planned/documents', leases: '/planned/tenants', vehicles: '/planned/vehicles' };
-const QUEUE_ICON = { file: FileText, package: Package, alert: TriangleAlert };
-const QUEUE_LINK = { file: '/planned/documents', package: '/planned/item-passes', alert: '/planned/incidents' };
+const KIND_ICON = { incident: TriangleAlert, overstay: UserX, documents: FileText, leases: KeyRound, vehicles: Car, denied: TriangleAlert };
+const KIND_LINK = { denied: '/guard/logs', incident: '/admin/incidents', overstay: '/guard/logs?status=checked_in', documents: '/planned/documents', leases: '/planned/tenants', vehicles: '/planned/vehicles' };
+const QUEUE_ICON = { file: FileText, package: Package, alert: TriangleAlert, users: Users };
+const QUEUE_LINK = { file: '/planned/documents', package: '/planned/item-passes', alert: '/admin/incidents', users: '/guard/logs' };
 
 const greeting = (d) => (d.getHours() < 12 ? 'Good morning' : d.getHours() < 18 ? 'Good afternoon' : 'Good evening');
 
@@ -39,10 +39,15 @@ const NeedsAttention = ({ items }) => (
     <div className="flex items-start justify-between gap-3">
       <div>
         <Eyebrow>Needs attention</Eyebrow>
-        <H2 id="attn-title">{items.length} follow-ups, most urgent first</H2>
+        <H2 id="attn-title">{items.length ? `${items.length} follow-up${items.length > 1 ? 's' : ''}, most urgent first` : 'All clear'}</H2>
       </div>
       <Badge variant="neutral">Sorted by urgency</Badge>
     </div>
+    {items.length === 0 && (
+      <p className="mt-5 flex items-center gap-2 rounded-[18px] bg-status-ok-bg px-4 py-4 text-[15px] font-semibold text-status-ok">
+        <CheckCircle2 className="w-5 h-5" aria-hidden="true" /> No open incidents, overstays or denied scans right now.
+      </p>
+    )}
     <ul className="mt-5 space-y-2.5">
       {items.map((it) => {
         const Icon = KIND_ICON[it.kind] || TriangleAlert;
@@ -298,7 +303,7 @@ const AdminDashboard = () => {
           </h1>
           <p className="mt-1 text-[16px] text-ink-muted">
             {format(now, 'EEEE, MMMM d')}
-            {d && critical > 0 && <> · <Link to="/planned/incidents" className="font-semibold text-status-danger hover:underline">{critical} critical incident</Link></>}
+            {d && critical > 0 && <> · <Link to="/admin/incidents" className="font-semibold text-status-danger hover:underline">{critical} critical incident</Link></>}
             {d && overdueDocs && <> and {overdueDocs.title.split(' ')[0]} overdue documents need you today.</>}
           </p>
         </div>
@@ -323,7 +328,7 @@ const AdminDashboard = () => {
       {d && (
         <>
           <div className="flex flex-col xl:flex-row gap-6">
-            {d.attention.length > 0 && <NeedsAttention items={d.attention} />}
+            <NeedsAttention items={d.attention} />
             <GateToday t={d.today} />
           </div>
           {(d.queues.length > 0 || d.upcoming.length > 0 || d.mix.length > 0) && (

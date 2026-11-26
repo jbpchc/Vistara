@@ -3,7 +3,10 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-const sequelize = new Sequelize(
+// DB_DIALECT=sqlite runs the API against a local file (handy for tests without MySQL).
+const sequelize = process.env.DB_DIALECT === 'sqlite'
+  ? new Sequelize({ dialect: 'sqlite', storage: process.env.DB_STORAGE || ':memory:', logging: false, retry: { max: 20 }, transactionType: 'IMMEDIATE' })
+  : new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASSWORD,
@@ -28,7 +31,7 @@ const sequelize = new Sequelize(
       underscored: false,
     },
   }
-);
+  );
 
 const connectDB = async () => {
   try {
