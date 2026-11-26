@@ -60,6 +60,9 @@ let passes = [
 ];
 let nextId = 100;
 
+// A walk-in waiting for the demo resident's approval (Figma H01 alert).
+let residentWalkin = { guest: 'Juan Reyes', purpose: 'Lalamove delivery', address: 'Avila St., Block 5, Lot 12', vehicle: 'Motorcycle 123 ABC', requestedAt: new Date().toISOString(), windowSec: 180 };
+
 let activity = passes
   .filter((p) => p.scanned_at)
   .flatMap((p) => [
@@ -226,6 +229,109 @@ const routes = [
   }],
   ['put', /^\/passes\/([\w-]+)$/, ([id], b) => { const p = passes.find((x) => x.pass_id === id); if (p) Object.assign(p, { guest_name: b.guest_name, expected_date: b.expected_date, purpose: b.purpose }); return [200, { success: true, message: 'Pass updated', data: p }]; }],
   ['delete', /^\/passes\/([\w-]+)$/, ([id]) => { const p = passes.find((x) => x.pass_id === id); if (p) p.status = 'expired'; return [200, { success: true, message: 'Pass cancelled' }]; }],
+
+
+  // ── Composite dashboard feeds (Figma A01 / H01 / G02). Demo-only for now. ──
+  ['get', /^\/dashboard\/admin$/, () => {
+    const inside = passes.filter((p) => p.status === 'checked_in').length;
+    const hourly = [3, 2, 4, 9, 14, 17, 21, 19, 15, 6, 0, 0, 0, 0, 0, 0, 0];
+    const avg =    [4, 3, 5, 8, 12, 15, 17, 18, 16, 12, 9, 10, 12, 11, 8, 6, 4];
+    return [200, { success: true, data: {
+      gate: { open: true, inside: 24, updated: new Date().toISOString() },
+      attention: [
+        { id: 'inc', kind: 'incident', severity: 'critical', title: 'Barrier damage at main gate', meta: 'INC-2026-0142 · open 2h 32m · reported by M. Arevalo', action: 'Open incident' },
+        { id: 'ovr', kind: 'overstay', severity: 'overdue', title: '2 visitors overstaying', meta: 'Camella St. B5 L12 · expected exit 9:30 AM', action: 'Notify hosts' },
+        { id: 'doc', kind: 'documents', severity: 'overdue', title: '4 documents waiting more than 3 days', meta: 'Oldest: Juan Dela Cruz · OR/CR · submitted 3 days ago', action: 'Review' },
+        { id: 'lea', kind: 'leases', severity: 'upcoming', title: '6 leases expiring within 30 days', meta: 'Next: Maria Santos · Acacia St. B2 L8 · 22 days left', action: 'Send reminders' },
+        { id: 'veh', kind: 'vehicles', severity: 'upcoming', title: '8 OR/CR records expiring', meta: 'Next: NAG 1026 · Toyota Vios', action: 'View vehicles' },
+      ],
+      today: {
+        entries: 128, delta: 10.3, peak: '10–11 AM', hours: ['6 AM', '10 AM', '2 PM', '6 PM', '10 PM'],
+        hourly: hourly.map((v, i) => ({ today: v, avg: avg[i], past: i < 10 })),
+        inside: 24, walkins: 12, activePasses: 86, denied: 3,
+      },
+      queues: [
+        { name: 'Documents', done: 8, total: 20, meta: '12 pending · 4 overdue', icon: 'file' },
+        { name: 'Item gate passes', done: 5, total: 12, meta: '7 pending · 3 scheduled today', icon: 'package' },
+        { name: 'Incidents', done: 3, total: 8, meta: '5 open · 1 critical', icon: 'alert', danger: true },
+      ],
+      upcoming: [
+        { day: daysFromNow(2), title: 'Basketball league finals', meta: 'Event pass · 34 guests · Clubhouse', tag: 'Event' },
+        { day: daysFromNow(6), title: 'Lease renewal due', meta: 'Maria Santos · Acacia St. B2 L8', tag: 'Lease', warn: true },
+        { day: daysFromNow(22), title: 'OR/CR expiry', meta: 'NAG 1026 · Juan Dela Cruz', tag: 'Vehicle', warn: true },
+        { day: daysFromNow(25), title: 'Undas visitor rules start', meta: 'Extended gate hours · pass rules', tag: 'Policy' },
+      ],
+      mix: [
+        { label: 'Single pass', count: 82, pct: 64 },
+        { label: 'Event pass', count: 34, pct: 27 },
+        { label: 'Walk-in', count: 12, pct: 9, warn: true },
+      ],
+      deniedNote: '3 denied scans not counted: 1 expired, 1 cancelled, 1 revoked',
+      recent: [
+        { time: minutesAgo(4),  dir: 'Exit',  visitor: 'Delivery contractor', plate: '—',        dest: 'Camella B5 L12',  guard: 'M. Arevalo', result: 'allowed' },
+        { time: minutesAgo(7),  dir: 'Entry', visitor: 'Cruz family',         plate: 'NAG 3312', dest: 'Acacia B2 L8',    guard: 'R. Lopez',   result: 'allowed' },
+        { time: minutesAgo(91), dir: 'Entry', visitor: 'Carla Reyes',         plate: 'NAG 2391', dest: 'Camella B5 L12',  guard: 'M. Arevalo', result: 'allowed' },
+        { time: minutesAgo(171),dir: 'Entry', visitor: "Ana's guests",        plate: '—',        dest: 'Acacia B2 L8',    guard: 'M. Arevalo', result: 'denied', reason: 'expired pass' },
+        { time: minutesAgo(178),dir: 'Entry', visitor: 'Sofia Rivera',        plate: '—',        dest: 'Acacia B2 L8',    guard: 'R. Lopez',   result: 'denied', reason: 'cancelled pass' },
+        { time: minutesAgo(216),dir: 'Entry', visitor: 'Paula Valdez',        plate: '—',        dest: 'Mahogany B4 L6',  guard: 'R. Lopez',   result: 'walkin', reason: 'host confirmed' },
+      ],
+      totals: { all: 235, denied: 3, walkins: 12 },
+    } }];
+  }],
+
+  ['get', /^\/dashboard\/resident$/, () => [200, { success: true, data: {
+    walkin: residentWalkin,
+    setup: { done: 3, total: 5, steps: [
+      { label: 'Confirm profile', state: 'done' }, { label: 'Add household members', state: 'current' },
+      { label: 'Add tenants if leased', state: 'done' }, { label: 'Register vehicles', state: 'done' },
+      { label: 'Upload documents', state: 'todo' },
+    ] },
+    stats: {
+      activePasses: passes.filter((p) => p.PropertyId === 1 && p.status === 'active' && p.expected_date === ymd(new Date())).length || 1,
+      inside: passes.filter((p) => p.PropertyId === 1 && p.status === 'checked_in').length,
+      upcoming: passes.filter((p) => p.PropertyId === 1 && p.status === 'active').length,
+    },
+    inside: passes.filter((p) => p.PropertyId === 1 && p.status === 'checked_in').map((p) => ({
+      name: p.guest_name, where: 'Block 5, Lot 12 · Avila St.', entered: p.scanned_at, expectedExit: new Date(new Date(p.scanned_at).getTime() + 3 * 3600e3).toISOString(), status: 'On time',
+    })),
+    documents: [
+      { title: 'OR · NBC 1234', sub: 'Toyota Vios · Block 5, Lot 12', note: '“Image is blurred. Please upload a clearer copy.”', status: 'Rejected', tone: 'danger', action: 'Re-upload OR' },
+      { title: 'OR/CR · ABC 1234', sub: 'Honda City · Block 5, Lot 12', note: 'Valid for 25 more days', status: 'Expiring soon', tone: 'warn', action: 'Upload renewed OR/CR' },
+    ],
+    upcoming: passes.filter((p) => p.PropertyId === 1 && p.status === 'active').map((p) => ({ date: p.expected_date, name: p.guest_name, kind: p.purpose, where: 'Block 5, Lot 12 · Avila St.' })),
+    lease: { tenant: 'Daniel Mendoza', where: 'Avila St., Block 5, Lot 12 · Leased', ends: daysFromNow(55), daysLeft: 55 },
+    notifications: [
+      { icon: 'gate', time: minutesAgo(3), title: 'Walk-in approval requested', body: 'Juan Reyes is at the Main Gate for Block 5, Lot 12.', action: 'Review request' },
+      { icon: 'entry', time: minutesAgo(16), title: 'Your visitor has arrived', body: 'Ana Villanueva entered at the Main Gate.', action: 'View visit' },
+      { icon: 'doc', time: minutesAgo(50), title: 'Your OR needs a clearer copy', body: 'The HOA rejected your OR for NBC 1234: image is blurred.', action: 'Re-upload document' },
+    ],
+  } }]],
+  ['post', /^\/dashboard\/resident\/walkin$/, (_, b) => {
+    if (residentWalkin) {
+      if (b.decision === 'approve') {
+        const p = mkPass({ id: nextId++, guest: residentWalkin.guest, prop: 1, status: 'checked_in', in: 0, purpose: residentWalkin.purpose });
+        passes.unshift(p);
+        activity.push({ id: nextId++, GatePassId: p.id, action: 'entry', scanned_at: p.scanned_at, scanned_by: 2 });
+      }
+      residentWalkin = null;
+    }
+    return [200, { success: true, message: b.decision === 'approve' ? 'Visitor approved — the guard has been notified.' : 'Visitor denied — the guard has been notified.' }];
+  }],
+
+  ['get', /^\/dashboard\/guard$/, () => {
+    const today = activity.filter((a) => isToday(a.scanned_at));
+    return [200, { success: true, data: {
+      shift: 'Day shift · 7 AM–7 PM',
+      approvalsWaiting: residentWalkin ? 1 : 0,
+      notice: { title: 'HOA notice · 1–5 PM', body: 'Acacia St. road works — send deliveries via Service Gate' },
+      today: { entries: 43 + today.filter((a) => a.action === 'entry').length, exits: 41 + today.filter((a) => a.action === 'exit').length, inside: passes.filter((p) => p.status === 'checked_in').length },
+      lastScans: [...activity].sort((a, b) => new Date(b.scanned_at) - new Date(a.scanned_at)).slice(0, 2).map((a) => ({ name: passes.find((p) => p.id === a.GatePassId)?.guest_name, time: a.scanned_at, dir: a.action })),
+      expected: passes.filter((p) => p.status === 'active' && p.expected_date === ymd(new Date())).slice(0, 2).map((p, i) => {
+        const prop = properties.find((x) => x.id === p.PropertyId);
+        return { name: `${p.guest_name} · ${i ? 'Service' : 'Guest'}`, time: new Date(Date.now() + (20 + i * 25) * 60000).toISOString(), where: `${prop?.street} B${prop?.block} L${prop?.lot}`, vehicle: i === 1 };
+      }),
+    } }];
+  }],
 
   ['get', /^\/health$/, () => [200, { success: true, status: 'OK', service: 'Vistara demo API' }]],
 ];

@@ -137,19 +137,32 @@ See also:
 
 ## 7. What is implemented in code (frontend/)
 
-| Design | Code |
+| Figma frame | Code |
 |---|---|
 | Tokens (both collections, both guard modes) | `src/styles/tokens.css`, `tailwind.config.js` |
-| Three distinct shells | `src/components/shared/AppLayout.jsx` (`AdminShell`, `ResidentShell`, `GuardShell` with a Night/Day toggle and an online/offline status) |
-| Admin sidebar | `src/components/shared/Sidebar.jsx` |
-| Admin dashboard (A01) | `src/pages/admin/DashboardPage.jsx` |
-| Resident home (H01) | `src/pages/resident/DashboardPage.jsx` |
-| Guard console (G02) | `src/pages/guard/DashboardPage.jsx` |
-| Button, Badge, Card, Input | `src/components/ui/*` |
+| Admin shell: grouped sidebar, breadcrumb, gate status, search (`/`), New menu, notifications | `src/components/shared/AppLayout.jsx` → `AdminShell` |
+| Resident shell: 5-item top nav, property chip, New visitor pass, HOMEOWNER tag | `AppLayout.jsx` → `ResidentShell` |
+| Guard shell: rail with Scan, Inside badge, SOS hold-2s; status bar; Night/Day toggle | `AppLayout.jsx` → `GuardShell` |
+| A01 Admin dashboard | `src/pages/admin/DashboardPage.jsx` |
+| H01 Resident home (walk-in approval with countdown, setup progress, alerts) | `src/pages/resident/DashboardPage.jsx` |
+| Resident passes (create, edit, cancel, show QR) | `src/pages/resident/PassesPage.jsx` |
+| G02 Guard gate console (direction, pass type, scanner, today, last scans, expected) | `src/pages/guard/DashboardPage.jsx` |
+| Login | `src/components/auth/LoginForm.jsx` |
 
-**Design-only for now:** these need backend endpoints that don't exist yet, so they appear only in the Figma prototype:
-- SOS alert
-- Patrol rounds
-- Resident walk-in approval
-- Expected arrivals
-- Admin "Needs attention" queue
+**Data:** each dashboard reads one composite endpoint: `GET /dashboard/admin`, `/dashboard/resident` or `/dashboard/guard`.
+- The GitHub Pages demo serves these from `src/api/demo.js`.
+- Against the real Express backend, which does not have these endpoints yet, each dashboard falls back to the existing endpoints. It hides the sections that need new data.
+
+**Designed but not built yet:** these nav items open `/planned/:slug`. That page explains the screen and links to its Figma prototype, so no navigation is a dead end.
+- Documents
+- Incidents
+- Item passes
+- Tenants
+- Vehicles
+- Reports
+- Audit log
+- Settings
+- Watchlist
+- Household
+- Activity
+- Patrol

@@ -1,152 +1,159 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { DoorOpen, Users, ShieldCheck, ScanLine, UserPlus, RefreshCw } from 'lucide-react';
-import api from '@/api/axios';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowDown, ArrowUp, ScanLine, Megaphone, Ticket, Car, Volume2, VolumeX } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '@/api/axios';
 
 /**
- * Guard console (Figma: MAIN GUARD APP -- REDESIGN › G02).
- * Tokens: Vistara Guard (Night / Day, set by the shell's data-theme).
- * Touch targets ≥ 64 px for a standing guard on a landscape tablet.
+ * Guard gate console — Figma: MAIN GUARD APP -- REDESIGN › G02 (node 1581:5534).
+ * Tokens: Vistara Guard (Night / Day via the shell's data-theme). Targets ≥ 64 px.
+ * Data: GET /dashboard/guard, falling back to /guard/stats + /logs/feed.
  */
 
-const Stat = ({ label, value, Icon, to, emphasis }) => {
-  const body = (
-    <>
-      <span className={`w-12 h-12 rounded-full flex items-center justify-center ${emphasis ? 'bg-g-accent text-g-on-accent' : 'bg-g-surface-2 text-g-accent-ink'}`}>
-        <Icon className="w-6 h-6" aria-hidden="true" />
-      </span>
-      <div>
-        <p className="text-[44px] leading-none font-semibold text-g-text tabular-nums">
-          {value ?? <span className="text-g-text-2">—</span>}
-        </p>
-        <p className="mt-1.5 text-[15px] font-semibold text-g-text-2">{label}</p>
-      </div>
-    </>
-  );
-  const cls = 'rounded-card bg-g-surface border border-g-border p-6 flex flex-col justify-between gap-6 min-h-[168px]';
-  return to ? <Link to={to} className={`${cls} hover:border-g-accent transition-colors`}>{body}</Link> : <div className={cls}>{body}</div>;
-};
-
-const BigAction = ({ to, label, sub, Icon, primary }) => (
-  <Link
-    to={to}
-    className={`flex items-center gap-5 rounded-card p-6 min-h-[112px] transition-transform active:scale-[0.99] ${
-      primary ? 'bg-g-fab text-g-on-fab' : 'bg-g-surface border border-g-border text-g-text hover:border-g-accent'
-    }`}
-  >
-    <span className={`w-16 h-16 rounded-[20px] flex items-center justify-center shrink-0 ${primary ? 'bg-g-on-fab/10' : 'bg-g-surface-2 text-g-accent-ink'}`}>
-      <Icon className="w-8 h-8" aria-hidden="true" />
-    </span>
-    <span>
-      <span className="block text-[22px] font-bold leading-tight">{label}</span>
-      <span className={`block text-[15px] mt-0.5 ${primary ? 'opacity-80' : 'text-g-text-2'}`}>{sub}</span>
-    </span>
-  </Link>
+const Panel = ({ className = '', children, ...rest }) => (
+  <section className={`rounded-card border border-g-border bg-g-surface p-6 ${className}`} {...rest}>{children}</section>
 );
 
-const GuardDashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-  const [lastSync, setLastSync] = useState(null);
+const legacyFeed = async () => {
+  const [s, f] = await Promise.all([api.get('/guard/stats'), api.get('/logs/feed?limit=2')]);
+  const st = s.data.data || {};
+  return {
+    notice: null, expected: [],
+    today: { entries: st.entries_today ?? 0, exits: null, inside: st.currently_inside ?? 0 },
+    lastScans: (f.data.data || []).map((l) => ({ name: l.guest_name, time: l.scanned_at, dir: l.status === 'checked_in' ? 'entry' : 'exit' })),
+  };
+};
 
-  const fetchStats = useCallback(async () => {
-    setLoading(true);
+const GuardDashboard = () => {
+  const navigate = useNavigate();
+  const [d, setD] = useState(null);
+  const [failed, setFailed] = useState(false);
+  const [dir, setDir] = useState('entry');
+  const [kind, setKind] = useState('Auto');
+  const [sound, setSound] = useState(true);
+
+  const load = useCallback(async () => {
     try {
-      const [statsRes, logsRes] = await Promise.all([api.get('/guard/stats'), api.get('/logs/feed?limit=20')]);
-      setStats(statsRes.data.data);
-      setLogs(logsRes.data.data || []);
+      const r = await api.get('/dashboard/guard').catch(() => null);
+      setD(r ? r.data.data : await legacyFeed());
       setFailed(false);
-      setLastSync(new Date());
     } catch {
-      // Keep the last known data on screen (offline edge case) and flag it.
-      setFailed(true);
-    } finally {
-      setLoading(false);
+      setFailed(true); // keep last data on screen (offline edge case)
     }
   }, []);
+  useEffect(() => { load(); const t = setInterval(load, 30000); return () => clearInterval(t); }, [load]);
 
-  useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
-  }, [fetchStats]);
-
+  const startScan = () => navigate(`/guard/scan?direction=${dir}&type=${encodeURIComponent(kind)}`);
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6 anim-fade-in">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-[32px] font-semibold text-g-text">Gate console</h1>
-        <button
-          id="guard-stats-refresh-btn"
-          onClick={fetchStats}
-          disabled={loading}
-          className="inline-flex items-center gap-2 h-12 px-5 rounded-full bg-g-surface border border-g-border text-[15px] font-bold text-g-text hover:border-g-accent disabled:opacity-60"
-        >
-          <RefreshCw className={`w-5 h-5 ${loading ? 'spin' : ''}`} aria-hidden="true" />
-          {lastSync ? `Synced ${format(lastSync, 'HH:mm')}` : 'Sync'}
-        </button>
+    <div className="max-w-[1180px] mx-auto anim-fade-in">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[34px] font-semibold text-g-text">Gate console</h1>
+          <p className="mt-1 text-[16px] text-g-text-2">Scan a visitor pass, vehicle sticker or item pass.</p>
+        </div>
+        {d?.notice && (
+          <p className="flex items-center gap-3 rounded-[20px] bg-g-info-bg px-5 py-3 text-g-info max-w-md">
+            <Megaphone className="w-5 h-5 shrink-0" aria-hidden="true" />
+            <span><span className="block text-[14px] font-bold">{d.notice.title}</span><span className="block text-[13px]">{d.notice.body}</span></span>
+          </p>
+        )}
       </div>
 
       {failed && (
-        <div role="alert" className="rounded-2xl bg-g-warn-bg text-g-warn px-5 py-4 text-[15px] font-semibold">
-          Can’t reach the server. Showing the last synced data — scans still work and will sync when the connection returns.
+        <div role="alert" className="mt-5 rounded-2xl bg-g-warn-bg text-g-warn px-5 py-4 text-[15px] font-semibold">
+          Can’t reach the server. Showing the last synced data — scans are queued and sync when the connection returns.
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6">
-        <div className="space-y-6">
-          <div className="grid grid-cols-3 gap-4">
-            <Stat label="Entries today"   value={stats?.entries_today}    Icon={DoorOpen} emphasis />
-            <Stat label="Still inside"    value={stats?.currently_inside} Icon={Users} to="/guard/logs?status=checked_in" />
-            <Stat label="Guards on duty"  value={stats?.active_guards}    Icon={ShieldCheck} />
+      <div className="mt-7 grid lg:grid-cols-[1fr_440px] gap-5">
+        {/* Left: direction → type → scan (error prevention: direction is chosen first) */}
+        <div>
+          <div role="radiogroup" aria-label="Direction" className="grid grid-cols-2 gap-3">
+            {[['entry', 'ENTRY', ArrowDown], ['exit', 'EXIT', ArrowUp]].map(([k, l, Icon]) => {
+              const on = dir === k;
+              return (
+                <button key={k} role="radio" aria-checked={on} onClick={() => setDir(k)}
+                  className={`h-[68px] rounded-[22px] text-[24px] font-bold flex items-center justify-center gap-2 border-2 transition-colors ${
+                    on ? (k === 'entry' ? 'bg-g-fab text-g-on-fab border-g-fab' : 'bg-g-info text-g-on-fab border-g-info') : (k === 'entry' ? 'border-g-border text-g-text-2' : 'bg-g-info-bg border-g-info/50 text-g-info')
+                  }`}>
+                  <Icon className="w-6 h-6" aria-hidden="true" /> {l}
+                </button>
+              );
+            })}
           </div>
-          <div className="grid gap-4">
-            <BigAction to="/guard/scan"         label="Scan QR pass"  sub="Validate a resident’s visitor pass with the camera" Icon={ScanLine} primary />
-            <BigAction to="/guard/manual-entry" label="Log a walk-in" sub="Visitor without a pass — the resident is asked to approve" Icon={UserPlus} />
+          <div role="radiogroup" aria-label="Pass type" className="mt-4 flex flex-wrap gap-2.5">
+            {['Auto', 'Visitor Pass', 'Vehicle Sticker', 'Item Pass'].map((k) => (
+              <button key={k} role="radio" aria-checked={kind === k} onClick={() => setKind(k)}
+                className={`h-12 px-4 rounded-full text-[15px] font-semibold border ${kind === k ? 'bg-g-accent-soft border-g-accent-soft text-g-accent-ink' : 'border-g-border text-g-text-2 hover:text-g-text'}`}>
+                {k}
+              </button>
+            ))}
+          </div>
+          <button onClick={startScan} aria-label={`Start camera to scan ${kind === 'Auto' ? 'a pass' : `a ${kind.toLowerCase()}`} for ${dir}`}
+            className="mt-5 w-full h-[340px] rounded-[28px] border-[3px] border-g-fab bg-g-canvas flex flex-col items-center justify-center gap-5 hover:bg-g-surface transition-colors">
+            <span className="w-[200px] h-[180px] rounded-[24px] border-2 border-g-border flex items-center justify-center">
+              <ScanLine className="w-14 h-14 text-g-text" aria-hidden="true" />
+            </span>
+            <span className="text-[22px] font-semibold text-g-text">Tap to start camera · point at the QR code</span>
+          </button>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button onClick={() => setSound((s) => !s)} aria-pressed={sound}
+              className={`inline-flex items-center gap-2 h-11 px-4 rounded-full text-[14px] font-semibold ${sound ? 'bg-g-ok-bg text-g-ok' : 'bg-g-surface-2 text-g-text-2'}`}>
+              {sound ? <Volume2 className="w-4 h-4" aria-hidden="true" /> : <VolumeX className="w-4 h-4" aria-hidden="true" />}
+              Sound & vibration {sound ? 'on' : 'off'}
+            </button>
           </div>
         </div>
 
-        {/* Live feed — newest first; entry vs exit shown by dot + word + colour */}
-        <section className="rounded-card bg-g-surface border border-g-border flex flex-col overflow-hidden">
-          <div className="px-6 py-5 border-b border-g-border flex items-center justify-between">
-            <h2 className="text-[20px] font-bold text-g-text">Live feed</h2>
-            <span className="inline-flex items-center gap-2 h-8 px-3 rounded-full bg-g-ok-bg text-g-ok text-[13px] font-bold">
-              <span className="h-2 w-2 rounded-full bg-g-ok animate-pulse" aria-hidden="true" /> Live
-            </span>
-          </div>
-          <div className="flex-1 overflow-y-auto max-h-[620px]">
-            {loading && logs.length === 0 ? (
-              <p className="p-8 text-center text-[15px] text-g-text-2">Loading…</p>
-            ) : logs.length === 0 ? (
-              <p className="p-8 text-center text-[15px] text-g-text-2">No gate activity yet this shift.</p>
-            ) : (
-              <ul className="divide-y divide-g-border">
-                {logs.map((log) => {
-                  const isIn = log.status === 'checked_in';
-                  const t = log.status === 'used' ? log.exited_at || log.scanned_at || log.createdAt : log.scanned_at || log.createdAt;
-                  return (
-                    <li key={log.id} className="flex items-center justify-between gap-3 px-6 py-4">
-                      <div className="flex items-center gap-4 min-w-0">
-                        <span className="font-mono text-[15px] text-g-text-2 w-12 shrink-0">{format(new Date(t), 'HH:mm')}</span>
-                        <div className="min-w-0">
-                          <p className="text-[16px] font-bold text-g-text truncate">{log.guest_name}</p>
-                          <p className="text-[13px] text-g-text-2 truncate">Logged by {log.ScannedBy?.username || 'system'}</p>
-                        </div>
-                      </div>
-                      <span className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[13px] font-bold shrink-0 ${isIn ? 'bg-g-ok-bg text-g-ok' : 'bg-g-surface-2 text-g-text-2'}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${isIn ? 'bg-g-ok' : 'bg-g-text-2'}`} aria-hidden="true" />
-                        {isIn ? 'Entry' : 'Exit'}
-                      </span>
-                    </li>
-                  );
-                })}
+        {/* Right: status panels */}
+        <div className="space-y-4">
+          <Panel aria-labelledby="today-title">
+            <h2 id="today-title" className="text-[20px] font-semibold text-g-text">Today at this gate</h2>
+            <dl className="mt-4 grid grid-cols-3 gap-3">
+              {[['Entries', d?.today.entries], ['Exits', d?.today.exits], ['Inside now', d?.today.inside]].filter(([, v]) => v !== null).map(([l, v]) => (
+                <div key={l}><dd className="text-[34px] font-semibold text-g-accent-ink tabular-nums">{v ?? '—'}</dd><dt className="text-[15px] text-g-text">{l}</dt></div>
+              ))}
+            </dl>
+          </Panel>
+
+          <Panel aria-labelledby="last-title">
+            <h2 id="last-title" className="text-[20px] font-semibold text-g-text">Last scans</h2>
+            <ul className="mt-3 space-y-3">
+              {(d?.lastScans || []).map((s, i) => (
+                <li key={i} className="flex items-center justify-between">
+                  <span><span className="block text-[16px] font-semibold text-g-text">{s.name}</span><span className="block text-[14px] text-g-text-2">{format(new Date(s.time), 'h:mm a')} · <Link to="/guard/logs" className="underline">Details</Link></span></span>
+                  <span className={`h-8 px-3 rounded-full text-[14px] font-semibold flex items-center ${s.dir === 'entry' ? 'bg-g-ok-bg text-g-ok' : 'bg-g-info-bg text-g-info'}`}>{s.dir === 'entry' ? 'Entry' : 'Exit'}</span>
+                </li>
+              ))}
+              {d && d.lastScans.length === 0 && <li className="text-g-text-2">No scans yet this shift.</li>}
+            </ul>
+          </Panel>
+
+          {d?.expected?.length > 0 && (
+            <Panel aria-labelledby="exp-title">
+              <div className="flex items-center justify-between gap-2">
+                <h2 id="exp-title" className="text-[20px] font-semibold text-g-text">Expected next hour</h2>
+                <span className="h-8 px-3 rounded-full bg-g-info-bg text-g-info text-[14px] font-semibold flex items-center">{d.expected.length} pre-registered</span>
+              </div>
+              <ul className="mt-3 space-y-3">
+                {d.expected.map((e) => (
+                  <li key={e.name} className="flex items-start gap-3">
+                    {e.vehicle ? <Car className="w-5 h-5 mt-0.5 text-g-text-2" aria-hidden="true" /> : <Ticket className="w-5 h-5 mt-0.5 text-g-text-2" aria-hidden="true" />}
+                    <span><span className="block text-[16px] font-semibold text-g-text">{e.name}</span><span className="block text-[14px] text-g-text-2">{format(new Date(e.time), 'h:mm a')} · {e.where}</span></span>
+                  </li>
+                ))}
               </ul>
-            )}
-          </div>
-        </section>
+            </Panel>
+          )}
+        </div>
+      </div>
+
+      {/* Secondary paths, always one tap away */}
+      <div className="mt-6 rounded-card border border-g-border bg-g-surface p-4 flex flex-wrap gap-3">
+        <Link to="/guard/scan?manual=1" className="inline-flex items-center h-14 px-6 rounded-full bg-g-accent text-g-on-accent text-[17px] font-semibold">Enter code manually</Link>
+        <Link to="/guard/manual-entry" className="inline-flex items-center h-14 px-6 rounded-full border border-g-border text-g-text text-[17px] font-semibold hover:border-g-accent">Walk-in (no pass)</Link>
+        <Link to="/planned/incidents" className="inline-flex items-center h-14 px-6 rounded-full border border-g-border text-g-text text-[17px] font-semibold hover:border-g-accent">Report incident</Link>
       </div>
     </div>
   );

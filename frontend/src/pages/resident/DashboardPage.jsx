@@ -1,445 +1,305 @@
-import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { 
-  Plus, QrCode, CalendarCheck, Search, Loader2, X, 
-  Edit2, Trash2, Shield, Calendar, MapPin, CheckCircle
+import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  DoorOpen, X, Check, Clock3, Ticket, Package, Car, FileUp, Briefcase, Users, CalendarDays,
+  RefreshCw, ArrowRight, CircleCheck, CircleAlert, Circle, CircleX, LogIn, FileText,
 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import api from '@/api/axios';
 import { format } from 'date-fns';
+import api from '@/api/axios';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import PassCard from '@/components/resident/PassCard';
 import { Badge } from '@/components/ui/badge';
 
-/* ── Status badge: dot + word + colour (WCAG 1.4.1) ─────────────────────────── */
-const STATUS = {
-  active:  { variant: 'success',     label: 'Active' },
-  used:    { variant: 'neutral',     label: 'Used' },
-  expired: { variant: 'destructive', label: 'Expired' },
-};
-const StatusBadge = ({ status }) => {
-  const c = STATUS[status] || STATUS.expired;
-  return <Badge variant={c.variant}>{c.label}</Badge>;
+/**
+ * Resident home — Figma: MAIN RESIDENT PORTAL -- REDESIGN › H01 (node 1544:4394).
+ * Data: GET /dashboard/resident. If the backend does not have it yet, we fall back
+ * to /passes/my and show only the sections that data supports.
+ */
+
+const Card = ({ className = '', children, ...rest }) => (
+  <section className={`rounded-card-home border border-line bg-surface-card p-7 ${className}`} {...rest}>{children}</section>
+);
+const Title = ({ children, count, id }) => (
+  <h2 id={id} className="flex items-center gap-2.5 text-[22px] font-semibold text-ink">
+    {children}
+    {count != null && <span className="min-w-[26px] h-[26px] px-2 rounded-full bg-surface-subtle text-[13px] font-bold text-ink-muted flex items-center justify-center">{count}</span>}
+  </h2>
+);
+const initials = (n) => n.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+
+/* Walk-in approval — the one red block on the page (Von Restorff) */
+const WalkinAlert = ({ w, onDecide, busy }) => {
+  const [left, setLeft] = useState(() => Math.max(0, w.windowSec - Math.floor((Date.now() - new Date(w.requestedAt)) / 1000)));
+  useEffect(() => { const t = setInterval(() => setLeft((s) => Math.max(0, s - 1)), 1000); return () => clearInterval(t); }, []);
+  const mm = String(Math.floor(left / 60)).padStart(2, '0'), ss = String(left % 60).padStart(2, '0');
+  return (
+    <section role="alert" aria-labelledby="walkin-title" className="rounded-card-home border-[1.5px] border-status-danger bg-status-danger-bg p-6 flex flex-wrap items-center justify-between gap-5">
+      <div className="min-w-0">
+        <p id="walkin-title" className="flex items-center gap-2 text-[15px] font-bold text-status-danger"><DoorOpen className="w-5 h-5" aria-hidden="true" /> A visitor is waiting at the gate</p>
+        <p className="mt-2 text-[17px] font-semibold text-ink">{w.guest} · {w.purpose}</p>
+        <p className="mt-1 text-[14px] text-ink-muted">{w.address} · {w.vehicle}</p>
+        <p className="mt-2.5 flex items-center gap-2 text-[13px]">
+          <Badge variant="warning">Waiting</Badge>
+          <span className="font-semibold text-status-danger tabular-nums">{format(new Date(w.requestedAt), 'h:mm a')} · {left > 0 ? `${mm}:${ss} left to respond` : 'Time is up — the guard will call you'}</span>
+        </p>
+      </div>
+      <div className="flex gap-3">
+        <button onClick={() => onDecide('deny')} disabled={busy} className="inline-flex items-center gap-2 h-12 px-6 rounded-full border-[1.5px] border-status-danger bg-surface-card text-[15px] font-semibold text-status-danger hover:bg-status-danger-bg disabled:opacity-60">
+          <X className="w-4 h-4" aria-hidden="true" /> Deny
+        </button>
+        <button onClick={() => onDecide('approve')} disabled={busy} className="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90 disabled:opacity-60">
+          <Check className="w-4 h-4" aria-hidden="true" /> Approve
+        </button>
+      </div>
+    </section>
+  );
 };
 
-/* ── Main Resident Dashboard ────────────────────────────────────────────────── */
+const QuickActions = () => {
+  const items = [
+    { to: '/resident/passes#new-pass', icon: Ticket, title: 'New Visitor Pass', primary: true },
+    { to: '/planned/my-home', icon: Package, title: 'Request Item Pass', sub: 'Move items in or out' },
+    { to: '/planned/my-home', icon: Car, title: 'Add Vehicle', sub: 'Register for a sticker' },
+    { to: '/planned/my-home', icon: FileUp, title: 'Upload Document', sub: 'Send to the HOA' },
+  ];
+  return (
+    <section aria-labelledby="qa-title">
+      <h2 id="qa-title" className="text-[16px] font-semibold text-ink mb-3">Quick actions</h2>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {items.map((q) => (
+          <Link key={q.title} to={q.to}
+            className={`flex items-center gap-4 rounded-[22px] p-5 min-h-[92px] transition-colors ${q.primary ? 'bg-brand-forest text-side-active hover:bg-brand' : 'bg-surface-card border border-line hover:border-home'}`}>
+            <span className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${q.primary ? 'bg-white/10' : 'bg-surface-subtle text-ink'}`}><q.icon className="w-5 h-5" aria-hidden="true" /></span>
+            <span>
+              <span className={`block text-[16px] font-semibold ${q.primary ? '' : 'text-ink'}`}>{q.title}</span>
+              {q.sub && <span className="block text-[13px] text-ink-muted">{q.sub}</span>}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* Zeigarnik + goal-gradient: unfinished setup stays visible with progress */
+const SetupProgress = ({ s, onSkip }) => (
+  <section aria-labelledby="setup-title" className="rounded-card-home bg-surface-subtle border border-line p-6">
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h2 id="setup-title" className="text-[22px] font-semibold text-ink">Make yourself at home</h2>
+        <p className="mt-1 text-[14px] text-ink-muted">{s.done} of {s.total} steps complete. Add your household so the HOA knows who lives here.</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Link to="/planned/household" className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand-forest text-side-active text-[15px] font-semibold hover:bg-brand">
+          <ArrowRight className="w-4 h-4" aria-hidden="true" /> Resume setup
+        </Link>
+        <button onClick={onSkip} className="h-11 px-4 rounded-full text-[15px] font-semibold text-ink hover:bg-surface-card">Skip for now</button>
+      </div>
+    </div>
+    <ol className="mt-5 grid grid-cols-2 md:grid-cols-5 gap-4">
+      {s.steps.map((st) => (
+        <li key={st.label}>
+          <span className={`block h-1.5 rounded-full ${st.state === 'done' ? 'bg-brand-forest' : 'bg-line'}`} />
+          <span className={`mt-2.5 flex items-center gap-1.5 text-[13px] ${st.state === 'current' ? 'font-semibold text-home-ink' : 'text-ink-muted'}`}>
+            {st.state === 'done' ? <CircleCheck className="w-4 h-4" aria-hidden="true" /> : st.state === 'current' ? <CircleAlert className="w-4 h-4" aria-hidden="true" /> : <Circle className="w-4 h-4" aria-hidden="true" />}
+            {st.label}<span className="sr-only"> — {st.state === 'done' ? 'done' : st.state === 'current' ? 'next step' : 'not started'}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  </section>
+);
+
+const StatCard = ({ label, value, sub, Icon, to }) => (
+  <Link to={to} className="rounded-[22px] border border-line bg-surface-card p-5 hover:border-home transition-colors">
+    <span className="flex items-center justify-between text-[15px] font-semibold text-ink">{label}<Icon className="w-5 h-5 text-ink-muted" aria-hidden="true" /></span>
+    <span className="mt-3 block text-[40px] leading-none font-semibold text-ink tabular-nums">{value}</span>
+    <span className="mt-4 block text-[13px] text-ink-muted">{sub}</span>
+  </Link>
+);
+
+const InsideNow = ({ rows }) => (
+  <Card aria-labelledby="in-title">
+    <Title id="in-title" count={rows.length}>Visitors inside now</Title>
+    <p className="mt-1 text-[14px] text-ink-muted">Today · {format(new Date(), 'MMM d, yyyy')}</p>
+    {rows.length === 0 ? <p className="py-8 text-ink-muted">No visitors inside right now.</p> : (
+      <table className="mt-5 w-full text-left">
+        <thead><tr className="text-[12px] font-bold uppercase tracking-[0.06em] text-ink-muted"><th className="pb-3 font-bold">Visitor / property</th><th className="pb-3 font-bold">Entered</th><th className="pb-3 font-bold hidden md:table-cell">Expected exit</th><th className="pb-3 font-bold">Status</th></tr></thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.name} className="border-t border-line">
+              <td className="py-4"><span className="flex items-center gap-3"><span className="w-10 h-10 rounded-full bg-brand-tint text-brand-forest text-[13px] font-bold flex items-center justify-center">{initials(r.name)}</span><span><span className="block text-[15px] font-semibold text-ink">{r.name}</span><span className="block text-[13px] text-ink-muted">{r.where}</span></span></span></td>
+              <td className="py-4 text-[15px] text-ink tabular-nums">{format(new Date(r.entered), 'h:mm a')}</td>
+              <td className="py-4 text-[15px] text-ink tabular-nums hidden md:table-cell">{format(new Date(r.expectedExit), 'h:mm a')}</td>
+              <td className="py-4"><Badge variant="success">{r.status}</Badge></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+    <Link to="/planned/activity" className="mt-4 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">View visit history <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
+  </Card>
+);
+
+const DocumentAlerts = ({ docs }) => (
+  <Card aria-labelledby="doc-title">
+    <Title id="doc-title" count={docs.length}>Document alerts</Title>
+    <ul className="mt-4 divide-y divide-line">
+      {docs.map((d) => (
+        <li key={d.title} className="py-4">
+          <div className="flex items-center justify-between gap-3"><p className="text-[15px] font-semibold text-ink">{d.title}</p>
+            <Badge variant={d.tone === 'danger' ? 'destructive' : 'warning'} dot={false} className="gap-1">{d.tone === 'danger' ? <CircleX className="w-3.5 h-3.5" aria-hidden="true" /> : <Clock3 className="w-3.5 h-3.5" aria-hidden="true" />}{d.status}</Badge></div>
+          <p className="mt-1 text-[14px] text-ink-muted">{d.sub}</p>
+          <p className="mt-1 text-[14px] text-ink-muted">{d.note}</p>
+          <Link to="/planned/my-home" className="mt-3 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">{d.action} <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
+        </li>
+      ))}
+    </ul>
+  </Card>
+);
+
+const UpcomingVisitors = ({ rows }) => (
+  <Card aria-labelledby="up-title">
+    <Title id="up-title" count={rows.length}>Upcoming visitors</Title>
+    <p className="mt-1 text-[14px] text-ink-muted">Next 7 days</p>
+    <ul className="mt-4 divide-y divide-line">
+      {rows.length === 0 && <li className="py-6 text-ink-muted">No visitors scheduled. <Link to="/resident/passes#new-pass" className="font-semibold text-ink underline">Create a pass</Link></li>}
+      {rows.map((r) => (
+        <li key={r.name + r.date} className="py-4 grid grid-cols-[130px_1fr_auto] gap-4 items-start">
+          <span className="text-[15px] font-semibold text-ink">{format(new Date(`${r.date}T12:00:00`), 'MMM d, yyyy')}</span>
+          <span><span className="block text-[15px] font-semibold text-ink">{r.name}</span><span className="block text-[13px] text-ink-muted">{r.kind} · {r.where}</span></span>
+          <Badge variant="warning" dot={false} className="gap-1"><Clock3 className="w-3.5 h-3.5" aria-hidden="true" />Upcoming</Badge>
+        </li>
+      ))}
+    </ul>
+    <Link to="/resident/passes" className="mt-2 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">View all passes <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
+  </Card>
+);
+
+const LeaseAlert = ({ l }) => (
+  <Card aria-labelledby="lease-title">
+    <Title id="lease-title" count={1}>Lease alerts</Title>
+    <p className="mt-1 text-[14px] text-ink-muted">Leases ending within 60 days</p>
+    <div className="mt-4 flex items-center justify-between"><p className="text-[15px] font-semibold text-ink">{l.tenant}</p><Badge variant="warning" dot={false} className="gap-1"><Clock3 className="w-3.5 h-3.5" aria-hidden="true" />{l.daysLeft} days left</Badge></div>
+    <p className="mt-1 text-[14px] text-ink-muted">{l.where}</p>
+    <div className="mt-4 rounded-[20px] bg-status-warn-bg p-5">
+      <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-status-warn">Lease ends</p>
+      <p className="mt-1 text-[24px] font-semibold text-ink">{format(new Date(`${l.ends}T12:00:00`), 'MMM d, yyyy')}</p>
+      <p className="mt-1 text-[14px] text-ink-muted">Renew to keep your tenant’s access</p>
+    </div>
+    <div className="mt-4 flex gap-3">
+      <Link to="/planned/tenants" className="flex-1 inline-flex items-center justify-center h-11 rounded-full border border-line text-[15px] font-semibold text-ink hover:bg-surface-subtle">Renew lease</Link>
+      <Link to="/planned/household" className="inline-flex items-center justify-center h-11 px-4 rounded-full text-[15px] font-semibold text-ink hover:bg-surface-subtle">View tenants</Link>
+    </div>
+  </Card>
+);
+
+const NOTE_ICON = { gate: DoorOpen, entry: LogIn, doc: FileText };
+const Notifications = ({ items }) => (
+  <Card aria-labelledby="nt-title">
+    <div className="flex items-center justify-between"><Title id="nt-title" count={items.length}>Latest notifications</Title>
+      <Link to="/planned/activity" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">See all notifications <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link></div>
+    <p className="mt-1 text-[14px] text-ink-muted">{format(new Date(), 'MMM d, yyyy')} · {items.length} unread</p>
+    <ul className="mt-5 grid md:grid-cols-3 gap-4">
+      {items.map((n) => {
+        const Icon = NOTE_ICON[n.icon] || FileText;
+        return (
+          <li key={n.title} className="rounded-[22px] bg-surface-subtle p-5">
+            <p className="flex items-center justify-between text-[13px] text-ink-muted"><span className="flex items-center gap-2"><Icon className="w-4 h-4 text-home-ink" aria-hidden="true" />{format(new Date(n.time), 'h:mm a')}</span><span className="w-2 h-2 rounded-full bg-ink" aria-label="Unread" /></p>
+            <p className="mt-3 text-[15px] font-semibold text-ink">{n.title}</p>
+            <p className="mt-1 text-[14px] text-ink-muted">{n.body}</p>
+            <Link to="/planned/activity" className="mt-3 inline-block text-[15px] font-semibold text-ink hover:underline">{n.action}</Link>
+          </li>
+        );
+      })}
+    </ul>
+  </Card>
+);
+
+/* Fallback when /dashboard/resident is not available: use /passes/my */
+const legacyFeed = async () => {
+  const r = await api.get('/passes/my');
+  const ps = r.data.data || [];
+  const where = (p) => (p.Property ? `Block ${p.Property.block}, Lot ${p.Property.lot}` : '');
+  return {
+    walkin: null, setup: null, documents: [], lease: null, notifications: [],
+    stats: { activePasses: ps.filter((p) => p.status === 'active').length, inside: ps.filter((p) => p.status === 'checked_in').length, upcoming: ps.filter((p) => p.status === 'active').length },
+    inside: ps.filter((p) => p.status === 'checked_in').map((p) => ({ name: p.guest_name, where: where(p), entered: p.scanned_at, expectedExit: new Date(new Date(p.scanned_at).getTime() + 3 * 3600e3).toISOString(), status: 'On time' })),
+    upcoming: ps.filter((p) => p.status === 'active').map((p) => ({ date: p.expected_date, name: p.guest_name, kind: p.purpose || 'Visit', where: where(p) })),
+  };
+};
+
 const ResidentDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const property = user?.primary_property;
+  const [d, setD] = useState(null);
+  const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [updated, setUpdated] = useState(new Date());
+  const [hideSetup, setHideSetup] = useState(false);
 
-  const [passes, setPasses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState('active'); // active, used, expired
-
-  // CRUD & Interaction States
-  const [selectedPass, setSelectedPass] = useState(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  
-  // Create / Edit Form State
-  const todayStr = new Date().toISOString().split('T')[0];
-  const [form, setForm] = useState({ guest_name: '', expected_date: todayStr, purpose: '' });
-  const [editForm, setEditForm] = useState({ guest_name: '', expected_date: '', purpose: '' });
-  const [editingPassId, setEditingPassId] = useState(null);
-  const [actionLoading, setActionLoading] = useState(false);
-
-  useEffect(() => {
-    fetchPasses();
+  const load = useCallback(() => {
+    api.get('/dashboard/resident')
+      .then((r) => setD(r.data.data))
+      .catch(() => legacyFeed().then(setD).catch(() => setError(true)))
+      .finally(() => setUpdated(new Date()));
   }, []);
+  useEffect(() => { load(); }, [load]);
 
-  const fetchPasses = async () => {
+  const decide = async (decision) => {
+    setBusy(true);
     try {
-      const r = await api.get('/passes/my');
-      setPasses(r.data.data || []);
-    } catch (err) {
-      setPasses([]);
-    } finally {
-      setLoading(false);
-    }
+      const r = await api.post('/dashboard/resident/walkin', { decision });
+      toast({ variant: 'success', title: decision === 'approve' ? 'Visitor approved' : 'Visitor denied', description: r.data.message });
+      load();
+    } catch {
+      toast({ variant: 'destructive', title: 'Could not send your answer', description: 'Please call the guard house.' });
+    } finally { setBusy(false); }
   };
 
-  const handleOpenEdit = (e, pass) => {
-    e.stopPropagation(); // Avoid triggering open QR view
-    setEditingPassId(pass.pass_id);
-    setEditForm({
-      guest_name: pass.guest_name,
-      expected_date: pass.expected_date,
-      purpose: pass.purpose || pass.notes || ''
-    });
-    setIsEditOpen(true);
-  };
-
-  const handleCreatePass = async (e) => {
-    e.preventDefault();
-    if (!form.guest_name.trim()) return toast({ variant: 'destructive', description: 'Guest name is required.' });
-    if (!form.expected_date) return toast({ variant: 'destructive', description: 'Expected date is required.' });
-    if (!property?.id) return toast({ variant: 'destructive', description: 'No linked property found.' });
-
-    setActionLoading(true);
-    try {
-      await api.post('/qr/generate', {
-        property_id: property.id,
-        guest_name: form.guest_name.trim(),
-        expected_date: form.expected_date,
-        purpose: form.purpose.trim() || 'Visit'
-      });
-      toast({ variant: 'success', title: 'Success', description: 'Gate pass generated successfully!' });
-      setForm({ guest_name: '', expected_date: todayStr, purpose: '' });
-      fetchPasses();
-    } catch (err) {
-      toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message || 'Failed to generate gate pass.' });
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleEditPass = async (e) => {
-    e.preventDefault();
-    if (!editForm.guest_name.trim()) return toast({ variant: 'destructive', description: 'Guest name is required.' });
-    if (!editForm.expected_date) return toast({ variant: 'destructive', description: 'Expected date is required.' });
-
-    setActionLoading(true);
-    try {
-      await api.put(`/passes/${editingPassId}`, {
-        guest_name: editForm.guest_name.trim(),
-        expected_date: editForm.expected_date,
-        purpose: editForm.purpose.trim()
-      });
-      toast({ variant: 'success', title: 'Pass Updated', description: 'Gate pass has been successfully updated!' });
-      setIsEditOpen(false);
-      fetchPasses();
-    } catch (err) {
-      toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message || 'Failed to update gate pass.' });
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleCancelPass = async (e, passId) => {
-    e.stopPropagation(); // Stop click pass view
-    if (!window.confirm('Are you sure you want to cancel this gate pass? It will instantly expire.')) return;
-
-    try {
-      await api.delete(`/passes/${passId}`);
-      toast({ variant: 'success', title: 'Pass Cancelled', description: 'Gate pass expired successfully.' });
-      fetchPasses();
-    } catch (err) {
-      toast({ variant: 'destructive', title: 'Error', description: err.response?.data?.message || 'Failed to cancel gate pass.' });
-    }
-  };
-
-  // Filter Logic
-  const filteredPasses = passes.filter(p => {
-    const matchesSearch = p.guest_name?.toLowerCase().includes(search.toLowerCase()) || 
-                          p.pass_id?.toLowerCase().includes(search.toLowerCase());
-    
-    if (activeTab === 'all') return matchesSearch;
-    return matchesSearch && p.status === activeTab;
-  });
+  const first = (user?.full_name || user?.username || 'neighbor').split(/[\s_]+/)[0].replace(/^\w/, (c) => c.toUpperCase());
+  const hour = new Date().getHours();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-16 anim-fade-in px-2">
-      
-      {/* ── Greeting (logo now lives in the resident header) ───────────────────── */}
-      <div className="pt-2">
-        <p className="text-[15px] font-semibold text-ink-muted">{format(new Date(), 'EEEE, MMMM d')}</p>
-        <h1 className="text-[40px] leading-tight font-semibold text-ink">
-          Welcome home, {(user?.full_name || user?.username || 'neighbor').split(' ')[0]}
-        </h1>
-        {property && (
-          <p className="mt-1 text-[15px] text-ink-muted">
-            {[property.block && `Block ${property.block}`, property.lot && `Lot ${property.lot}`].filter(Boolean).join(' · ') || property.address}
-          </p>
-        )}
+    <div className="max-w-[1180px] mx-auto space-y-7 anim-fade-in">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[44px] leading-tight font-semibold text-ink">{hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'}, {first}.</h1>
+          <p className="mt-1 text-[15px] text-ink-muted">Here’s what’s happening across your properties.</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[15px] font-semibold text-ink">{format(new Date(), 'EEEE · MMM dd, yyyy')}</p>
+          <p className="text-[13px] text-ink-muted">Last updated {format(updated, 'h:mm a')} · Asia/Manila</p>
+          <button onClick={load} className="mt-1 inline-flex items-center gap-1.5 h-10 px-3 rounded-full text-[14px] font-semibold text-ink hover:bg-surface-subtle"><RefreshCw className="w-4 h-4" aria-hidden="true" /> Refresh</button>
+        </div>
       </div>
 
-      {/* ── Main Two-Column Layout ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* ── Left Column: Generate Gatepass Form ─────────────────────────────── */}
-        <section id="new-pass" aria-labelledby="new-pass-title" className="scroll-mt-28 bg-surface-card border border-line rounded-card-home p-7 shadow-card lg:col-span-4 lg:sticky lg:top-28">
-          <div className="mb-6">
-            <h2 id="new-pass-title" className="text-2xl font-bold text-ink">New visitor pass</h2>
-            <p className="text-[14px] text-ink-muted mt-1">Your guest shows the QR code at the gate.</p>
+      {error && <div role="alert" className="rounded-2xl bg-status-danger-bg text-status-danger px-5 py-4 text-[15px] font-semibold">Couldn’t load your home dashboard. Check your connection and tap Refresh.</div>}
+      {!d && !error && <div className="h-[360px] rounded-card-home bg-surface-subtle animate-pulse" />}
+
+      {d && (
+        <>
+          {d.walkin && <WalkinAlert w={d.walkin} onDecide={decide} busy={busy} />}
+          <QuickActions />
+          {d.setup && !hideSetup && <SetupProgress s={d.setup} onSkip={() => setHideSetup(true)} />}
+          <div className="grid md:grid-cols-3 gap-4">
+            <StatCard label="Active passes" value={d.stats.activePasses} sub="Valid today" Icon={Briefcase} to="/resident/passes" />
+            <StatCard label="Visitors inside now" value={d.stats.inside} sub={d.stats.inside ? 'All on time' : 'Nobody inside'} Icon={Users} to="/planned/activity" />
+            <StatCard label="Upcoming visitors" value={d.stats.upcoming} sub="Next 7 days" Icon={CalendarDays} to="/resident/passes" />
           </div>
-
-          <form onSubmit={handleCreatePass} className="space-y-5">
-            <div>
-              <label className="block text-[14px] font-semibold text-ink mb-1.5">
-                Guest Full Name <span className="text-status-danger" aria-hidden="true">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g Maria De La Cruz"
-                value={form.guest_name}
-                onChange={e => setForm({...form, guest_name: e.target.value})}
-                className="w-full h-11 px-3.5 bg-surface-card border border-input rounded-xl text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-              />
+          <div className="grid lg:grid-cols-[1.45fr_1fr] gap-6 items-start">
+            <div className="space-y-6">
+              <InsideNow rows={d.inside} />
+              <UpcomingVisitors rows={d.upcoming} />
             </div>
-
-            <div>
-              <label className="block text-[14px] font-semibold text-ink mb-1.5">
-                Expected Visit Date <span className="text-status-danger" aria-hidden="true">*</span>
-              </label>
-              <input
-                type="date"
-                required
-                min={todayStr}
-                value={form.expected_date}
-                onChange={e => setForm({...form, expected_date: e.target.value})}
-                className="w-full h-11 px-3.5 bg-surface-card border border-input rounded-xl text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[14px] font-semibold text-ink mb-1.5">
-                Purpose Of Visit <span className="text-status-danger" aria-hidden="true">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g Delivery, Plumber, Visiting Relative"
-                value={form.purpose}
-                onChange={e => setForm({...form, purpose: e.target.value})}
-                className="w-full h-11 px-3.5 bg-surface-card border border-input rounded-xl text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-              />
-            </div>
-
-            <div className="pt-4 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setForm({ guest_name: '', expected_date: todayStr, purpose: '' })}
-                className="h-11 px-4 rounded-full text-[15px] font-semibold text-ink-muted hover:bg-surface-subtle hover:text-ink transition-colors"
-              >
-                Clear
-              </button>
-              <button
-                type="submit"
-                disabled={actionLoading}
-                className="h-11 px-6 bg-brand hover:bg-brand/90 text-brand-on text-[15px] font-semibold rounded-full transition-colors active:scale-95 disabled:opacity-60 flex items-center justify-center min-w-[140px]"
-              >
-                {actionLoading ? <Loader2 className="w-4 h-4 spin" /> : 'Create pass'}
-              </button>
-            </div>
-          </form>
-        </section>
-
-        {/* ── Right Column: My Guest Passes List ──────────────────────────────── */}
-        <section className="bg-surface-card border border-line rounded-card-home p-7 shadow-card lg:col-span-8">
-          <div className="border-b border-line pb-5 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-ink">My visitor passes</h2>
-              <p className="text-[14px] text-ink-muted mt-1">Tap a pass to show its QR code. Active passes can be edited or cancelled.</p>
+            <div className="space-y-6">
+              {d.documents.length > 0 && <DocumentAlerts docs={d.documents} />}
+              {d.lease && <LeaseAlert l={d.lease} />}
             </div>
           </div>
-
-          {/* Filters and Search toolbar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            {/* Tabs Filter */}
-            <div role="tablist" aria-label="Pass status" className="flex p-1 bg-surface-subtle rounded-full w-full sm:w-auto overflow-x-auto shrink-0 text-[14px]">
-              {[
-                { id: 'active', label: 'Active' },
-                { id: 'used', label: 'Used' },
-                { id: 'expired', label: 'Expired' },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`h-10 px-4 rounded-full transition-colors text-center whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'bg-home-bg text-home-ink font-bold'
-                      : 'text-ink-muted hover:text-ink font-semibold'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Search input */}
-            <div className="relative w-full sm:w-64 shrink-0">
-              <input
-                type="text"
-                placeholder="Search passes"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                aria-label="Search passes by guest name or pass ID"
-                className="w-full h-11 pl-4 pr-10 bg-surface-card border border-input rounded-full text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand transition-colors"
-              />
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" aria-hidden="true" />
-            </div>
-          </div>
-
-          {/* Pass List */}
-          {loading ? (
-            <div className="py-20 flex flex-col items-center justify-center text-ink-muted">
-              <Loader2 className="w-8 h-8 spin text-brand mb-2" />
-              <p className="text-sm">Loading passes...</p>
-            </div>
-          ) : filteredPasses.length === 0 ? (
-            <div className="py-20 text-center text-ink-muted space-y-3">
-              <QrCode className="w-12 h-12 text-chart-muted mx-auto" aria-hidden="true" />
-              <div>
-                <p className="text-ink font-semibold">No passes here yet</p>
-                <p className="text-[14px] text-ink-muted mt-1">Create a pass on the left, or switch tabs.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="divide-y divide-line">
-              {filteredPasses.map(pass => (
-                <div 
-                  key={pass.pass_id}
-                  onClick={() => setSelectedPass(pass)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPass(pass); } }}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 hover:bg-surface-subtle transition-colors cursor-pointer group px-3 rounded-2xl"
-                >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-12 h-12 bg-home-bg rounded-2xl flex items-center justify-center shrink-0">
-                      <QrCode className="w-6 h-6 text-home-ink" aria-hidden="true" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <p className="font-bold text-ink text-[16px] truncate">{pass.guest_name}</p>
-                        <StatusBadge status={pass.status} />
-                      </div>
-                      <div className="flex flex-wrap items-center gap-y-1 gap-x-2 text-[13px] text-ink-muted">
-                        <span className="font-mono">{pass.pass_id?.slice(0, 8).toUpperCase()}</span>
-                        <span>•</span>
-                        <span>
-                          {pass.expected_date
-                            ? format(new Date(`${pass.expected_date}T12:00:00`), 'MMM d, yyyy')
-                            : '—'}
-                        </span>
-                        <span>•</span>
-                        <span>{pass.purpose || pass.notes || 'Visit'}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 justify-end shrink-0 self-end sm:self-center">
-                    {pass.status === 'active' && (
-                      <>
-                        <button
-                          title="Edit Pass"
-                          onClick={(e) => handleOpenEdit(e, pass)}
-                          aria-label={`Edit pass for ${pass.guest_name}`}
-                          className="w-11 h-11 flex items-center justify-center text-ink-muted hover:text-brand bg-surface-card hover:bg-brand-tint rounded-full transition-colors border border-line"
-                        >
-                          <Edit2 className="w-4 h-4" aria-hidden="true" />
-                        </button>
-                        <button
-                          title="Cancel Pass"
-                          onClick={(e) => handleCancelPass(e, pass.pass_id)}
-                          aria-label={`Cancel pass for ${pass.guest_name}`}
-                          className="w-11 h-11 flex items-center justify-center text-ink-muted hover:text-status-danger bg-surface-card hover:bg-status-danger-bg rounded-full transition-colors border border-line"
-                        >
-                          <Trash2 className="w-4 h-4" aria-hidden="true" />
-                        </button>
-                      </>
-                    )}
-
-                    <span className="text-[14px] font-bold text-brand group-hover:translate-x-1 transition-transform ml-1 flex items-center gap-1">
-                      Show QR &rarr;
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-
-      {/* ── EDIT PASS MODAL ───────────────────────────────────────────────────── */}
-      {isEditOpen && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 anim-fade-in backdrop-blur-sm">
-          <div role="dialog" aria-modal="true" aria-labelledby="edit-pass-title" className="bg-surface-card rounded-card shadow-modal w-full max-w-lg overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-line">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-full bg-home-bg text-home-ink flex items-center justify-center">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 id="edit-pass-title" className="font-bold text-ink text-[18px]">Edit visitor pass</h3>
-                  <p className="text-[13px] text-ink-muted">Change the guest, date or purpose</p>
-                </div>
-              </div>
-              <button onClick={() => setIsEditOpen(false)} aria-label="Close" className="w-11 h-11 rounded-full flex items-center justify-center text-ink-muted hover:bg-surface-subtle">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleEditPass} className="p-6 space-y-4 overflow-y-auto max-h-[80vh]">
-              <div>
-                <label className="block text-[14px] font-semibold text-ink mb-1.5">Guest Full Name <span className="text-status-danger" aria-hidden="true">*</span></label>
-                <input
-                  type="text"
-                  required
-                  value={editForm.guest_name}
-                  onChange={e => setEditForm({...editForm, guest_name: e.target.value})}
-                  className="w-full h-11 px-3.5 bg-surface-card border border-input rounded-xl text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-semibold text-ink mb-1.5">Expected Visit Date <span className="text-status-danger" aria-hidden="true">*</span></label>
-                <input
-                  type="date"
-                  required
-                  min={todayStr}
-                  value={editForm.expected_date}
-                  onChange={e => setEditForm({...editForm, expected_date: e.target.value})}
-                  className="w-full h-11 px-3.5 bg-surface-card border border-input rounded-xl text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-semibold text-ink mb-1.5">Purpose of Visit</label>
-                <input
-                  type="text"
-                  value={editForm.purpose}
-                  onChange={e => setEditForm({...editForm, purpose: e.target.value})}
-                  className="w-full h-11 px-3.5 bg-surface-card border border-input rounded-xl text-[15px] text-ink placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-                />
-              </div>
-
-              <div className="pt-4 border-t border-line flex justify-end gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsEditOpen(false)}
-                  className="h-11 px-5 text-[15px] font-semibold text-ink-muted hover:bg-surface-subtle rounded-full transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="h-11 px-6 bg-brand hover:bg-brand/90 text-brand-on text-[15px] font-semibold rounded-full transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-                >
-                  {actionLoading ? <Loader2 className="w-4 h-4 spin" /> : 'Save changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>,
-        document.body
+          {d.notifications.length > 0 && <Notifications items={d.notifications} />}
+        </>
       )}
-
-      {/* ── PASS QR MODAL VIEW OVERLAY ───────────────────────────────────────── */}
-      {selectedPass && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm anim-fade-in">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
-            <PassCard pass={selectedPass} onClose={() => setSelectedPass(null)} />
-          </div>
-        </div>,
-        document.body
-      )}
-
     </div>
   );
 };

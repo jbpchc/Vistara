@@ -49,41 +49,40 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-surface-canvas">
 
       {/* ── Body ─────────────────────────────────────────────── */}
       <div className="flex-1 flex">
 
         {/* Left — Logo panel */}
-        <div className="hidden md:flex w-1/2 items-center justify-center border-r border-gray-200 bg-white">
-          <img
-            src={`${import.meta.env.BASE_URL}logo.png`}
-            alt="Camella GuardTrack"
-            className="w-72 max-w-xs select-none"
-            draggable={false}
-          />
+        <div className="hidden md:flex w-1/2 flex-col items-start justify-between bg-brand-forest p-14">
+          <img src={`${import.meta.env.BASE_URL}camella-naga-logo-reversed.svg`} alt="Camella Naga" className="w-56 select-none" draggable={false} />
+          <div>
+            <p className="text-[13px] font-bold tracking-[0.12em] text-side-text">VISTARA</p>
+            <p className="mt-2 text-[40px] leading-tight font-semibold text-side-active max-w-md">Gate, visitor and community management for Camella Homes Naga.</p>
+            <p className="mt-4 text-[16px] text-side-text max-w-md">One sign-in for the HOA office, homeowners and gate guards.</p>
+          </div>
+          <p className="text-[13px] text-side-text/80">© 2026 Vistara · Camella Homes Naga</p>
         </div>
 
         {/* Right — Form panel */}
-        <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-16 bg-white">
+        <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-16 py-12 bg-surface-canvas">
           <div className="w-full max-w-sm anim-fade-in">
 
             {/* Mobile logo */}
             <div className="flex justify-center mb-8 md:hidden">
-              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Camella GuardTrack" className="w-48" />
+              <img src={`${import.meta.env.BASE_URL}camella-naga-logo.svg`} alt="Camella Naga" className="w-48" />
             </div>
 
-            <h1 className="text-4xl font-bold text-green-800 mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Login
-            </h1>
-            <p className="text-sm text-gray-500 mb-8">Sign in to continue.</p>
+            <h1 className="text-[40px] font-semibold text-ink mb-1">Welcome back</h1>
+            <p className="text-[16px] text-ink-muted mb-8">Sign in to continue to Vistara.</p>
 
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
 
               {/* Username */}
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Username:
+                <label htmlFor="username" className="block text-[14px] font-semibold text-ink mb-1.5">
+                  Username
                 </label>
                 <input
                   id="username"
@@ -93,14 +92,14 @@ const LoginForm = () => {
                   value={form.username}
                   onChange={handleChange}
                   disabled={loading}
-                  className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm text-gray-800 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent disabled:opacity-60 transition-shadow"
+                  className="w-full h-12 px-4 border border-input rounded-xl text-[15px] text-ink bg-surface-card placeholder:text-ink-muted/70 focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-60"
                 />
               </div>
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Password:
+                <label htmlFor="password" className="block text-[14px] font-semibold text-ink mb-1.5">
+                  Password
                 </label>
                 <div className="relative">
                   <input
@@ -111,13 +110,13 @@ const LoginForm = () => {
                     value={form.password}
                     onChange={handleChange}
                     disabled={loading}
-                    className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent disabled:opacity-60 transition-shadow"
+                    className="w-full h-12 px-4 pr-12 border border-input rounded-xl text-[15px] text-ink bg-surface-card focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-60"
                   />
                   <button
                     type="button"
-                    tabIndex={-1}
                     onClick={() => setShowPwd(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label={showPwd ? 'Hide password' : 'Show password'}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-ink-muted hover:text-ink"
                   >
                     {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -129,7 +128,7 @@ const LoginForm = () => {
                 <button 
                   type="button" 
                   onClick={() => setIsForgotOpen(true)}
-                  className="text-xs text-green-700 hover:text-green-900 hover:underline"
+                  className="text-[14px] font-semibold text-brand hover:underline"
                 >
                   Forgot password?
                 </button>
@@ -137,7 +136,7 @@ const LoginForm = () => {
 
               {/* Error */}
               {error && (
-                <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                <div role="alert" className="text-[14px] font-semibold text-status-danger bg-status-danger-bg rounded-xl px-4 py-3">
                   {error}
                 </div>
               )}
@@ -147,11 +146,11 @@ const LoginForm = () => {
                 id="login-submit-btn"
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 rounded-md text-sm font-semibold text-white bg-green-800 hover:bg-green-900 active:scale-[0.99] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-full text-[16px] font-semibold text-brand-on bg-brand hover:bg-brand/90 active:scale-[0.99] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {loading
                   ? <><Loader2 className="w-4 h-4 spin" /> Signing in…</>
-                  : 'Login'
+                  : 'Sign in'
                 }
               </button>
             </form>
@@ -191,16 +190,6 @@ const LoginForm = () => {
         </div>
       </div>
 
-      {/* ── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-gray-200 bg-white px-6 py-3">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
-          <span>© 2025 Camella Homes. All rights reserved.</span>
-          <div className="flex items-center gap-5">
-            <button className="hover:text-gray-600 transition-colors">Privacy Policy</button>
-            <button className="hover:text-gray-600 transition-colors">Terms of Service</button>
-          </div>
-        </div>
-      </footer>
       {/* Custom Immersive Dialog Popup for Forgot Password */}
       {isForgotOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm anim-fade-in animate-duration-200">
