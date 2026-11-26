@@ -13,7 +13,7 @@ There are three role-based portals on one design system:
 |---|---|
 | Project files | `frontend/` (React + Vite + Tailwind) and `backend/` (Node + Express + Sequelize) |
 | Documentation of prompts used | [design-handoff/PROMPTS.md](design-handoff/PROMPTS.md) |
-| Design handoff document | [design-handoff/HANDOFF.md](design-handoff/HANDOFF.md) and the Figma page **VISTARA · Design Handoff** |
+| Design handoff document | [Vistara-Design-Handoff.pdf](design-handoff/Vistara-Design-Handoff.pdf) (16 pages), [HANDOFF.md](design-handoff/HANDOFF.md) and the Figma page **VISTARA · Design Handoff** |
 | Figma design + prototypes | https://www.figma.com/design/DVDO9PiDwlHtE6kqXyCIA3/VISTARA |
 | Deployed link (demo, no backend) | https://jbpchc.github.io/Vistara/ — pick Admin, Resident or Guard on the login screen |
 
