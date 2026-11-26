@@ -66,33 +66,36 @@ const SignOutItem = ({ className }) => {
 const ADMIN_NAV = [
   { group: 'Overview', items: [{ to: '/admin/dashboard', icon: LayoutGrid, label: 'Dashboard' }] },
   { group: 'Gate', items: [
-    { to: '/planned/visitor-passes', icon: Ticket, label: 'Visitor passes' },
+    { to: '/admin/passes', icon: Ticket, label: 'Visitor passes' },
     { to: '/guard/logs', icon: Clock3, label: 'Gate log', match: (l) => l.pathname === '/guard/logs' && !l.search.includes('checked_in') },
     { to: '/guard/logs?status=checked_in', icon: Users, label: 'Currently inside', badgeKey: 'inside', match: (l) => l.pathname === '/guard/logs' && l.search.includes('checked_in') },
-    { to: '/planned/watchlist', icon: ShieldAlert, label: 'Watchlist' },
+    { to: '/admin/watchlist', icon: ShieldAlert, label: 'Watchlist' },
   ] },
   { group: 'Review queues', items: [
-    { to: '/planned/documents', icon: FileText, label: 'Documents' },
-    { to: '/planned/item-passes', icon: Package, label: 'Item gate passes' },
+    { to: '/admin/documents', icon: FileText, label: 'Documents' },
+    { to: '/admin/item-passes', icon: Package, label: 'Item gate passes' },
     { to: '/admin/incidents', icon: TriangleAlert, label: 'Incidents', badgeKey: 'incidents' },
   ] },
   { group: 'Registry', items: [
     { to: '/admin/properties', icon: House, label: 'Properties' },
     { to: '/admin/residents', icon: User, label: 'Residents & households' },
-    { to: '/planned/tenants', icon: KeyRound, label: 'Tenants & leases' },
-    { to: '/planned/vehicles', icon: Car, label: 'Vehicles & stickers' },
+    { to: '/admin/tenants', icon: KeyRound, label: 'Tenants & leases' },
+    { to: '/admin/vehicles', icon: Car, label: 'Vehicles & stickers' },
   ] },
   { group: 'Administration', items: [
-    { to: '/planned/reports', icon: ChartColumn, label: 'Reports' },
-    { to: '/planned/audit', icon: History, label: 'Audit log' },
+    { to: '/admin/reports', icon: ChartColumn, label: 'Reports' },
+    { to: '/admin/audit', icon: History, label: 'Audit log' },
     { to: '/admin/users', icon: Users, label: 'Users & roles' },
-    { to: '/planned/settings', icon: SlidersHorizontal, label: 'Settings' },
+    { to: '/admin/settings', icon: SlidersHorizontal, label: 'Settings' },
   ] },
 ];
 
 const ADMIN_TITLES = {
   '/admin/dashboard': 'Dashboard', '/admin/residents': 'Residents & households', '/admin/users': 'Users & roles',
   '/admin/properties': 'Properties', '/guard/logs': 'Gate log', '/admin/incidents': 'Incidents',
+  '/admin/passes': 'Visitor passes', '/admin/documents': 'Documents', '/admin/item-passes': 'Item gate passes', '/admin/tenants': 'Tenants & leases',
+  '/admin/vehicles': 'Vehicles & stickers', '/admin/watchlist': 'Watchlist', '/admin/reports': 'Reports', '/admin/audit': 'Audit log',
+  '/admin/settings': 'Settings', '/admin/notifications': 'Notifications',
 };
 
 const AdminSidebar = ({ open, onToggle, counts }) => {
@@ -102,7 +105,7 @@ const AdminSidebar = ({ open, onToggle, counts }) => {
   const ref = useRef(null);
   useOutside(ref, () => setMenu(false));
 
-  const isActive = (it) => (it.match ? it.match(loc) : loc.pathname === it.to);
+  const isActive = (it) => (it.match ? it.match(loc) : loc.pathname === it.to || loc.pathname.startsWith(`${it.to}/`));
 
   return (
     <aside className={`hidden lg:flex flex-col h-screen sticky top-0 shrink-0 bg-brand-forest transition-all duration-300 ${open ? 'w-[260px]' : 'w-[84px]'}`}>
@@ -172,7 +175,7 @@ const NewMenu = () => {
   const ref = useRef(null);
   useOutside(ref, () => setOpen(false));
   const items = [
-    { to: '/planned/visitor-passes', label: 'Visitor pass' },
+    { to: '/admin/passes', label: 'Visitor pass' },
     { to: '/admin/residents', label: 'Resident' },
     { to: '/admin/properties', label: 'Property' },
     { to: '/admin/users', label: 'Staff account' },
@@ -212,7 +215,7 @@ const AdminShell = ({ children }) => {
     return () => document.removeEventListener('keydown', h);
   }, []);
 
-  const title = loc.pathname.startsWith('/planned') ? 'Planned screen' : ADMIN_TITLES[loc.pathname] || 'Dashboard';
+  const title = loc.pathname.startsWith('/admin/documents/') ? 'Documents › Review' : ADMIN_TITLES[loc.pathname] || 'Dashboard';
 
   // Live counts for the sidebar badges and the gate status pill.
   const [counts, setCounts] = useState({ inside: null, incidents: null });
@@ -258,7 +261,7 @@ const AdminShell = ({ children }) => {
               <kbd className="h-7 min-w-[28px] px-2 rounded-lg bg-surface-subtle text-[13px] font-mono text-ink-muted flex items-center justify-center">/</kbd>
             </form>
             <NewMenu />
-            <Link to="/planned/notifications" aria-label="Notifications" className="relative w-11 h-11 rounded-full border border-line bg-surface-card flex items-center justify-center hover:bg-surface-subtle">
+            <Link to="/admin/notifications" aria-label="Notifications" className="relative w-11 h-11 rounded-full border border-line bg-surface-card flex items-center justify-center hover:bg-surface-subtle">
               <Bell className="w-5 h-5 text-ink" aria-hidden="true" />
             </Link>
           </div>
@@ -292,9 +295,9 @@ const ResidentShell = ({ children }) => {
           <nav aria-label="Resident" className="hidden lg:flex items-center gap-1">
             <NavLink to="/resident/dashboard" end className={pill}><House className="w-[18px] h-[18px]" aria-hidden="true" /> Home</NavLink>
             <NavLink to="/resident/passes" className={pill}><Ticket className="w-[18px] h-[18px]" aria-hidden="true" /> Passes</NavLink>
-            <NavLink to="/planned/household" className={pill}><Users className="w-[18px] h-[18px]" aria-hidden="true" /> Household</NavLink>
-            <NavLink to="/planned/my-home" className={pill}><KeyRound className="w-[18px] h-[18px]" aria-hidden="true" /> My home</NavLink>
-            <NavLink to="/planned/activity" className={pill}><Activity className="w-[18px] h-[18px]" aria-hidden="true" /> Activity</NavLink>
+            <NavLink to="/resident/household" className={pill}><Users className="w-[18px] h-[18px]" aria-hidden="true" /> Household</NavLink>
+            <NavLink to="/resident/home" className={pill}><KeyRound className="w-[18px] h-[18px]" aria-hidden="true" /> My home</NavLink>
+            <NavLink to="/resident/activity" className={pill}><Activity className="w-[18px] h-[18px]" aria-hidden="true" /> Activity</NavLink>
           </nav>
           <div className="flex items-center gap-2 shrink-0">
             {prop && (
@@ -306,7 +309,7 @@ const ResidentShell = ({ children }) => {
             <Link to="/resident/passes#new-pass" className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
               <Plus className="w-4 h-4" aria-hidden="true" /> New visitor pass
             </Link>
-            <Link to="/planned/activity" aria-label="Notifications" className="relative w-11 h-11 rounded-full border border-line flex items-center justify-center hover:bg-surface-subtle">
+            <Link to="/resident/activity/notifications" aria-label="Notifications" className="relative w-11 h-11 rounded-full border border-line flex items-center justify-center hover:bg-surface-subtle">
               <Bell className="w-5 h-5 text-ink" aria-hidden="true" />
             </Link>
             <div ref={ref} className="relative">
@@ -320,6 +323,9 @@ const ResidentShell = ({ children }) => {
                     <p className="text-sm font-bold text-ink truncate">{displayName(user)}</p>
                     <p className="text-xs text-ink-muted">Homeowner{prop ? ` · Block ${prop.block}, Lot ${prop.lot}` : ''}</p>
                   </div>
+                  {[['profile', 'Profile and security'], ['privacy', 'Privacy and my data'], ['help', 'Help and support']].map(([k, l]) => (
+                    <Link key={k} role="menuitem" to={`/resident/account/${k}`} onClick={() => setMenu(false)} className="flex items-center h-11 px-4 text-sm font-semibold text-ink hover:bg-surface-subtle">{l}</Link>
+                  ))}
                   <SignOutItem className="text-status-danger hover:bg-status-danger-bg" />
                 </div>
               )}
@@ -335,8 +341,8 @@ const ResidentShell = ({ children }) => {
             { to: '/resident/dashboard', icon: House, label: 'Home', end: true },
             { to: '/resident/passes', icon: Ticket, label: 'Passes', end: true },
             null,
-            { to: '/planned/household', icon: Users, label: 'Household' },
-            { to: '/planned/activity', icon: Activity, label: 'Activity' },
+            { to: '/resident/household', icon: Users, label: 'Household' },
+            { to: '/resident/activity', icon: Activity, label: 'Activity' },
           ].map((it, i) => it === null ? (
             <Link key="new" to="/resident/passes#new-pass" aria-label="New visitor pass"
               className="mx-auto -mt-6 mb-3 w-14 h-14 rounded-full bg-brand text-brand-on flex items-center justify-center shadow-modal">
@@ -420,8 +426,8 @@ const GuardShell = ({ children }) => {
     { to: '/guard/logs?status=checked_in', icon: Users, label: 'Inside', badge: live.inside || null, active: loc.pathname === '/guard/logs' && loc.search.includes('checked_in') },
     { to: '/guard/logs', icon: History, label: 'Gate log', active: loc.pathname === '/guard/logs' && !loc.search.includes('checked_in') },
     { to: '/guard/incidents', icon: TriangleAlert, label: 'Incidents' },
-    { to: '/planned/patrol', icon: Route, label: 'Patrol' },
-    { to: '/planned/more', icon: LayoutGrid, label: 'More' },
+    { to: '/guard/patrol', icon: Route, label: 'Patrol' },
+    { to: '/guard/more', icon: LayoutGrid, label: 'More' },
   ];
 
   return (
@@ -435,7 +441,7 @@ const GuardShell = ({ children }) => {
         </NavLink>
         <div className="w-14 h-px bg-g-border my-2" aria-hidden="true" />
         {items.map(({ to, icon: Icon, label, badge, active }) => (
-          <Link key={label} to={to} className={rail(active ?? loc.pathname === to)} aria-current={(active ?? loc.pathname === to) ? 'page' : undefined}>
+          <Link key={label} to={to} className={rail(active ?? (loc.pathname === to || loc.pathname.startsWith(`${to}/`)))} aria-current={(active ?? (loc.pathname === to || loc.pathname.startsWith(`${to}/`))) ? 'page' : undefined}>
             <span className="relative">
               <Icon className="w-7 h-7" aria-hidden="true" />
               {badge != null && <span className="absolute -top-2 -right-3 min-w-[20px] h-5 px-1 rounded-full bg-g-warn text-g-on-fab text-[11px] font-bold flex items-center justify-center">{badge}</span>}

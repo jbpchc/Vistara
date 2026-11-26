@@ -58,9 +58,9 @@ const WalkinAlert = ({ w, onDecide, busy }) => {
 const QuickActions = () => {
   const items = [
     { to: '/resident/passes#new-pass', icon: Ticket, title: 'New Visitor Pass', primary: true },
-    { to: '/planned/my-home', icon: Package, title: 'Request Item Pass', sub: 'Move items in or out' },
-    { to: '/planned/my-home', icon: Car, title: 'Add Vehicle', sub: 'Register for a sticker' },
-    { to: '/planned/my-home', icon: FileUp, title: 'Upload Document', sub: 'Send to the HOA' },
+    { to: '/resident/home/items', icon: Package, title: 'Request Item Pass', sub: 'Move items in or out' },
+    { to: '/resident/home/vehicles', icon: Car, title: 'Add Vehicle', sub: 'Register for a sticker' },
+    { to: '/resident/home/documents', icon: FileUp, title: 'Upload Document', sub: 'Send to the HOA' },
   ];
   return (
     <section aria-labelledby="qa-title">
@@ -90,7 +90,7 @@ const SetupProgress = ({ s, onSkip }) => (
         <p className="mt-1 text-[14px] text-ink-muted">{s.done} of {s.total} steps complete. Add your household so the HOA knows who lives here.</p>
       </div>
       <div className="flex items-center gap-2">
-        <Link to="/planned/household" className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand-forest text-side-active text-[15px] font-semibold hover:bg-brand">
+        <Link to="/resident/household" className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand-forest text-side-active text-[15px] font-semibold hover:bg-brand">
           <ArrowRight className="w-4 h-4" aria-hidden="true" /> Resume setup
         </Link>
         <button onClick={onSkip} className="h-11 px-4 rounded-full text-[15px] font-semibold text-ink hover:bg-surface-card">Skip for now</button>
@@ -137,7 +137,7 @@ const InsideNow = ({ rows }) => (
         </tbody>
       </table></div>
     )}
-    <Link to="/planned/activity" className="mt-4 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">View visit history <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
+    <Link to="/resident/activity/visits" className="mt-4 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">View visit history <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
   </Card>
 );
 
@@ -151,7 +151,7 @@ const DocumentAlerts = ({ docs }) => (
             <Badge variant={d.tone === 'danger' ? 'destructive' : 'warning'} dot={false} className="gap-1">{d.tone === 'danger' ? <CircleX className="w-3.5 h-3.5" aria-hidden="true" /> : <Clock3 className="w-3.5 h-3.5" aria-hidden="true" />}{d.status}</Badge></div>
           <p className="mt-1 text-[14px] text-ink-muted">{d.sub}</p>
           <p className="mt-1 text-[14px] text-ink-muted">{d.note}</p>
-          <Link to="/planned/my-home" className="mt-3 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">{d.action} <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
+          <Link to="/resident/home/documents" className="mt-3 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">{d.action} <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
         </li>
       ))}
     </ul>
@@ -188,8 +188,8 @@ const LeaseAlert = ({ l }) => (
       <p className="mt-1 text-[14px] text-ink-muted">Renew to keep your tenant’s access</p>
     </div>
     <div className="mt-4 flex gap-3">
-      <Link to="/planned/tenants" className="flex-1 inline-flex items-center justify-center h-11 rounded-full border border-line text-[15px] font-semibold text-ink hover:bg-surface-subtle">Renew lease</Link>
-      <Link to="/planned/household" className="inline-flex items-center justify-center h-11 px-4 rounded-full text-[15px] font-semibold text-ink hover:bg-surface-subtle">View tenants</Link>
+      <Link to="/resident/home/properties" className="flex-1 inline-flex items-center justify-center h-11 rounded-full border border-line text-[15px] font-semibold text-ink hover:bg-surface-subtle">Renew lease</Link>
+      <Link to="/resident/household" className="inline-flex items-center justify-center h-11 px-4 rounded-full text-[15px] font-semibold text-ink hover:bg-surface-subtle">View tenants</Link>
     </div>
   </Card>
 );
@@ -198,7 +198,7 @@ const NOTE_ICON = { gate: DoorOpen, entry: LogIn, doc: FileText };
 const Notifications = ({ items }) => (
   <Card aria-labelledby="nt-title">
     <div className="flex items-center justify-between"><Title id="nt-title" count={items.length}>Latest notifications</Title>
-      <Link to="/planned/activity" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">See all notifications <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link></div>
+      <Link to="/resident/activity/notifications" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">See all notifications <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link></div>
     <p className="mt-1 text-[14px] text-ink-muted">{format(new Date(), 'MMM d, yyyy')} · {items.length} unread</p>
     <ul className="mt-5 grid md:grid-cols-3 gap-4">
       {items.map((n) => {
@@ -208,7 +208,7 @@ const Notifications = ({ items }) => (
             <p className="flex items-center justify-between text-[13px] text-ink-muted"><span className="flex items-center gap-2"><Icon className="w-4 h-4 text-home-ink" aria-hidden="true" />{format(new Date(n.time), 'h:mm a')}</span><span className="w-2 h-2 rounded-full bg-ink" aria-hidden="true" /><span className="sr-only">Unread</span></p>
             <p className="mt-3 text-[15px] font-semibold text-ink">{n.title}</p>
             <p className="mt-1 text-[14px] text-ink-muted">{n.body}</p>
-            <Link to="/planned/activity" className="mt-3 inline-block text-[15px] font-semibold text-ink hover:underline">{n.action}</Link>
+            <Link to="/resident/activity/notifications" className="mt-3 inline-block text-[15px] font-semibold text-ink hover:underline">{n.action}</Link>
           </li>
         );
       })}
@@ -285,7 +285,7 @@ const ResidentDashboard = () => {
           {d.setup && !hideSetup && <SetupProgress s={d.setup} onSkip={() => setHideSetup(true)} />}
           <div className="grid md:grid-cols-3 gap-4">
             <StatCard label="Active passes" value={d.stats.activePasses} sub="Valid today" Icon={Briefcase} to="/resident/passes" />
-            <StatCard label="Visitors inside now" value={d.stats.inside} sub={d.stats.inside ? 'All on time' : 'Nobody inside'} Icon={Users} to="/planned/activity" />
+            <StatCard label="Visitors inside now" value={d.stats.inside} sub={d.stats.inside ? 'All on time' : 'Nobody inside'} Icon={Users} to="/resident/activity" />
             <StatCard label="Upcoming visitors" value={d.stats.upcoming} sub="Next 7 days" Icon={CalendarDays} to="/resident/passes" />
           </div>
           <div className="grid lg:grid-cols-[1.45fr_1fr] gap-6 items-start">

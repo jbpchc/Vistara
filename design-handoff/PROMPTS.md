@@ -63,6 +63,9 @@ Prompts are quoted **verbatim**, including our original spelling and capitalisat
 | 24 | "this is just for compliance for my instructor so it wont be deployed really." | Kept the live site in demo mode, with the full backend in the repo and steps to run it locally. | **Team decision:** no paid or online hosting. |
 | 25 | "remove the things that the instructor does not need to see or things that are unnecessary" | Removed unused pages, starter-template images and hosting configuration. Both builds still passed. | n/a |
 | 26 | *Asked to update this file so it fully meets the activity's requirement to document the prompts used.* | Rewrote this file as a complete prompt log. | n/a |
+| 27 | "why is inside now and gate log the same?" | Found that the status filter didn't follow the URL, so both links showed the same list. Synced the filter with the URL and made "Inside now" ignore the date. | Checked both views side by side. |
+| 28 | "build the rest" | Built the remaining screens from the Figma frames. **Admin:** visitor passes, document queue and review (4-point checklist, remarks required to reject), item gate passes, tenants and leases (renew, end), vehicles and stickers, watchlist, reports with CSV export, audit log, settings, notifications. **Resident:** household members, My home (properties, vehicles, documents, item passes), activity (visits, walk-ins, notifications), account (profile, privacy, help). **Guard:** patrol rounds with checkpoints and issues, shift handoff, vehicle lookup with watchlist alerts, item pass check, occupancy. Every change is written to the audit log. Shared building blocks (`components/kit.jsx`) keep tables, tabs, dialogs and forms consistent. | **Team decision:** the new screens run on demo data; the backend keeps covering the core flows. |
+| 29 | "make sure that there is no bugs will be created." | Wrote an end-to-end test that opens every new screen for each role, performs the main actions (approve/reject, add/remove, renew, save, patrol round, handoff, lookups) and checks the results, console errors, accessibility and layout at the target viewports. It found two bugs: new items didn't appear after saving, because the demo API returned the same object it had changed; fixed by copying every demo response, as a real network response would be. The not-found page also lacked a main landmark. Final run: 0 failures, and the earlier screens re-audited with 0 accessibility violations. | Re-ran the full test after each fix. |
 
 ## 3. How prompts were written (prompting techniques)
 
@@ -113,13 +116,14 @@ Architecture, state management and design trade-offs are explained in [`TECHNICA
 - **Automated checks:**
   - production builds;
   - headless-browser screenshots compared with the Figma frames;
-  - an end-to-end test of walk-in → approve → admit, SOS, and resolving an incident.
+  - an end-to-end test of walk-in → approve → admit, SOS, and resolving an incident;
+  - an end-to-end test of every screen and its main actions for all three roles, with accessibility and layout checks.
 
 ## 6. Verification and limits
 
 - Every AI result was checked with screenshots, builds or tests before it was accepted, and the team reviewed the key screens.
 - **Not done yet:** usability testing with real guards, residents and HOA staff. This is the next step under ISO 9241-210; see `docs/ISO-9241-210_and_Accessibility.md` §1.5.
-- Screens that are designed but not coded yet open a placeholder page. It says the screen isn't built and links to its Figma prototype.
+- The screens added in prompt 28 run on demo data. The Express backend covers the core flows (dashboards, passes, walk-ins, incidents, gate log); the other screens' endpoints follow the same pattern and are the next backend step.
 - Demo mode uses sample data, which resets when the page is reloaded.
 
 ## 7. Responsible use

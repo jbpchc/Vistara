@@ -27,9 +27,9 @@ const SEVERITY = {
   upcoming: { variant: 'neutral', label: 'Upcoming' },
 };
 const KIND_ICON = { incident: TriangleAlert, overstay: UserX, documents: FileText, leases: KeyRound, vehicles: Car, denied: TriangleAlert };
-const KIND_LINK = { denied: '/guard/logs', incident: '/admin/incidents', overstay: '/guard/logs?status=checked_in', documents: '/planned/documents', leases: '/planned/tenants', vehicles: '/planned/vehicles' };
+const KIND_LINK = { denied: '/guard/logs', incident: '/admin/incidents', overstay: '/guard/logs?status=checked_in', documents: '/admin/documents', leases: '/admin/tenants', vehicles: '/admin/vehicles' };
 const QUEUE_ICON = { file: FileText, package: Package, alert: TriangleAlert, users: Users };
-const QUEUE_LINK = { file: '/planned/documents', package: '/planned/item-passes', alert: '/admin/incidents', users: '/guard/logs' };
+const QUEUE_LINK = { file: '/admin/documents', package: '/admin/item-passes', alert: '/admin/incidents', users: '/guard/logs' };
 
 const greeting = (d) => (d.getHours() < 12 ? 'Good morning' : d.getHours() < 18 ? 'Good afternoon' : 'Good evening');
 
@@ -107,7 +107,7 @@ const GateToday = ({ t }) => {
         {[
           { icon: Users, label: 'Inside now', v: t.inside, to: '/guard/logs?status=checked_in' },
           { icon: LogIn, label: 'Walk-ins', v: t.walkins, to: '/guard/logs' },
-          { icon: Ticket, label: 'Active passes', v: t.activePasses, to: '/planned/visitor-passes' },
+          { icon: Ticket, label: 'Active passes', v: t.activePasses, to: '/admin/passes' },
           { icon: TriangleAlert, label: 'Denied scans', v: t.denied, to: '/guard/logs', danger: true },
         ].filter((s) => s.v != null).map((s) => (
           <Link key={s.label} to={s.to} className={`rounded-tile p-4 hover:ring-2 hover:ring-brand/20 ${s.danger ? 'bg-status-danger-bg' : 'bg-surface-subtle'}`}>
@@ -311,7 +311,7 @@ const AdminDashboard = () => {
           <button onClick={exportSnapshot} disabled={!d} className="inline-flex items-center gap-2 h-11 px-5 rounded-full border border-line bg-surface-card text-[15px] font-semibold text-ink hover:bg-surface-subtle disabled:opacity-50">
             <Download className="w-4 h-4" aria-hidden="true" /> Export snapshot
           </button>
-          <Link to="/planned/documents" className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
+          <Link to="/admin/documents" className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
             <ClipboardCheck className="w-4 h-4" aria-hidden="true" /> Open review queue
           </Link>
         </div>

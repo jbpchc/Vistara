@@ -3,14 +3,14 @@ import { Home, Compass } from 'lucide-react';
 
 const NotFoundPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-5 relative overflow-hidden">
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-5 relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-green-100 rounded-full blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] bg-orange-100 rounded-full blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
       <div className="relative bg-white border border-gray-200 rounded-2xl shadow-xl max-w-md w-full p-10 text-center anim-fade-in z-10">
         <div className="w-20 h-20 bg-green-50 text-green-700 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm border border-green-100">
-          <Compass className="w-10 h-10" />
+          <Compass className="w-10 h-10" aria-hidden="true" />
         </div>
         
         <h1 className="text-7xl font-black text-green-800 tracking-tighter mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -32,7 +32,7 @@ const NotFoundPage = () => {
           Return to Dashboard
         </Link>
       </div>
-    </div>
+    </main>
   );
 };
 

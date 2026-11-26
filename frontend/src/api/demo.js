@@ -6,6 +6,8 @@
  * Data lives in memory: changes reset when the page is reloaded.
  */
 
+import { hubRoutes } from '@/api/demoHub';
+
 const uuid = () =>
   (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
@@ -391,6 +393,23 @@ const routes = [
     } }];
   }],
 
+  // Views over the live pass list (admin Visitor passes, resident Visit history / Walk-in approvals)
+  ['get', /^\/hub\/visitorPasses$/, () => [200, { success: true, data: passes.map((p) => {
+    const prop = properties.find((x) => x.id === p.PropertyId); const r = residentOf(prop);
+    return { id: p.id, code: p.pass_id.slice(0, 8).toUpperCase(), guest: p.guest_name, resident: r?.full_name || '—', property: prop ? `${prop.street} · B${prop.block} L${prop.lot}` : '—',
+      date: p.expected_date, purpose: p.purpose, status: p.status === 'checked_in' ? 'inside' : p.status, createdAt: p.createdAt, scannedAt: p.scanned_at };
+  }) }]],
+  ['patch', /^\/hub\/visitorPasses\/(\d+)$/, ([id]) => {
+    const p = passes.find((x) => x.id === +id);
+    if (!p || p.status !== 'active') return [409, { success: false, message: 'Only active passes can be revoked.' }];
+    p.status = 'expired'; return [200, { success: true, message: 'Pass revoked. The QR code no longer works.' }];
+  }],
+  ['get', /^\/hub\/visits$/, () => [200, { success: true, data: passes.filter((p) => p.PropertyId === 1 && p.scanned_at).map((p) => ({
+    id: p.id, guest: p.guest_name, purpose: p.purpose, entered: p.scanned_at, exited: p.exited_at, status: p.status === 'checked_in' ? 'inside' : 'left', via: p.qr_token ? 'QR pass' : 'Walk-in',
+  })).sort((a, b) => new Date(b.entered) - new Date(a.entered)) }]],
+  ['get', /^\/hub\/walkinHistory$/, () => { tickWalkins(); return [200, { success: true, data: walkins.filter((w) => w.PropertyId === 1) }]; }],
+  ...hubRoutes,
+
   ['get', /^\/health$/, () => [200, { success: true, status: 'OK', service: 'Vistara demo API' }]],
 ];
 
@@ -410,7 +429,8 @@ export const demoAdapter = async (config) => {
     ? route[2](path.match(route[1]).slice(1), body, query)
     : [404, { success: false, message: `Demo mode: ${method.toUpperCase()} ${path} is not simulated.` }];
 
-  const response = { data, status, statusText: String(status), headers: {}, config, request: {} };
+  // Copy like a real network response, so the UI never holds a reference to the in-memory store.
+  const response = { data: structuredClone(data), status, statusText: String(status), headers: {}, config, request: {} };
   if (status >= 400) {
     const err = new Error(data.message);
     err.response = response; err.config = config; err.isAxiosError = true;

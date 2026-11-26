@@ -150,21 +150,14 @@ See also:
 | Resident passes (create, edit, cancel, show QR) | `src/pages/resident/PassesPage.jsx` |
 | G02 Guard gate console (direction, pass type, scanner, today, last scans, expected) | `src/pages/guard/DashboardPage.jsx` |
 | Login | `src/components/auth/LoginForm.jsx` |
+| Admin: visitor passes (A14), documents queue and review (A12, A13), item gate passes (A17, A18), tenants and leases (A08), vehicles and stickers (A09, A11), watchlist (A21), reports (A22), audit log (A23), settings (A25), notifications | `src/pages/admin/AdminPages.jsx` |
+| Resident: household (H03), My home tabs, activity tabs, account tabs | `src/pages/resident/ResidentPages.jsx` |
+| Guard: patrol (G18), shift handoff, vehicle lookup, item pass check, occupancy, watchlist | `src/pages/guard/GuardPages.jsx` |
+| Admin and guard incidents | `src/pages/admin/IncidentsPage.jsx`, `src/pages/guard/IncidentsPage.jsx` |
+| Shared table, tabs, dialog, form field, toggle, notice and pill patterns | `src/components/kit.jsx` |
 
 **Data:** each dashboard reads one composite endpoint: `GET /dashboard/admin`, `/dashboard/resident` or `/dashboard/guard`.
 - The GitHub Pages demo serves these from `src/api/demo.js`.
-- Against the real Express backend, which does not have these endpoints yet, each dashboard falls back to the existing endpoints. It hides the sections that need new data.
+- The Express backend serves the same endpoints (`backend/controllers/dashboard.controller.js`). If one is unavailable, the dashboard falls back to the older endpoints and hides the sections that need the new data.
 
-**Designed but not built yet:** these nav items open `/planned/:slug`. That page explains the screen and links to its Figma prototype, so no navigation is a dead end.
-- Documents
-- Incidents
-- Item passes
-- Tenants
-- Vehicles
-- Reports
-- Audit log
-- Settings
-- Watchlist
-- Household
-- Activity
-- Patrol
+**All designed screens are built.** The screens in the admin, resident and guard page rows above run on the demo data in `src/api/demoHub.js`, and every change made on them is recorded in the audit log.

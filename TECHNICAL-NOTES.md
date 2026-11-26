@@ -32,6 +32,9 @@ Pages (lazy-loaded per route)    │                /api/qr        generate / va
 | **Demo mode** | `api/demo.js` | A replacement axios adapter answers every request in the browser, with the same response shapes as the real server. It includes a simulated resident who approves walk-ins after 8 s, so the static GitHub Pages site behaves like the real system. |
 | **Theme and offline state** | `GuardShell` | The Night/Day choice is saved in `localStorage`, with a guard for when storage is unavailable. Browser `online`/`offline` events drive the status pill. When the connection drops, the last data stays on screen with a warning instead of an empty screen. |
 | **Badge consistency** | `AdminShell`, `GuardShell` | Sidebar and rail badges are fetched from the same data as the dashboards and refreshed on every page change, so the numbers always agree. |
+| **Document review** | `AdminPages.jsx → DocumentReview` | Submit stays disabled until all four checks are ticked. Reject or re-upload needs 10–300 characters of remarks. After a decision the reviewer moves straight to the oldest pending document, and "x of y" shows the queue position. |
+| **Audit trail** | `api/demoHub.js` | Every add, edit, status change and delete on any record writes an audit entry (who, what, target, details), so the audit log reflects actions taken anywhere in the app. |
+| **Patrol round** | `GuardPages.jsx → Patrol` | Checkpoints are scanned in order; each can be marked all clear or logged with an issue. Progress and the round's start time are saved, and the round is complete only when every checkpoint is done. |
 | **Accessibility logic** | throughout | Direction and pass-type choices use radio groups, incident-report chips use `aria-pressed`, and nav links use `aria-current`. There's a keyboard shortcut (`/` focuses search), focus management (`#new-pass` focuses the form) and reduced-motion support. |
 
 ## 3. Key decisions and trade-offs
@@ -92,7 +95,7 @@ The server works out "today" and hourly buckets in Asia/Manila time (UTC+8), so 
 - Move the JWT into an httpOnly cookie.
 
 **What's not finished?**
-Documents, item passes, tenants, vehicles, patrol, reports and the audit log are designed in Figma but not coded. They open a "designed, not built yet" page that links to the prototype. Usability testing with real users is also still to be done.
+Every designed screen is built. The screens beyond the core flows (documents, item passes, tenants, vehicles, watchlist, reports, audit log, settings, household, patrol, handoff) run on demo data; their backend endpoints are the next step and follow the same controller pattern. Usability testing with real users is also still to be done.
 
 **How do you run it?**
 See the README. The local option without MySQL is `DB_DIALECT=sqlite DB_STORAGE=./dev.db SEED_ON_START=true JWT_SECRET=dev npm start`, after `npm i --no-save sqlite3`.
