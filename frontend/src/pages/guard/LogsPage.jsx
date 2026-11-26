@@ -65,6 +65,9 @@ const LogsPage = () => {
   const [sortOrder, setSort]    = useState('desc');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState(initialStatus);
+  // "Inside" and "Gate log" are the same page with different filters: follow the URL when it changes.
+  useEffect(() => { setStatusFilter(initialStatus); setPage(1); }, [initialStatus]);
+  const insideView = statusFilter === 'checked_in';
   // Exit flow: two-step inline confirmation (no native dialogs)
   const [exitConfirmId, setExitConfirmId] = useState(null); // pass_id pending confirm
   const [exitingId, setExitingId]         = useState(null); // pass_id currently in flight
@@ -92,7 +95,9 @@ const LogsPage = () => {
     try {
       const formattedDate = format(d, 'yyyy-MM-dd');
       // Fetch both checked_in and used visitors for the logs by default, or specific status
-      const params = new URLSearchParams({ page: p, limit: 20, sort: s, date: formattedDate, status: statusFilter });
+      // Inside view lists everyone still inside, whatever day they entered.
+      const params = new URLSearchParams({ page: p, limit: 20, sort: s, status: statusFilter });
+      if (!insideView) params.append('date', formattedDate);
       params.append('_t', new Date().getTime()); // Cache buster
       if (q.trim()) params.append('search', q.trim());
       const res = await api.get(`/logs?${params}`);
@@ -210,14 +215,16 @@ const LogsPage = () => {
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-[32px] font-semibold text-foreground">
-              Gate Logs
+              {insideView ? 'Currently inside' : 'Gate log'}
             </h1>
-            <p className="text-sm text-muted-foreground">{total} total entries</p>
+            <p className="text-sm text-muted-foreground">
+              {insideView ? `${total} visitor${total === 1 ? '' : 's'} inside now · log their exit when they leave` : `${total} record${total === 1 ? '' : 's'} for this day · read-only`}
+            </p>
           </div>
         </div>
         
-        {/* Date Navigator */}
-        <div className="flex items-center bg-card border border-border rounded-lg shadow-sm">
+        {/* Date Navigator (not needed for the inside view) */}
+        <div className={`${insideView ? 'hidden' : 'flex'} items-center bg-card border border-border rounded-lg shadow-sm`}>
           <button 
             onClick={handlePrevDay}
             disabled={isFirstOfMonth}
