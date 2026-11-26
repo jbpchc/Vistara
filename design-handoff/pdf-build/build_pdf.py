@@ -44,6 +44,7 @@ pages.append(f'''<section class="page cover">
   <h1 class="big">Vistara</h1>
   <p class="lead">Gate, visitor and community management for Camella Homes Naga.<br>Three products, one design system: Admin portal, Resident portal and Guard tablet app.</p></div>
   <div class="links">
+    <p><b>Team</b> John Benedict Pachica · Emmanuel Gallego · Dhan Mykell Cruz · John Daniel Esplago</p>
     <p><b>Live demo</b> <a href="{DEMO}">{DEMO}</a> — pick Admin, Resident or Guard on the login screen</p>
     <p><b>Git repository</b> <a href="{REPOURL}">{REPOURL}</a></p>
     <p><b>Figma file</b> <a href="{FIGMA}">figma.com/design/DVDO9PiDwlHtE6kqXyCIA3/VISTARA</a></p>

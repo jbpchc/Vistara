@@ -1,6 +1,8 @@
 # Vistara — Design Handoff (v1.0, semi-final)
 
 Gate, visitor and community management for **Camella Homes Naga**.
+
+**Team:** John Benedict Pachica · Emmanuel Gallego · Dhan Mykell Cruz · John Daniel Esplago
 It covers three products that share one design system. Each one is deliberately distinct, so no user confuses one portal for another.
 
 | Product | User | Platform / frame | Screens | Design | Prototype |

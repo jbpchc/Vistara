@@ -2,6 +2,8 @@
 
 A capstone project for the BS Information Technology program at the University of Nueva Caceres. Vistara was formerly called Camella GuardTrack.
 
+**Team:** John Benedict Pachica · Emmanuel Gallego · Dhan Mykell Cruz · John Daniel Esplago
+
 There are three role-based portals on one design system:
 - **Admin**: HOA office, desktop web.
 - **Resident**: homeowners, web.
