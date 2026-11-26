@@ -73,6 +73,14 @@
   --border: 39 32% 86%;
   --input: 50 5% 53%;
   --ring: 134 29% 19%;
+  --success: 131 39% 30%;
+  --success-bg: 103 29% 91%;
+  --warning: 39 100% 27%;
+  --warning-bg: 41 64% 90%;
+  --danger: 4 76% 40%;
+  --danger-bg: 6 71% 95%;
+  --info: 134 29% 19%;
+  --info-bg: 99 26% 87%;
   --radius: 14px;
 }
 
@@ -149,6 +157,14 @@
   --border: 147 16% 22%;
   --input: 138 9% 46%;
   --ring: 75 67% 59%;
+  --success: 139 51% 67%;
+  --success-bg: 146 38% 15%;
+  --warning: 42 88% 65%;
+  --warning-bg: 40 57% 15%;
+  --danger: 3 100% 76%;
+  --danger-bg: 0 39% 17%;
+  --info: 209 100% 78%;
+  --info-bg: 209 49% 15%;
 }
 [data-app="guard"][data-theme="day"] {
   --g-canvas: #EEF1EA;
@@ -222,4 +238,12 @@
   --border: 98 16% 87%;
   --input: 139 7% 52%;
   --ring: 134 29% 19%;
+  --success: 131 39% 30%;
+  --success-bg: 103 29% 91%;
+  --warning: 39 100% 27%;
+  --warning-bg: 41 64% 90%;
+  --danger: 4 76% 40%;
+  --danger-bg: 6 71% 95%;
+  --info: 207 64% 33%;
+  --info-bg: 209 60% 93%;
 }

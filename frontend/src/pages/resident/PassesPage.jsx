@@ -169,10 +169,11 @@ const ResidentPasses = () => {
 
           <form onSubmit={handleCreatePass} className="space-y-5">
             <div>
-              <label className="block text-[14px] font-semibold text-ink mb-1.5">
+              <label htmlFor="np-guest" className="block text-[14px] font-semibold text-ink mb-1.5">
                 Guest Full Name <span className="text-status-danger" aria-hidden="true">*</span>
               </label>
               <input
+                id="np-guest"
                 type="text"
                 required
                 placeholder="e.g Maria De La Cruz"
@@ -183,10 +184,11 @@ const ResidentPasses = () => {
             </div>
 
             <div>
-              <label className="block text-[14px] font-semibold text-ink mb-1.5">
+              <label htmlFor="np-date" className="block text-[14px] font-semibold text-ink mb-1.5">
                 Expected Visit Date <span className="text-status-danger" aria-hidden="true">*</span>
               </label>
               <input
+                id="np-date"
                 type="date"
                 required
                 min={todayStr}
@@ -197,10 +199,11 @@ const ResidentPasses = () => {
             </div>
 
             <div>
-              <label className="block text-[14px] font-semibold text-ink mb-1.5">
+              <label htmlFor="np-purpose" className="block text-[14px] font-semibold text-ink mb-1.5">
                 Purpose Of Visit <span className="text-status-danger" aria-hidden="true">*</span>
               </label>
               <input
+                id="np-purpose"
                 type="text"
                 required
                 placeholder="e.g Delivery, Plumber, Visiting Relative"
@@ -297,9 +300,6 @@ const ResidentPasses = () => {
                 <div 
                   key={pass.pass_id}
                   onClick={() => setSelectedPass(pass)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPass(pass); } }}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 hover:bg-surface-subtle transition-colors cursor-pointer group px-3 rounded-2xl"
                 >
                   <div className="flex items-center gap-4 min-w-0">
@@ -347,9 +347,14 @@ const ResidentPasses = () => {
                       </>
                     )}
 
-                    <span className="text-[14px] font-bold text-brand group-hover:translate-x-1 transition-transform ml-1 flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setSelectedPass(pass); }}
+                      aria-label={`Show QR code for ${pass.guest_name}`}
+                      className="h-11 px-3 rounded-full text-[14px] font-bold text-brand hover:bg-brand-tint transition-colors ml-1 flex items-center gap-1"
+                    >
                       Show QR &rarr;
-                    </span>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -379,8 +384,9 @@ const ResidentPasses = () => {
 
             <form onSubmit={handleEditPass} className="p-6 space-y-4 overflow-y-auto max-h-[80vh]">
               <div>
-                <label className="block text-[14px] font-semibold text-ink mb-1.5">Guest Full Name <span className="text-status-danger" aria-hidden="true">*</span></label>
+                <label htmlFor="ep-guest" className="block text-[14px] font-semibold text-ink mb-1.5">Guest Full Name <span className="text-status-danger" aria-hidden="true">*</span></label>
                 <input
+                id="ep-guest"
                   type="text"
                   required
                   value={editForm.guest_name}
@@ -390,8 +396,9 @@ const ResidentPasses = () => {
               </div>
 
               <div>
-                <label className="block text-[14px] font-semibold text-ink mb-1.5">Expected Visit Date <span className="text-status-danger" aria-hidden="true">*</span></label>
+                <label htmlFor="ep-date" className="block text-[14px] font-semibold text-ink mb-1.5">Expected Visit Date <span className="text-status-danger" aria-hidden="true">*</span></label>
                 <input
+                id="ep-date"
                   type="date"
                   required
                   min={todayStr}
@@ -402,8 +409,9 @@ const ResidentPasses = () => {
               </div>
 
               <div>
-                <label className="block text-[14px] font-semibold text-ink mb-1.5">Purpose of Visit</label>
+                <label htmlFor="ep-purpose" className="block text-[14px] font-semibold text-ink mb-1.5">Purpose of Visit</label>
                 <input
+                id="ep-purpose"
                   type="text"
                   value={editForm.purpose}
                   onChange={e => setEditForm({...editForm, purpose: e.target.value})}

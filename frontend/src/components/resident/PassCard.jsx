@@ -40,20 +40,20 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
   };
 
   return (
-    <div ref={cardRef} className="bg-white rounded-2xl shadow-2xl overflow-hidden p-8 relative">
+    <div ref={cardRef} className="bg-card rounded-2xl shadow-2xl overflow-hidden p-8 relative">
       
       {/* ── Close Button (if provided) ────────────────────────────────────────── */}
       {onClose && (
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 bg-gray-200/60 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors no-print"
+          className="absolute top-6 right-6 w-8 h-8 bg-muted hover:bg-muted rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors no-print"
         >
           <X className="w-4 h-4" />
         </button>
       )}
 
       {/* ── Title ───────────────────────────────────────────────────────────── */}
-      <h2 className="text-[22px] font-black text-green-900 tracking-wide uppercase mb-8" style={{ fontFamily: 'Outfit, sans-serif' }}>
+      <h2 className="text-[22px] font-black text-success tracking-wide uppercase mb-8" style={{ fontFamily: 'Outfit, sans-serif' }}>
         Guest Gatepass
       </h2>
 
@@ -62,7 +62,7 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
         
         {/* Left: QR Code Box */}
         <div className="shrink-0 flex flex-col items-center">
-          <div className="border-[1.5px] border-gray-800 p-3 bg-white rounded-sm">
+          <div className="border-[1.5px] border-foreground p-3 bg-card rounded-sm">
             <QRCodeCanvas
               value={qrPayload}
               size={130}
@@ -70,7 +70,7 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
               includeMargin={false}
             />
           </div>
-          <p className="text-[11px] font-bold text-gray-500 mt-3 tracking-widest uppercase">
+          <p className="text-[11px] font-bold text-muted-foreground mt-3 tracking-widest uppercase">
             {pass.pass_id?.slice(0, 8)}
           </p>
         </div>
@@ -78,25 +78,25 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
         {/* Right: Text Details */}
         <div className="flex-1 space-y-5 pt-1">
           <div>
-            <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">
+            <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mb-1">
               Guest Name
             </p>
-            <p className="font-extrabold text-gray-900 text-xl tracking-tight leading-none">
+            <p className="font-extrabold text-foreground text-xl tracking-tight leading-none">
               {pass.guest_name}
             </p>
           </div>
           
           <div>
-            <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">
+            <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mb-1">
               Visit Date
             </p>
-            <p className="font-extrabold text-gray-900 text-base tracking-tight leading-none">
+            <p className="font-extrabold text-foreground text-base tracking-tight leading-none">
               {formattedDate}
             </p>
           </div>
 
           <div>
-            <span className="inline-block text-[11px] font-black text-green-700 bg-green-100 px-3 py-1 rounded-full tracking-wider uppercase">
+            <span className="inline-block text-[11px] font-black text-success bg-success-bg px-3 py-1 rounded-full tracking-wider uppercase">
               Active
             </span>
           </div>
@@ -105,9 +105,9 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
 
       {/* ── Footer Info ─────────────────────────────────────────────────────── */}
       <div className="mt-8 mb-8 flex items-start gap-3">
-        <Pin className="w-5 h-5 text-green-800 shrink-0 fill-green-800 rotate-45" />
-        <p className="text-xs text-gray-400 leading-relaxed font-medium">
-          Present this QR Code to the guard at the gate. Valid for <strong className="text-gray-500">one-time use</strong> on <strong className="text-gray-500">{formattedDate}</strong> only.
+        <Pin className="w-5 h-5 text-success shrink-0 fill-primary rotate-45" />
+        <p className="text-xs text-muted-foreground leading-relaxed font-medium">
+          Present this QR Code to the guard at the gate. Valid for <strong className="text-muted-foreground">one-time use</strong> on <strong className="text-muted-foreground">{formattedDate}</strong> only.
         </p>
       </div>
 
@@ -116,14 +116,14 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
         <button
           id="download-qr-btn"
           onClick={handleDownload}
-          className="flex items-center justify-center gap-2 h-11 bg-[#156e3b] hover:bg-[#115a30] text-white text-[13px] font-black tracking-wide rounded-sm transition-all shadow-sm active:scale-[0.98] uppercase"
+          className="flex items-center justify-center gap-2 h-11 bg-primary hover:bg-primary/90 text-primary-foreground text-[13px] font-black tracking-wide rounded-sm transition-all shadow-sm active:scale-[0.98] uppercase"
         >
           <Download className="w-4 h-4" /> Download
         </button>
         <button
           id="share-pass-btn"
           onClick={handleShare}
-          className="flex items-center justify-center gap-2 h-11 bg-[#f97316] hover:bg-[#ea580c] text-white text-[13px] font-black tracking-wide rounded-sm transition-all shadow-sm active:scale-[0.98] uppercase"
+          className="flex items-center justify-center gap-2 h-11 bg-warning hover:bg-warning/90 text-primary-foreground text-[13px] font-black tracking-wide rounded-sm transition-all shadow-sm active:scale-[0.98] uppercase"
         >
           <Share2 className="w-4 h-4" /> Share
         </button>

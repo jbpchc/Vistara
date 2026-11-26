@@ -79,6 +79,8 @@ shadcn = {
     "accent": "brand/tint", "accent-foreground": "brand/forest",
     "destructive": "status/danger", "destructive-foreground": "brand/on-primary",
     "border": "border/default", "input": "border/strong", "ring": "brand/primary",
+    "success": "status/ok", "success-bg": "status/ok-bg", "warning": "status/warn", "warning-bg": "status/warn-bg",
+    "danger": "status/danger", "danger-bg": "status/danger-bg", "info": "brand/primary", "info-bg": "brand/tint",
 }
 
 # The same shadcn/ui variables, re-pointed at guard tokens inside the guard app,
@@ -93,6 +95,8 @@ shadcn_guard = {
     "accent": "g/accent-soft", "accent-foreground": "g/accent-ink",
     "destructive": "g/danger-solid", "destructive-foreground": "g/bar-text",
     "border": "g/border", "input": "g/border-strong", "ring": "g/accent",
+    "success": "g/ok", "success-bg": "g/ok-bg", "warning": "g/warn", "warning-bg": "g/warn-bg",
+    "danger": "g/danger", "danger-bg": "g/danger-bg", "info": "g/info", "info-bg": "g/info-bg",
 }
 
 css = [

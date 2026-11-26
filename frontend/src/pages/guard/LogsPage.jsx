@@ -7,11 +7,11 @@ import api from '@/api/axios';
 
 const StatusBadge = ({ status }) => {
   const cfg = {
-    active:     { bg: 'bg-green-100',  text: 'text-green-800',  label: 'ACTIVE'  },
-    checked_in: { bg: 'bg-emerald-500',text: 'text-white',      label: 'INSIDE'  },
-    used:       { bg: 'bg-blue-100',   text: 'text-blue-800',   label: 'EXITED'  },
-    expired:    { bg: 'bg-red-100',    text: 'text-red-700',    label: 'EXPIRED' },
-    manual:     { bg: 'bg-orange-100', text: 'text-orange-700', label: 'MANUAL'  },
+    active:     { bg: 'bg-success-bg',  text: 'text-success',  label: 'ACTIVE'  },
+    checked_in: { bg: 'bg-success',text: 'text-primary-foreground',      label: 'INSIDE'  },
+    used:       { bg: 'bg-info-bg',   text: 'text-info',   label: 'EXITED'  },
+    expired:    { bg: 'bg-danger-bg',    text: 'text-danger',    label: 'EXPIRED' },
+    manual:     { bg: 'bg-warning-bg', text: 'text-warning', label: 'MANUAL'  },
   };
   const c = cfg[status] || cfg.expired;
   return (
@@ -198,9 +198,9 @@ const LogsPage = () => {
         <div className="flex justify-start">
           <Link 
             to={backLink} 
-            className="flex items-center gap-2 px-4 py-2 bg-[#114D2D] hover:bg-[#1a5f39] text-white font-bold text-sm rounded-lg transition-all shadow-md active:scale-95"
+            className="inline-flex items-center gap-2 h-12 px-5 rounded-full border border-border bg-card text-foreground text-[15px] font-semibold hover:border-ring"
           >
-            <ArrowLeft className="w-4 h-4" /> Go To Dashboard
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to console
           </Link>
         </div>
       )}
@@ -209,30 +209,32 @@ const LogsPage = () => {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h1 className="text-[32px] font-semibold text-foreground">
               Gate Logs
             </h1>
-            <p className="text-sm text-gray-400">{total} total entries</p>
+            <p className="text-sm text-muted-foreground">{total} total entries</p>
           </div>
         </div>
         
         {/* Date Navigator */}
-        <div className="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="flex items-center bg-card border border-border rounded-lg shadow-sm">
           <button 
-            onClick={handlePrevDay} 
+            onClick={handlePrevDay}
             disabled={isFirstOfMonth}
-            className="w-10 h-9 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-50 disabled:opacity-30 border-r border-gray-200"
+            aria-label="Previous day"
+            className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 border-r border-border"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <div className="px-4 flex items-center gap-2 text-sm font-semibold text-gray-700 min-w-[160px] justify-center">
-            <Calendar className="w-4 h-4 text-gray-400" />
+          <div className="px-4 flex items-center gap-2 text-sm font-semibold text-foreground min-w-[160px] justify-center">
+            <Calendar className="w-4 h-4 text-muted-foreground" />
             {isToday ? 'Today' : format(selectedDate, 'MMM d, yyyy')}
           </div>
           <button 
-            onClick={handleNextDay} 
+            onClick={handleNextDay}
             disabled={isToday}
-            className="w-10 h-9 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-50 disabled:opacity-30 border-l border-gray-200"
+            aria-label="Next day"
+            className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 border-l border-border"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -242,7 +244,7 @@ const LogsPage = () => {
           <button
             onClick={handleExport}
             title="Download logs as Excel/CSV"
-            className="flex items-center gap-2 h-9 px-4 border border-green-200 rounded-lg text-sm font-medium text-green-800 bg-green-50 hover:bg-green-100 transition-all shadow-sm"
+            className="flex items-center gap-2 h-9 px-4 border border-success/30 rounded-lg text-sm font-medium text-success bg-success-bg hover:bg-success-bg transition-all shadow-sm"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
@@ -250,7 +252,7 @@ const LogsPage = () => {
             id="refresh-logs-btn"
             onClick={() => fetch()}
             disabled={loading}
-            className="flex items-center gap-2 h-9 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 shadow-sm"
+            className="flex items-center gap-2 h-9 px-4 border border-input rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all disabled:opacity-50 shadow-sm"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'spin' : ''}`} /> Refresh
           </button>
@@ -260,37 +262,39 @@ const LogsPage = () => {
       {/* Search */}
       <form onSubmit={handleSearch} className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             id="logs-search-input"
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by visitor name…"
-            className="w-full h-10 pl-9 pr-3 border border-gray-300 rounded-lg text-sm text-gray-800 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent"
+            className="w-full h-10 pl-9 pr-3 border border-input rounded-lg text-sm text-foreground bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
         <select
+          aria-label="Filter by status"
           value={statusFilter}
           onChange={e => {
             const val = e.target.value;
             setStatusFilter(val);
             setPage(1);
           }}
-          className="h-10 px-3 border border-gray-300 rounded-lg text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent"
+          className="h-11 px-3 border border-input rounded-xl text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
         >
           <option value="used,checked_in">All Entries</option>
           <option value="checked_in">Inside Now</option>
           <option value="used">Exited</option>
         </select>
         <select
+          aria-label="Sort order"
           value={sortOrder}
           onChange={e => {
             const val = e.target.value;
             setSort(val);
             setPage(1);
           }}
-          className="h-10 px-3 border border-gray-300 rounded-lg text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent"
+          className="h-11 px-3 border border-input rounded-xl text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
         >
           <option value="desc">Newest First</option>
           <option value="asc">Oldest First</option>
@@ -298,20 +302,20 @@ const LogsPage = () => {
       </form>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="py-16 flex items-center justify-center text-gray-400">
+          <div className="py-16 flex items-center justify-center text-muted-foreground">
             <Loader2 className="w-6 h-6 spin mr-2" /> Loading logs…
           </div>
         ) : logs.length === 0 ? (
-          <div className="py-16 text-center text-sm text-gray-400">No log entries found.</div>
+          <div className="py-16 text-center text-sm text-muted-foreground">No log entries found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-muted border-b border-border">
                 <tr>
                   {['Guest / Visitor', 'Property', 'Resident', 'Purpose', 'Proof of ID', 'Plate Number', 'Status', 'Guard', 'Time In', 'Time Out', 'Notes'].map((h, i) => (
-                    <th key={i} className={`px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider ${
+                    <th key={i} className={`px-4 py-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider ${
                       h === 'Time Out' ? 'w-[180px] min-w-[180px]' : 
                       h === 'Notes' ? 'w-full' : ''
                     }`}>
@@ -320,24 +324,24 @@ const LogsPage = () => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {logs.map(log => {
                   const parsed = parseNotes(log);
                   return (
-                    <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-semibold text-gray-800">{log.guest_name}</td>
-                      <td className="px-4 py-3 text-gray-500">
+                    <tr key={log.id} className="hover:bg-muted transition-colors">
+                      <td className="px-4 py-3 font-semibold text-foreground">{log.guest_name}</td>
+                      <td className="px-4 py-3 text-muted-foreground">
                         {log.Property ? `Blk ${log.Property.block}, Lot ${log.Property.lot}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {log.Property?.Resident?.full_name || '—'}
                       </td>
-                      <td className="px-4 py-3 text-gray-700 font-medium text-xs">{parsed.purpose || '—'}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs font-mono">{parsed.proof_of_id || '—'}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs font-mono">{parsed.plate_number || '—'}</td>
+                      <td className="px-4 py-3 text-foreground font-medium text-xs">{parsed.purpose || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{parsed.proof_of_id || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{parsed.plate_number || '—'}</td>
                       <td className="px-4 py-3"><StatusBadge status={log.status} /></td>
-                      <td className="px-4 py-3 text-gray-500">{log.ScannedBy?.username || '—'}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs font-mono">
+                      <td className="px-4 py-3 text-muted-foreground">{log.ScannedBy?.username || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-mono">
                         {log.scanned_at
                           ? format(new Date(log.scanned_at), 'MM/dd hh:mm a')
                           : log.createdAt
@@ -346,13 +350,13 @@ const LogsPage = () => {
                       </td>
                       <td className="px-4 py-3 text-xs font-mono w-[180px] min-w-[180px]">
                         {log.exited_at ? (
-                          <span className="text-gray-400">{format(new Date(log.exited_at), 'MM/dd hh:mm a')}</span>
+                          <span className="text-muted-foreground">{format(new Date(log.exited_at), 'MM/dd hh:mm a')}</span>
                         ) : log.status === 'checked_in' ? (
                           user?.role !== 'admin' ? (
                             <div className="flex items-center gap-2 whitespace-nowrap">
                               {exitingId === log.pass_id ? (
                                 // Loading state
-                                <span className="flex items-center gap-1 text-gray-400 h-8">
+                                <span className="flex items-center gap-1 text-muted-foreground h-8">
                                   <Loader2 className="w-3 h-3 animate-spin" /> Exiting…
                                 </span>
                               ) : exitConfirmId === log.pass_id ? (
@@ -360,13 +364,13 @@ const LogsPage = () => {
                                 <div className="flex items-center gap-1 animate-in fade-in duration-200 h-8">
                                   <button
                                     onClick={() => handleExitConfirm(log.pass_id)}
-                                    className="flex items-center gap-1 px-2 py-1 bg-red-600 text-white text-[11px] font-bold rounded hover:bg-red-700 transition-colors h-8"
+                                    className="flex items-center gap-1 px-2 py-1 bg-destructive text-destructive-foreground text-[11px] font-bold rounded hover:bg-destructive/90 transition-colors h-8"
                                   >
                                     <CheckCircle2 className="w-3 h-3" /> Confirm
                                   </button>
                                   <button
                                     onClick={() => setExitConfirmId(null)}
-                                    className="flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-700 text-[11px] font-bold rounded hover:bg-gray-300 transition-colors h-8"
+                                    className="flex items-center gap-1 px-2 py-1 bg-muted text-foreground text-[11px] font-bold rounded hover:bg-muted transition-colors h-8"
                                   >
                                     <X className="w-3 h-3" /> Cancel
                                   </button>
@@ -375,26 +379,26 @@ const LogsPage = () => {
                                 // Default Exit button
                                 <button
                                   onClick={() => handleExitRequest(log.pass_id)}
-                                  className="px-3 py-1 bg-red-600 text-white font-sans text-xs font-semibold rounded hover:bg-red-700 transition-colors active:scale-95 h-8 flex items-center justify-center"
+                                  className="px-3 py-1 bg-destructive text-destructive-foreground font-sans text-xs font-semibold rounded hover:bg-destructive/90 transition-colors active:scale-95 h-8 flex items-center justify-center"
                                 >
                                   Exit
                                 </button>
                               )}
                               {/* Inline error for this row */}
                               {exitError?.id === log.pass_id && (
-                                <span className="text-red-500 text-[10px] font-medium">{exitError.msg}</span>
+                                <span className="text-danger text-[10px] font-medium">{exitError.msg}</span>
                               )}
                             </div>
                           ) : (
-                            <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-600 border border-red-100">
+                            <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-danger-bg text-danger border border-danger/30">
                               Inside
                             </span>
                           )
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs italic max-w-xs truncate" title={parsed.notes}>
+                      <td className="px-4 py-3 text-muted-foreground text-xs italic max-w-xs truncate" title={parsed.notes}>
                         {parsed.notes || '—'}
                       </td>
                     </tr>
@@ -409,13 +413,13 @@ const LogsPage = () => {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          <p className="text-gray-500">Page {page} of {totalPages}</p>
+          <p className="text-muted-foreground">Page {page} of {totalPages}</p>
           <div className="flex gap-2">
             <button
               id="logs-prev-btn"
               disabled={page === 1}
               onClick={() => setPage(p => p - 1)}
-              className="h-9 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="h-9 px-4 border border-input rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               Previous
             </button>
@@ -423,7 +427,7 @@ const LogsPage = () => {
               id="logs-next-btn"
               disabled={page === totalPages}
               onClick={() => setPage(p => p + 1)}
-              className="h-9 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="h-9 px-4 border border-input rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               Next
             </button>

@@ -59,6 +59,9 @@
 | 6 | The Guard Day Scan button was invisible on the rail (1.14:1) | Automated audit | New `g/fab` token gives 8.28:1 |
 | 7 | The Parcel desk was out of scope | Stakeholder feedback | Feature removed from the guard app |
 | 8 | The walk-in icon was unclear, then read as a stick figure | Stakeholder feedback, 2 rounds | Replaced with a person-plus icon |
+| 9 | Coded dashboards were simplified compared with the Figma frames | Design-to-code review | Rebuilt the dashboards to match the frames |
+| 10 | Older pages failed automated accessibility checks | axe-core audit | Fixed all issues; 0 violations |
+| 11 | The resident portal had no navigation on phones | Viewport test at 390 px | Added a bottom tab bar and responsive cards |
 
 ### 1.5 Planned next round (to be completed by the team)
 Run a moderated usability test with the prototypes. Suggested participants are 1 admin, 3 residents and 3 guards.
@@ -76,16 +79,33 @@ Record task success, time on task and SUS score. Log every resulting change in t
 | Criterion | Status | Note |
 |---|---|---|
 | 1.4.3 Contrast (text) | ✅ | 68 of 68 token pairs pass AA (see `contrast.json`) |
-| 1.4.11 Non-text contrast | ⚠️ Dev action | Inputs use fill only (about 1.2:1). Add a 1 px border of at least 3:1. |
+| 1.4.11 Non-text contrast | ✅ | Inputs use `border/strong` (3.41:1) and `g/border-strong` (3.78 / 3.54:1) |
 | 1.4.1 Use of colour | ✅ | Every status has a dot, a word and a colour |
 | 2.5.5 Target size | ✅ | Web 44 px or more; guard 64 px or more; SOS hold target 176 px |
 | 2.4.7 Focus visible | ✅ | 2 px ring with 2 px offset |
 | 1.3.1 / 2.4.3 Structure and focus order | ✅ | Semantic landmarks; table headers use `scope` |
 | 2.2.1 Timing adjustable | ✅ | Walk-in countdown, with extend and call options |
 | 3.3.1 / 3.3.3 Errors | ✅ | Reject needs a reason; explicit invalid, expired and offline messages |
-| 1.4.4 / 1.4.10 Resize and reflow | ⚠️ Dev action | Verify 200% zoom and 320 px reflow on the resident portal |
+| 1.4.4 / 1.4.10 Resize and reflow | ✅ | No horizontal scrolling at 390, 768 and 1024–1728 px. Below 1024 px the resident portal switches to a bottom tab bar. |
+| Keyboard | ✅ | All controls are native buttons and links with visible focus. `/` focuses admin search. SOS works with Space or Enter (hold). |
 
 Re-run the contrast audit with `python3 docs/contrast_audit.py`.
+
+### Automated audit of the coded app
+- **Tool:** axe-core 4.14, with rule sets `wcag2a`, `wcag2aa` and `best-practice`.
+- **Coverage:** 16 screens across the three roles, plus overflow checks at each role's target sizes:
+  - Admin: 1280, 1440 and 1728 px.
+  - Resident: 390, 768 and 1440 px.
+  - Guard: 1024, 1194 and 1366 px.
+- **First run:** 9 issue types were found:
+  - form fields without labels;
+  - date arrows without names;
+  - a "Show QR" control nested inside a clickable row;
+  - pages with no h1, and headings out of order;
+  - low-contrast text on the older admin pages;
+  - an aria-label on a plain span;
+  - text drawn at reduced opacity on the SOS button.
+- **After fixes:** **0 violations on every screen tested**, and **no horizontal overflow at any size**.
 
 ## 3. UX laws applied
 

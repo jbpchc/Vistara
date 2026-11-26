@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
  */
 
 const Card = ({ className = '', children, ...rest }) => (
-  <section className={`rounded-card-home border border-line bg-surface-card p-7 ${className}`} {...rest}>{children}</section>
+  <section className={`rounded-card-home border border-line bg-surface-card p-5 sm:p-7 ${className}`} {...rest}>{children}</section>
 );
 const Title = ({ children, count, id }) => (
   <h2 id={id} className="flex items-center gap-2.5 text-[22px] font-semibold text-ink">
@@ -123,7 +123,7 @@ const InsideNow = ({ rows }) => (
     <Title id="in-title" count={rows.length}>Visitors inside now</Title>
     <p className="mt-1 text-[14px] text-ink-muted">Today · {format(new Date(), 'MMM d, yyyy')}</p>
     {rows.length === 0 ? <p className="py-8 text-ink-muted">No visitors inside right now.</p> : (
-      <table className="mt-5 w-full text-left">
+      <div className="mt-5 overflow-x-auto"><table className="w-full text-left min-w-[300px]">
         <thead><tr className="text-[12px] font-bold uppercase tracking-[0.06em] text-ink-muted"><th className="pb-3 font-bold">Visitor / property</th><th className="pb-3 font-bold">Entered</th><th className="pb-3 font-bold hidden md:table-cell">Expected exit</th><th className="pb-3 font-bold">Status</th></tr></thead>
         <tbody>
           {rows.map((r) => (
@@ -135,7 +135,7 @@ const InsideNow = ({ rows }) => (
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     )}
     <Link to="/planned/activity" className="mt-4 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">View visit history <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>
   </Card>
@@ -165,8 +165,8 @@ const UpcomingVisitors = ({ rows }) => (
     <ul className="mt-4 divide-y divide-line">
       {rows.length === 0 && <li className="py-6 text-ink-muted">No visitors scheduled. <Link to="/resident/passes#new-pass" className="font-semibold text-ink underline">Create a pass</Link></li>}
       {rows.map((r) => (
-        <li key={r.name + r.date} className="py-4 grid grid-cols-[130px_1fr_auto] gap-4 items-start">
-          <span className="text-[15px] font-semibold text-ink">{format(new Date(`${r.date}T12:00:00`), 'MMM d, yyyy')}</span>
+        <li key={r.name + r.date} className="py-4 grid grid-cols-[1fr_auto] sm:grid-cols-[130px_1fr_auto] gap-x-4 gap-y-1 items-start">
+          <span className="col-span-2 sm:col-span-1 text-[15px] font-semibold text-ink">{format(new Date(`${r.date}T12:00:00`), 'MMM d, yyyy')}</span>
           <span><span className="block text-[15px] font-semibold text-ink">{r.name}</span><span className="block text-[13px] text-ink-muted">{r.kind} · {r.where}</span></span>
           <Badge variant="warning" dot={false} className="gap-1"><Clock3 className="w-3.5 h-3.5" aria-hidden="true" />Upcoming</Badge>
         </li>
@@ -205,7 +205,7 @@ const Notifications = ({ items }) => (
         const Icon = NOTE_ICON[n.icon] || FileText;
         return (
           <li key={n.title} className="rounded-[22px] bg-surface-subtle p-5">
-            <p className="flex items-center justify-between text-[13px] text-ink-muted"><span className="flex items-center gap-2"><Icon className="w-4 h-4 text-home-ink" aria-hidden="true" />{format(new Date(n.time), 'h:mm a')}</span><span className="w-2 h-2 rounded-full bg-ink" aria-label="Unread" /></p>
+            <p className="flex items-center justify-between text-[13px] text-ink-muted"><span className="flex items-center gap-2"><Icon className="w-4 h-4 text-home-ink" aria-hidden="true" />{format(new Date(n.time), 'h:mm a')}</span><span className="w-2 h-2 rounded-full bg-ink" aria-hidden="true" /><span className="sr-only">Unread</span></p>
             <p className="mt-3 text-[15px] font-semibold text-ink">{n.title}</p>
             <p className="mt-1 text-[14px] text-ink-muted">{n.body}</p>
             <Link to="/planned/activity" className="mt-3 inline-block text-[15px] font-semibold text-ink hover:underline">{n.action}</Link>
@@ -268,7 +268,7 @@ const ResidentDashboard = () => {
           <h1 className="text-[44px] leading-tight font-semibold text-ink">{hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'}, {first}.</h1>
           <p className="mt-1 text-[15px] text-ink-muted">Here’s what’s happening across your properties.</p>
         </div>
-        <div className="text-right">
+        <div className="sm:text-right">
           <p className="text-[15px] font-semibold text-ink">{format(new Date(), 'EEEE · MMM dd, yyyy')}</p>
           <p className="text-[13px] text-ink-muted">Last updated {format(updated, 'h:mm a')} · Asia/Manila</p>
           <button onClick={load} className="mt-1 inline-flex items-center gap-1.5 h-10 px-3 rounded-full text-[14px] font-semibold text-ink hover:bg-surface-subtle"><RefreshCw className="w-4 h-4" aria-hidden="true" /> Refresh</button>
@@ -289,11 +289,11 @@ const ResidentDashboard = () => {
             <StatCard label="Upcoming visitors" value={d.stats.upcoming} sub="Next 7 days" Icon={CalendarDays} to="/resident/passes" />
           </div>
           <div className="grid lg:grid-cols-[1.45fr_1fr] gap-6 items-start">
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-0">
               <InsideNow rows={d.inside} />
               <UpcomingVisitors rows={d.upcoming} />
             </div>
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-0">
               {d.documents.length > 0 && <DocumentAlerts docs={d.documents} />}
               {d.lease && <LeaseAlert l={d.lease} />}
             </div>

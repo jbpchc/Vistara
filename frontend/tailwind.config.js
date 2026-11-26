@@ -15,13 +15,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
+        border: 'hsl(var(--border) / <alpha-value>)',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
+          DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
@@ -29,11 +29,11 @@ export default {
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
+          DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',
           foreground: 'hsl(var(--destructive-foreground))',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
+          DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
@@ -45,9 +45,14 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
+          DEFAULT: 'hsl(var(--card) / <alpha-value>)',
           foreground: 'hsl(var(--card-foreground))',
         },
+        /* Semantic status colours that follow the active theme (admin/resident or guard Night/Day) */
+        success: { DEFAULT: 'hsl(var(--success) / <alpha-value>)', bg: 'hsl(var(--success-bg) / <alpha-value>)' },
+        warning: { DEFAULT: 'hsl(var(--warning) / <alpha-value>)', bg: 'hsl(var(--warning-bg) / <alpha-value>)' },
+        danger: { DEFAULT: 'hsl(var(--danger) / <alpha-value>)', bg: 'hsl(var(--danger-bg) / <alpha-value>)' },
+        info: { DEFAULT: 'hsl(var(--info) / <alpha-value>)', bg: 'hsl(var(--info-bg) / <alpha-value>)' },
         /* ── Vistara design system (Figma variables) ── */
         surface: { canvas: v('bg-canvas'), card: v('bg-card'), subtle: v('bg-subtle') },
         line: { DEFAULT: v('border-default'), strong: v('border-strong') },

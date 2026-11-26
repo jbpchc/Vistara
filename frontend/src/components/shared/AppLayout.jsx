@@ -327,8 +327,30 @@ const ResidentShell = ({ children }) => {
           </div>
         </div>
       </header>
-      <main className="flex-1 px-6 py-8">{children || <Outlet />}</main>
-      <footer className="max-w-[1320px] w-full mx-auto px-6 py-6 flex justify-between text-[13px] text-ink-muted">
+      <main className="flex-1 px-4 sm:px-6 py-8 pb-28 lg:pb-8">{children || <Outlet />}</main>
+      {/* Phones and tablets: bottom tab bar (thumb reach) replaces the top pills */}
+      <nav aria-label="Resident (mobile)" className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface-card border-t border-line px-2 pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-xl mx-auto grid grid-cols-5 items-end h-[72px]">
+          {[
+            { to: '/resident/dashboard', icon: House, label: 'Home', end: true },
+            { to: '/resident/passes', icon: Ticket, label: 'Passes', end: true },
+            null,
+            { to: '/planned/household', icon: Users, label: 'Household' },
+            { to: '/planned/activity', icon: Activity, label: 'Activity' },
+          ].map((it, i) => it === null ? (
+            <Link key="new" to="/resident/passes#new-pass" aria-label="New visitor pass"
+              className="mx-auto -mt-6 mb-3 w-14 h-14 rounded-full bg-brand text-brand-on flex items-center justify-center shadow-modal">
+              <Plus className="w-6 h-6" aria-hidden="true" />
+            </Link>
+          ) : (
+            <NavLink key={it.to} to={it.to} end={it.end}
+              className={({ isActive }) => `flex flex-col items-center justify-center gap-1 h-full text-[12px] font-semibold ${isActive ? 'text-home-ink' : 'text-ink-muted'}`}>
+              <it.icon className="w-5 h-5" aria-hidden="true" /> {it.label}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+      <footer className="hidden lg:flex max-w-[1320px] w-full mx-auto px-6 py-6 justify-between text-[13px] text-ink-muted">
         <span>© 2026 Vistara · Camella Homes Naga</span>
         <span className="flex gap-5"><span>Privacy notice</span><span>Help</span><span>Version 1.0</span></span>
       </footer>
@@ -357,7 +379,7 @@ const SosButton = () => {
       {state === 'holding' && <span className="absolute inset-y-0 left-0 bg-black/25 animate-[sosfill_2s_linear_forwards]" />}
       <Siren className="relative w-6 h-6" aria-hidden="true" />
       <span className="relative text-[14px] font-bold">{state === 'sent' ? 'Sent' : state === 'failed' ? 'Retry' : 'SOS'}</span>
-      <span className="relative text-[11px] opacity-90">{state === 'sent' ? 'Office alerted' : state === 'failed' ? 'Call office' : state === 'holding' ? 'Keep holding' : 'Hold 2s'}</span>
+      <span className="relative text-[11px]">{state === 'sent' ? 'Office alerted' : state === 'failed' ? 'Call office' : state === 'holding' ? 'Keep holding' : 'Hold 2s'}</span>
       <span role="status" className="sr-only">{state === 'sent' ? 'SOS alert sent to the HOA office' : state === 'failed' ? 'SOS could not be sent. Call the HOA office.' : ''}</span>
     </button>
   );
