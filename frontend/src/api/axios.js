@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { demoAdapter } from '@/api/demo';
 
 /**
  * Axios instance pre-configured for the Camella GuardTrack API.
@@ -12,6 +13,10 @@ const api = axios.create({
   },
   timeout: 15000,
 });
+
+// Demo mode (static hosting, no backend): answer requests from an in-memory fake API.
+export const IS_DEMO = import.meta.env.VITE_DEMO === 'true';
+if (IS_DEMO) api.defaults.adapter = demoAdapter;
 
 // ─── Request Interceptor: Attach JWT ──────────────────────────────────────────
 api.interceptors.request.use(
@@ -33,7 +38,7 @@ api.interceptors.response.use(
       // Clear stale token and redirect to login
       localStorage.removeItem('guardtrack_token');
       localStorage.removeItem('guardtrack_user');
-      window.location.href = '/login';
+      window.location.href = `${import.meta.env.BASE_URL}login`;
     }
     return Promise.reject(error);
   }

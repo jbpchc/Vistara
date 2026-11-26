@@ -59,7 +59,7 @@ const GUARD_ADMIN = ['guard', 'admin'];
 
 const App = () => (
   <ErrorBoundary>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}>
       <AuthProvider>
         <Suspense fallback={<PageLoader />}>
           <Routes>

@@ -4,6 +4,8 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages serves the site from /<repo>/ — set VITE_BASE=/Vistara/ in that build.
+  base: process.env.VITE_BASE || '/',
   plugins: [react()],
   resolve: {
     alias: {

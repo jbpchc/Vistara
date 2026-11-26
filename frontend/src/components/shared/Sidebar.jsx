@@ -26,7 +26,7 @@ const SidebarInner = ({ onClose, isOpen }) => {
     <div className="flex flex-col h-full bg-brand-forest">
       <div className={`flex items-center px-6 pt-7 pb-6 transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden p-0'}`}>
         <img
-          src="/camella-naga-logo-reversed.svg"
+          src={`${import.meta.env.BASE_URL}camella-naga-logo-reversed.svg`}
           alt="Camella Naga"
           className="w-40 h-auto select-none"
           draggable={false}

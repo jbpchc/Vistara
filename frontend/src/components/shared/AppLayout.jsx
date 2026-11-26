@@ -180,7 +180,7 @@ const ResidentShell = ({ children }) => {
       <header className="bg-surface-card border-b border-line sticky top-0 z-30">
         <div className="max-w-6xl mx-auto h-[84px] px-4 lg:px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <img src="/camella-naga-logo.svg" alt="Camella Naga" className="h-9 w-auto shrink-0" />
+            <img src={`${import.meta.env.BASE_URL}camella-naga-logo.svg`} alt="Camella Naga" className="h-9 w-auto shrink-0" />
             <span className="hidden sm:inline-flex h-7 items-center px-2.5 rounded-full bg-home-bg text-home-ink text-[11px] font-bold tracking-[0.1em]">
               HOMEOWNER
             </span>

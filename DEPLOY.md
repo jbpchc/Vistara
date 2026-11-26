@@ -1,5 +1,19 @@
 # Deploying Vistara
 
+## Option A: GitHub Pages demo (no backend). Used for the semi-final.
+The frontend is built with `VITE_DEMO=true`, so a fake in-browser API (`frontend/src/api/demo.js`) answers every request with sample data.
+The login screen shows **Continue as Admin / Resident / Guard** buttons. Changes reset when the page is reloaded.
+
+1. Go to repo **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**.
+2. Push to `main`, or open **Actions → Deploy demo to GitHub Pages → Run workflow**.
+3. The site goes live at **https://jbpchc.github.io/Vistara/**.
+
+> GitHub Pages on a **private** repo needs GitHub Pro. It's free with the GitHub Student Developer Pack. Otherwise make the repo public.
+
+To run the demo locally: `cd frontend && VITE_DEMO=true npm run dev`.
+
+## Option B: Full stack (real database). Use this for the final defense.
+
 The whole setup is free:
 
 | Part | Host | Why |

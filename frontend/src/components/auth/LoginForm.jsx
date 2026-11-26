@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Eye, EyeOff, Loader2, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { IS_DEMO } from '@/api/axios';
+import { DEMO_ACCOUNTS } from '@/api/demo';
 
 const ROLE_REDIRECT = {
   admin:    '/admin/dashboard',
@@ -55,7 +57,7 @@ const LoginForm = () => {
         {/* Left — Logo panel */}
         <div className="hidden md:flex w-1/2 items-center justify-center border-r border-gray-200 bg-white">
           <img
-            src="/logo.png"
+            src={`${import.meta.env.BASE_URL}logo.png`}
             alt="Camella GuardTrack"
             className="w-72 max-w-xs select-none"
             draggable={false}
@@ -68,7 +70,7 @@ const LoginForm = () => {
 
             {/* Mobile logo */}
             <div className="flex justify-center mb-8 md:hidden">
-              <img src="/logo.png" alt="Camella GuardTrack" className="w-48" />
+              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Camella GuardTrack" className="w-48" />
             </div>
 
             <h1 className="text-4xl font-bold text-green-800 mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -153,6 +155,38 @@ const LoginForm = () => {
                 }
               </button>
             </form>
+
+            {IS_DEMO && (
+              <div className="mt-8 rounded-2xl border border-line bg-surface-subtle p-4">
+                <p className="text-[13px] font-bold uppercase tracking-[0.08em] text-ink-muted">Demo — no backend</p>
+                <p className="mt-1 text-[14px] text-ink-muted">Pick a role to explore. Sample data resets when you reload.</p>
+                <div className="mt-3 grid gap-2">
+                  {DEMO_ACCOUNTS.map((a) => (
+                    <button
+                      key={a.username}
+                      type="button"
+                      disabled={loading}
+                      onClick={async () => {
+                        setError('');
+                        setLoading(true);
+                        try {
+                          const u = await login(a.username, 'demo');
+                          navigate(ROLE_REDIRECT[u.role] || '/login', { replace: true });
+                        } catch (err) {
+                          setError(err.response?.data?.message || 'Demo login failed.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      className="flex items-center justify-between h-12 px-4 rounded-full bg-surface-card border border-line text-left hover:border-brand transition-colors disabled:opacity-60"
+                    >
+                      <span className="text-[15px] font-bold text-ink">Continue as {a.role}</span>
+                      <span className="text-[13px] text-ink-muted">{a.note}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
