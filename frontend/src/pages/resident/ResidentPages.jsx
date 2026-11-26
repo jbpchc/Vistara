@@ -163,7 +163,7 @@ const MyDocuments = () => {
           }}>Send for review</Btn></>}>
           {!up.replace && <Field label="Document type">{(fid) => <select id={fid} value={up.type} onChange={(e) => setUp({ ...up, type: e.target.value })} className={inputCls}>{['OR/CR', "Driver's license", 'Lease contract'].map((t) => <option key={t}>{t}</option>)}</select>}</Field>}
           <Field label="File" required hint={file ? `${file.name} · ${(file.size / 1024).toFixed(0)} KB${file.size > 5 * 1024 * 1024 ? ' — too large' : ''}` : 'Choose a clear photo or scan.'}>
-            {(fid) => <input id={fid} type="file" accept="image/jpeg,image/png,application/pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="block w-full text-[15px] text-foreground file:mr-3 file:h-11 file:px-4 file:rounded-full file:border file:border-border file:bg-card file:text-foreground" />}
+            {(fid) => <input id={fid} type="file" accept="image/jpeg,image/png,application/pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="block w-full text-[15px] text-foreground file:mr-3 file:h-11 file:px-5 file:rounded-full file:border file:border-solid file:border-line-strong file:bg-card file:text-foreground file:font-semibold file:cursor-pointer hover:file:bg-muted" />}
           </Field>
         </Modal>
       )}

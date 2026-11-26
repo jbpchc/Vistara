@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { Search, X, Info, TriangleAlert, CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import api from '@/api/axios';
 
@@ -142,7 +143,7 @@ export const Table = ({ cols, rows, onRow, rowTone, empty = 'Nothing here yet.',
 
 export const Modal = ({ title, subtitle, onClose, children, footer, wide }) => {
   useEffect(() => { const k = (e) => e.key === 'Escape' && onClose(); document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k); }, [onClose]);
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div role="dialog" aria-modal="true" aria-labelledby="modal-title" className={`w-full ${wide ? 'max-w-2xl' : 'max-w-lg'} max-h-[90vh] overflow-y-auto rounded-card bg-card border border-border shadow-modal`}>
         <div className="flex items-start justify-between gap-4 px-6 pt-6">
@@ -152,7 +153,8 @@ export const Modal = ({ title, subtitle, onClose, children, footer, wide }) => {
         <div className="px-6 py-5 space-y-4">{children}</div>
         {footer && <div className="px-6 pb-6 flex flex-wrap justify-end gap-2">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
