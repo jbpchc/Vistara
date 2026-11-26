@@ -19,15 +19,14 @@ There are three role-based portals on one design system:
 | Figma design + prototypes | https://www.figma.com/design/DVDO9PiDwlHtE6kqXyCIA3/VISTARA |
 | Deployed link (demo, no backend) | https://jbpchc.github.io/Vistara/ — pick Admin, Resident or Guard on the login screen |
 
-## Rubric map
+## What's in this repo
 
-| Criterion | Evidence |
+| Area | Where |
 |---|---|
-| Fluency | Three clickable prototypes (links in HANDOFF.md). Figma page 05 has journeys, edge cases and a 5-minute demo script. |
-| Accuracy | [ISO 9241-210 & WCAG report](design-handoff/docs/ISO-9241-210_and_Accessibility.md). `contrast.json`: 68/68 pairs pass AA. Visible focus, reduced motion, aria labels, ≥44 px targets in code. |
-| Challenge | AI-assisted programmatic Figma design and the Figma → token → Tailwind pipeline (`build_tokens.py`). Coded role-based shells. See PROMPTS.md. |
-| Thoroughness | Ready-for-dev Figma sections, Dev Mode annotations and redlines, exports. HANDOFF.md §7 compares the prototype with the code. |
-| Style | One token system across three visually distinct portals; UX laws documented and applied. |
+| User flows and edge cases | Three clickable Figma prototypes (links in HANDOFF.md), plus the live demo above |
+| Human-centred design and accessibility | [ISO 9241-210 & WCAG report](design-handoff/docs/ISO-9241-210_and_Accessibility.md) and `contrast.json` (68/68 pairs pass AA) |
+| Design system | Figma variables exported to code tokens by `design-handoff/tokens/build_tokens.py` |
+| Developer handoff | Dev Mode annotations and redlines in Figma, the handoff PDF, and HANDOFF.md §7 (design-to-code status) |
 
 ## Run locally
 

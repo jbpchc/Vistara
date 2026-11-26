@@ -124,7 +124,7 @@ All colours are Figma variables. The code tokens are generated from them; do not
 - **Admin:** a rejection needs remarks before it can be submitted. The gate log is read-only and audit-safe.
 - **Resident:** a walk-in alert has a countdown, and a pass can expire and be renewed.
 
-## 6. Prototype vs. code
+## 6. Implementation notes
 
 The prototypes are **design intent**, not code. When the app is implemented:
 1. Use the tokens above. Do not hard-code hex values.

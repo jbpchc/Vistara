@@ -7,7 +7,6 @@
 - Keeping the originals.
 - Removing the parcel feature.
 - Rejecting the icon twice.
-- The rubric requirements.
 
 ## Prompts used (verbatim, in order)
 
@@ -24,7 +23,7 @@
 | 9 | "where is the redesigned one? give me the link" | Shared the links. |
 | 10 | "Now access this guard dashboard … THIS IS A MOBILE APP ESPECIALLY FOR A TABLET. THIS IS ONLY A DRAFT SO I WANT YOU TO IMRPOVE IT IF THERE ARE FEATURES THAT ARE MISSING…" | Guard tablet app (28 screens): Night/Day variable modes and a nav rail. Added the missing features: SOS, patrol rounds, expected arrivals, and the offline, denied and no-response states. |
 
-## Techniques (for the Challenge criterion)
+## Techniques
 - **Programmatic design** via the Figma Plugin API:
   - Variables with modes.
   - Component sets with properties.
