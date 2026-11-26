@@ -21,13 +21,22 @@ const guardRoutes    = require('./routes/guard.routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Behind Render's proxy: needed so rate limiting sees the real client IP.
+app.set('trust proxy', 1);
+
+// FRONTEND_URL may hold several comma-separated origins (e.g. local + deployed).
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
 // ─── Security Middleware ───────────────────────────────────────────────────────
 app.use(helmet());
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

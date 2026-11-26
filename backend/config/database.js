@@ -9,8 +9,13 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT, 10),
+    port: parseInt(process.env.DB_PORT || '3306', 10),
     dialect: 'mysql',
+    // Cloud MySQL (e.g. TiDB Cloud Starter) requires TLS. Set DB_SSL=true in production.
+    dialectOptions:
+      process.env.DB_SSL === 'true'
+        ? { ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true } }
+        : {},
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 10,

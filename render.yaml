@@ -1,0 +1,46 @@
+# Render Blueprint — deploys the Vistara API and web app together.
+# Render dashboard → New → Blueprint → pick this repo. Secrets marked sync:false are asked for once.
+services:
+  - type: web
+    name: vistara-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_SSL
+        value: "true"
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_NAME
+        value: vistara
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: FRONTEND_URL
+        sync: false
+
+  - type: web
+    name: vistara-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npx vite build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
