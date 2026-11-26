@@ -23,10 +23,6 @@
 | 8 | "Now access this resident portal and I want you to redesign it with the same style but have the sense of separation for the admin dashboard … Apply the laws the ui/ux still" | Resident portal (13 screens): top-pill nav, `home/*` orange accent, HOMEOWNER tag. |
 | 9 | "where is the redesigned one? give me the link" | Shared the links. |
 | 10 | "Now access this guard dashboard … THIS IS A MOBILE APP ESPECIALLY FOR A TABLET. THIS IS ONLY A DRAFT SO I WANT YOU TO IMRPOVE IT IF THERE ARE FEATURES THAT ARE MISSING…" | Guard tablet app (28 screens): Night/Day variable modes and a nav rail. Added the missing features: SOS, patrol rounds, expected arrivals, and the offline, denied and no-response states. |
-| 11 | "REMOVE THE PARCEL FEATURE" | Parcel desk screen and rail item removed. |
-| 12 | "PLEASE FIX THE WAL IN ICON" → "REDESIGN THE WALKIN LOGO NOT STICKMAN" | Icon iterated twice. Final: a person-plus icon. |
-| 13 | "[rubric] THE THREE REDESIGNED DASHBOARD … MUST FOLLOW THIS ACTIVITY RUBRICS AND INSTRUCTIONS." | Contrast audit (3 fails fixed, 68/68 pass). Dev Mode annotations and redlines. Ready-for-dev sections and exports. Figma handoff page. This repo's docs and generated tokens. |
-| 14 | "CAN YOU DO IT IN MY GITHUB" → "Do not touch the camella guardtrack repo but rather create a new repo named Vistara" | Copied the GuardTrack code into this new repo, leaving the original untouched and with no `.env` secrets. Wired the Figma tokens into Tailwind. Built the three role-based shells and recoded the admin, resident and guard dashboards to the redesign. |
 
 ## Techniques (for the Challenge criterion)
 - **Programmatic design** via the Figma Plugin API:
