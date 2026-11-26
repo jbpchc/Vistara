@@ -20,7 +20,6 @@ const LogsPage          = lazy(() => import('@/pages/guard/LogsPage'));
 
 // Resident
 const ResidentDashboard = lazy(() => import('@/pages/resident/DashboardPage'));
-const CreatePassPage    = lazy(() => import('@/pages/resident/CreatePassPage'));
 const ResidentPasses    = lazy(() => import('@/pages/resident/PassesPage'));
 const PlannedPage       = lazy(() => import('@/pages/shared/PlannedPage'));
 const AdminIncidents    = lazy(() => import('@/pages/admin/IncidentsPage'));

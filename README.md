@@ -17,7 +17,7 @@ There are three role-based portals on one design system:
 | Documentation of prompts used | [design-handoff/PROMPTS.md](design-handoff/PROMPTS.md) |
 | Design handoff document | [Vistara-Design-Handoff.pdf](design-handoff/Vistara-Design-Handoff.pdf) (16 pages), [HANDOFF.md](design-handoff/HANDOFF.md) and the Figma page **VISTARA · Design Handoff** |
 | Figma design + prototypes | https://www.figma.com/design/DVDO9PiDwlHtE6kqXyCIA3/VISTARA |
-| Deployed link (demo, no backend) | https://jbpchc.github.io/Vistara/ — pick Admin, Resident or Guard on the login screen |
+| Deployed link | https://jbpchc.github.io/Vistara/ — pick Admin, Resident or Guard on the login screen (runs on sample data) |
 
 ## What's in this repo
 
@@ -30,18 +30,24 @@ There are three role-based portals on one design system:
 
 ## Run locally
 
+Needs Node.js 20+ and MySQL 8 (or any MySQL-compatible database).
+
 ```bash
-# backend
+# backend — create an empty database first, e.g. CREATE DATABASE vistara;
 cd backend
-cp .env.example .env   # fill in DB and JWT values
+cp .env.example .env   # fill in DB and JWT values; set SEED_ON_START=true for test accounts
 npm install
-node server.js
+npm start
 
 # frontend
 cd ../frontend
 npm install
 npm run dev
 ```
+
+Test accounts (created by the seed, password `Password@123`): `admin_test`, `guard_alpha`, `juan_dela_cruz`.
+
+To try the walk-in flow, sign in as the guard and the resident in two browsers: Guard → Walk-in → *Ask resident to approve* → Resident → **Approve** → Guard → **Admit**.
 
 To regenerate the design tokens after changing Figma variables:
 

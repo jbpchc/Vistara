@@ -22,7 +22,7 @@ const coreRoutes     = require('./routes/dashboard.routes'); // dashboards, walk
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Behind Render's proxy: needed so rate limiting sees the real client IP.
+// Behind a hosting proxy: needed so rate limiting sees the real client IP.
 app.set('trust proxy', 1);
 
 // FRONTEND_URL may hold several comma-separated origins (e.g. local + deployed).
