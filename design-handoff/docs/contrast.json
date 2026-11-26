@@ -1,0 +1,546 @@
+[
+ {
+  "portal": "Admin",
+  "fg": "text/primary",
+  "bg": "bg/canvas",
+  "fgHex": "#1B211C",
+  "bgHex": "#F7F4EE",
+  "ratio": 14.93
+ },
+ {
+  "portal": "Admin",
+  "fg": "text/secondary",
+  "bg": "bg/canvas",
+  "fgHex": "#5F6459",
+  "bgHex": "#F7F4EE",
+  "ratio": 5.54
+ },
+ {
+  "portal": "Admin",
+  "fg": "text/secondary",
+  "bg": "bg/card",
+  "fgHex": "#5F6459",
+  "bgHex": "#FFFDF9",
+  "ratio": 5.98
+ },
+ {
+  "portal": "Admin",
+  "fg": "text/secondary",
+  "bg": "bg/subtle",
+  "fgHex": "#5F6459",
+  "bgHex": "#F1ECE2",
+  "ratio": 5.16
+ },
+ {
+  "portal": "Admin",
+  "fg": "brand/on-primary",
+  "bg": "brand/primary",
+  "fgHex": "#FFFFFF",
+  "bgHex": "#23402A",
+  "ratio": 11.42
+ },
+ {
+  "portal": "Admin",
+  "fg": "side/text",
+  "bg": "brand/forest",
+  "fgHex": "#C9D3C6",
+  "bgHex": "#1C3721",
+  "ratio": 8.42
+ },
+ {
+  "portal": "Admin",
+  "fg": "brand/forest",
+  "bg": "side/active",
+  "fgHex": "#1C3721",
+  "bgHex": "#F7F4EE",
+  "ratio": 11.82
+ },
+ {
+  "portal": "Admin",
+  "fg": "side/active",
+  "bg": "side/badge",
+  "fgHex": "#F7F4EE",
+  "bgHex": "#2E4A33",
+  "ratio": 8.92
+ },
+ {
+  "portal": "Admin",
+  "fg": "status/ok",
+  "bg": "status/ok-bg",
+  "fgHex": "#2F6B3A",
+  "bgHex": "#E4EEE0",
+  "ratio": 5.36
+ },
+ {
+  "portal": "Admin",
+  "fg": "status/danger",
+  "bg": "status/danger-bg",
+  "fgHex": "#B42318",
+  "bgHex": "#FBE9E7",
+  "ratio": 5.61
+ },
+ {
+  "portal": "Admin",
+  "fg": "status/warn",
+  "bg": "status/warn-bg",
+  "fgHex": "#8A5A00",
+  "bgHex": "#F6ECD6",
+  "ratio": 5.05
+ },
+ {
+  "portal": "Admin",
+  "fg": "status/danger",
+  "bg": "bg/card",
+  "fgHex": "#B42318",
+  "bgHex": "#FFFDF9",
+  "ratio": 6.47
+ },
+ {
+  "portal": "Admin",
+  "fg": "brand/primary",
+  "bg": "bg/card",
+  "fgHex": "#23402A",
+  "bgHex": "#FFFDF9",
+  "ratio": 11.24
+ },
+ {
+  "portal": "Admin",
+  "fg": "brand/forest",
+  "bg": "brand/tint",
+  "fgHex": "#1C3721",
+  "bgHex": "#DCE7D6",
+  "ratio": 10.16
+ },
+ {
+  "portal": "Admin",
+  "fg": "text/primary",
+  "bg": "bg/card",
+  "fgHex": "#1B211C",
+  "bgHex": "#FFFDF9",
+  "ratio": 16.14
+ },
+ {
+  "portal": "Resident",
+  "fg": "text/primary",
+  "bg": "home/canvas",
+  "fgHex": "#1B211C",
+  "bgHex": "#FBF7F1",
+  "ratio": 15.36
+ },
+ {
+  "portal": "Resident",
+  "fg": "text/secondary",
+  "bg": "home/canvas",
+  "fgHex": "#5F6459",
+  "bgHex": "#FBF7F1",
+  "ratio": 5.7
+ },
+ {
+  "portal": "Resident",
+  "fg": "home/accent-ink",
+  "bg": "home/accent-bg",
+  "fgHex": "#A1490F",
+  "bgHex": "#FDEBDC",
+  "ratio": 5.21
+ },
+ {
+  "portal": "Resident",
+  "fg": "home/accent-ink",
+  "bg": "home/canvas",
+  "fgHex": "#A1490F",
+  "bgHex": "#FBF7F1",
+  "ratio": 5.66
+ },
+ {
+  "portal": "Resident",
+  "fg": "brand/on-primary",
+  "bg": "home/accent-ink",
+  "fgHex": "#FFFFFF",
+  "bgHex": "#A1490F",
+  "ratio": 6.04
+ },
+ {
+  "portal": "Resident",
+  "fg": "text/secondary",
+  "bg": "bg/card",
+  "fgHex": "#5F6459",
+  "bgHex": "#FFFDF9",
+  "ratio": 5.98
+ },
+ {
+  "portal": "Admin",
+  "fg": "side/text@70% (group labels)",
+  "bg": "brand/forest",
+  "fgHex": "#95A494",
+  "bgHex": "#1C3721",
+  "ratio": 4.95
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/text",
+  "bg": "g/canvas",
+  "fgHex": "#EEF2EA",
+  "bgHex": "#0F1712",
+  "ratio": 16.09
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/text",
+  "bg": "g/surface",
+  "fgHex": "#EEF2EA",
+  "bgHex": "#18231D",
+  "ratio": 14.28
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/text-2",
+  "bg": "g/surface",
+  "fgHex": "#A7B6AB",
+  "bgHex": "#18231D",
+  "ratio": 7.65
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/text-2",
+  "bg": "g/surface-2",
+  "fgHex": "#A7B6AB",
+  "bgHex": "#213029",
+  "ratio": 6.53
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/text-2",
+  "bg": "g/canvas",
+  "fgHex": "#A7B6AB",
+  "bgHex": "#0F1712",
+  "ratio": 8.62
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/on-accent",
+  "bg": "g/accent",
+  "fgHex": "#13210F",
+  "bgHex": "#B8DC4F",
+  "ratio": 10.69
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/accent-ink",
+  "bg": "g/accent-soft",
+  "fgHex": "#C9E77A",
+  "bgHex": "#2A3A1A",
+  "ratio": 8.84
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/accent-ink",
+  "bg": "g/surface",
+  "fgHex": "#C9E77A",
+  "bgHex": "#18231D",
+  "ratio": 11.72
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/ok",
+  "bg": "g/ok-bg",
+  "fgHex": "#7FD69A",
+  "bgHex": "#173323",
+  "ratio": 7.81
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/danger",
+  "bg": "g/danger-bg",
+  "fgHex": "#FF8B84",
+  "bgHex": "#3B1A1A",
+  "ratio": 6.88
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/warn",
+  "bg": "g/warn-bg",
+  "fgHex": "#F4C65A",
+  "bgHex": "#3A2C10",
+  "ratio": 8.45
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/info",
+  "bg": "g/info-bg",
+  "fgHex": "#8EC8FF",
+  "bgHex": "#14283B",
+  "ratio": 8.49
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/bar-text",
+  "bg": "g/danger-solid",
+  "fgHex": "#EEF2EA",
+  "bgHex": "#C4262E",
+  "ratio": 5.06
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/bar-text",
+  "bg": "g/rail",
+  "fgHex": "#EEF2EA",
+  "bgHex": "#0B120E",
+  "ratio": 16.73
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/bar-text-2",
+  "bg": "g/rail",
+  "fgHex": "#A7B6AB",
+  "bgHex": "#0B120E",
+  "ratio": 8.96
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/bar-text-2",
+  "bg": "g/bar-chip",
+  "fgHex": "#A7B6AB",
+  "bgHex": "#18231D",
+  "ratio": 7.65
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/bar-text",
+  "bg": "g/bar-chip",
+  "fgHex": "#EEF2EA",
+  "bgHex": "#18231D",
+  "ratio": 14.28
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/fab",
+  "bg": "g/rail",
+  "fgHex": "#B8DC4F",
+  "bgHex": "#0B120E",
+  "ratio": 12.09
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/on-fab",
+  "bg": "g/fab",
+  "fgHex": "#13210F",
+  "bgHex": "#B8DC4F",
+  "ratio": 10.69
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/on-accent",
+  "bg": "g/warn",
+  "fgHex": "#13210F",
+  "bgHex": "#F4C65A",
+  "ratio": 10.44
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/warn",
+  "bg": "g/surface",
+  "fgHex": "#F4C65A",
+  "bgHex": "#18231D",
+  "ratio": 10.08
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/danger",
+  "bg": "g/surface",
+  "fgHex": "#FF8B84",
+  "bgHex": "#18231D",
+  "ratio": 7.15
+ },
+ {
+  "portal": "Guard Night",
+  "fg": "g/info",
+  "bg": "g/surface",
+  "fgHex": "#8EC8FF",
+  "bgHex": "#18231D",
+  "ratio": 9.14
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/text",
+  "bg": "g/canvas",
+  "fgHex": "#14201A",
+  "bgHex": "#EEF1EA",
+  "ratio": 14.71
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/text",
+  "bg": "g/surface",
+  "fgHex": "#14201A",
+  "bgHex": "#FFFFFF",
+  "ratio": 16.78
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/text-2",
+  "bg": "g/surface",
+  "fgHex": "#4E5F55",
+  "bgHex": "#FFFFFF",
+  "ratio": 6.79
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/text-2",
+  "bg": "g/surface-2",
+  "fgHex": "#4E5F55",
+  "bgHex": "#F3F5EF",
+  "ratio": 6.18
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/text-2",
+  "bg": "g/canvas",
+  "fgHex": "#4E5F55",
+  "bgHex": "#EEF1EA",
+  "ratio": 5.95
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/on-accent",
+  "bg": "g/accent",
+  "fgHex": "#FFFFFF",
+  "bgHex": "#23402A",
+  "ratio": 11.42
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/accent-ink",
+  "bg": "g/accent-soft",
+  "fgHex": "#23402A",
+  "bgHex": "#E4EEDA",
+  "ratio": 9.54
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/accent-ink",
+  "bg": "g/surface",
+  "fgHex": "#23402A",
+  "bgHex": "#FFFFFF",
+  "ratio": 11.42
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/ok",
+  "bg": "g/ok-bg",
+  "fgHex": "#2F6B3A",
+  "bgHex": "#E4EEE0",
+  "ratio": 5.36
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/danger",
+  "bg": "g/danger-bg",
+  "fgHex": "#B42318",
+  "bgHex": "#FBE9E7",
+  "ratio": 5.61
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/warn",
+  "bg": "g/warn-bg",
+  "fgHex": "#8A5A00",
+  "bgHex": "#F6ECD6",
+  "ratio": 5.05
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/info",
+  "bg": "g/info-bg",
+  "fgHex": "#1E5A8A",
+  "bgHex": "#E3EEF8",
+  "ratio": 6.19
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/bar-text",
+  "bg": "g/danger-solid",
+  "fgHex": "#F7F4EE",
+  "bgHex": "#B42318",
+  "ratio": 5.99
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/bar-text",
+  "bg": "g/rail",
+  "fgHex": "#F7F4EE",
+  "bgHex": "#1C3721",
+  "ratio": 11.82
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/bar-text-2",
+  "bg": "g/rail",
+  "fgHex": "#C9D3C6",
+  "bgHex": "#1C3721",
+  "ratio": 8.42
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/bar-text-2",
+  "bg": "g/bar-chip",
+  "fgHex": "#C9D3C6",
+  "bgHex": "#2E4A33",
+  "ratio": 6.35
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/bar-text",
+  "bg": "g/bar-chip",
+  "fgHex": "#F7F4EE",
+  "bgHex": "#2E4A33",
+  "ratio": 8.92
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/fab",
+  "bg": "g/rail",
+  "fgHex": "#B8DC4F",
+  "bgHex": "#1C3721",
+  "ratio": 8.28
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/on-fab",
+  "bg": "g/fab",
+  "fgHex": "#13210F",
+  "bgHex": "#B8DC4F",
+  "ratio": 10.69
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/on-accent",
+  "bg": "g/warn",
+  "fgHex": "#FFFFFF",
+  "bgHex": "#8A5A00",
+  "ratio": 5.93
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/warn",
+  "bg": "g/surface",
+  "fgHex": "#8A5A00",
+  "bgHex": "#FFFFFF",
+  "ratio": 5.93
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/danger",
+  "bg": "g/surface",
+  "fgHex": "#B42318",
+  "bgHex": "#FFFFFF",
+  "ratio": 6.57
+ },
+ {
+  "portal": "Guard Day",
+  "fg": "g/info",
+  "bg": "g/surface",
+  "fgHex": "#1E5A8A",
+  "bgHex": "#FFFFFF",
+  "ratio": 7.28
+ }
+]

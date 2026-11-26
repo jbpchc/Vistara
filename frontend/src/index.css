@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700;800&family=Geist+Mono:wght@400;500&display=swap');
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: 'Urbanist', system-ui, sans-serif;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Urbanist', system-ui, sans-serif;
+  }
+  /* WCAG 2.4.7: visible focus on every interactive element */
+  :focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+  [data-app="guard"] :focus-visible {
+    outline-color: var(--g-accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+/* ─── html5-qrcode cleanup ──────────────────────────────────────────────────── */
+#qr-reader {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+#qr-reader video {
+  border-radius: 8px !important;
+  width: 100% !important;
+  object-fit: cover !important;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f3f4f6; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* ─── Animations ────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+.anim-fade-in    { animation: fadeIn 0.3s ease-out both; }
+.anim-slide-left { animation: slideInLeft 0.25s ease-out both; }
+.spin { animation: spinSlow 1s linear infinite; }
