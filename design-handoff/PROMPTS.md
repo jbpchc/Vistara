@@ -1,42 +1,126 @@
-# PROMPTS.md: AI-assisted design log
+# Documentation of prompts used
 
-**Tool:** Claude (Anthropic), connected to Figma via the official Figma MCP server (Plugin API through `use_figma`).
-**Role of AI:** a design partner and executor. The team set the direction, reviewed every output and gave corrective feedback (see rounds 10–12).
-**Human decisions:**
-- Choice of reference style.
-- Keeping the originals.
-- Removing the parcel feature.
-- Rejecting the icon twice.
+This file records how AI was used to build Vistara. It lists every prompt that shaped the project, what the AI produced, and what the team decided or checked.
 
-## Prompts used (verbatim, in order)
+## 1. Tools and setup
 
-| # | Prompt | Result |
-|---|---|---|
-| 1 | "can you access VISTARA on my figma" | Connected to the file and confirmed access. |
-| 2 | "…/VISTARA?node-id=616-495 review this design" | Heuristic critique of the admin draft: hierarchy, contrast, colour-only status and pre-filled approvals. |
-| 3 | "answer in yes or no, can you redesign our draft by sending you my reference ui/ux design and apply the laws of ui/ux" | Yes. |
-| 4 | "[reference mp4] HERE IS THE REFERENCE ANALYZE I WANT YOU TO APPLY IT TO VISTARA ADMIN PAGE AND ALSO APPLY THE UI/UX LAWS" | Analysed the reference frames. Built the Vistara Theme variables and the shared components (button, badge, nav, icons). Redesigned the dashboard. |
-| 5 | "[logo] Apply the style to all the screen but do not replace it make a new frames for it. AND I WANT YOU TO USE THE SAME LOGO BUT CONVERT IT TO SVG." | Vectorised the PNG logo (vtracer, palette-quantised). Restyled all 31 admin screens as new frames with a script-based token remap and a table rebuild. |
-| 6 | "Now start applying the style to the other 24 admin screens next, starting with the Gate Log and Document Review?" | Batch restyle continued. |
-| 7 | "CAN YOU REMOVE THE BACKGROUND COLOR OF THE LOGO. and put protoypes for navigations." | Transparent logo variants. Sidebar navigation wired across all screens. |
-| 8 | "Now access this resident portal and I want you to redesign it with the same style but have the sense of separation for the admin dashboard … Apply the laws the ui/ux still" | Resident portal (13 screens): top-pill nav, `home/*` orange accent, HOMEOWNER tag. |
-| 9 | "where is the redesigned one? give me the link" | Shared the links. |
-| 10 | "Now access this guard dashboard … THIS IS A MOBILE APP ESPECIALLY FOR A TABLET. THIS IS ONLY A DRAFT SO I WANT YOU TO IMRPOVE IT IF THERE ARE FEATURES THAT ARE MISSING…" | Guard tablet app (28 screens): Night/Day variable modes and a nav rail. Added the missing features: SOS, patrol rounds, expected arrivals, and the offline, denied and no-response states. |
+| Item | Detail |
+|---|---|
+| AI model | Claude (Anthropic), used through the Claude app |
+| Design connection | Official Figma MCP server. The AI edited the shared VISTARA Figma file through the Figma Plugin API (`use_figma`), and read screenshots and metadata back to check its work. |
+| Code connection | GitHub. The AI committed to `jbpchc/Vistara`, and every AI-assisted commit is marked `Co-Authored-By: Claude`. |
+| Workspace tools | Node/Vite builds, a headless Chrome browser for screenshots and end-to-end checks, and Python for the logo tracing, contrast audit and token export |
+| Team | John Benedict Pachica, Emmanuel Gallego, Dhan Mykell Cruz, John Daniel Esplago |
 
-## Techniques
-- **Programmatic design** via the Figma Plugin API:
-  - Variables with modes.
-  - Component sets with properties.
-  - Instance swapping.
-  - Prototype reactions.
-  - Measurements and annotations.
-- **HSL-based colour remapping:** existing draft colours were mapped to semantic tokens, and paints that were already bound to a token were skipped.
-- **Table reconstruction:** padded monospace text rows were parsed into real auto-layout cells.
-- **Logo vectorisation:** palette quantisation → Gaussian blur → spline tracing.
-- **Automated WCAG contrast audit** (`docs/contrast_audit.py`) that feeds back into the token values.
-- **Token export:** Figma variables → CSS and JSON (`build_tokens.py`), consumed by Tailwind.
-- **Design → code:** the dashboards were recoded with the existing API calls kept intact. `npm run build` was used to verify the result.
+**Division of work**
+- **The team** set the direction, supplied the inputs, made every product decision, and reviewed each result before accepting it. The inputs were the reference video, the Camella Naga logo, the Figma drafts and the activity instructions.
+- **The AI** produced the designs, code and documents, and ran the automated checks.
+- Decisions that came from the team are listed in §4.
 
-## Limits and human verification
-- The AI's visual checks were screenshot-based. The team should still click through every prototype.
-- Usability testing with real guards, residents and admins has **not** been done yet. See `docs/ISO-9241-210_and_Accessibility.md` §1.5.
+## 2. Prompt log
+
+Prompts are quoted **verbatim**, including our original spelling and capitalisation.
+- `[…]` marks an attachment or an omitted Figma link.
+- *Italics* mark a summary of a long prompt or of a pasted document.
+
+### Phase 1: Review and redesign in Figma
+
+| # | Prompt | What the AI produced | Team decision / verification |
+|---|---|---|---|
+| 1 | "can you access VISTARA on my figma" | Connected to the Figma file and listed its pages. | Confirmed it was the correct file. |
+| 2 | "[Figma link] review this design" | Heuristic review of the admin draft. Main findings: weak visual hierarchy, low contrast, status shown by colour only, and approvals pre-filled by default. | Agreed to redesign instead of patching. |
+| 3 | "answer in yes or no, can you redesign our draft by sending you my reference ui/ux design and apply the laws of ui/ux" | "Yes." | Chose to provide a reference video. |
+| 4 | "[reference video] HERE IS THE REFERENCE ANALYZE I WANT YOU TO APPLY IT TO VISTARA ADMIN PAGE AND ALSO APPLY THE UI/UX LAWS" | Analysed the reference style and built the "Vistara Theme" colour variables. Made shared components (button, status badge, navigation item, icons) and redesigned the admin dashboard, applying Hick, Miller, Fitts, Jakob and Von Restorff. | Approved the direction. |
+| 5 | "[Camella Naga logo] Apply the style to all the screen but do not replace it make a new frames for it. AND I WANT YOU TO USE THE SAME LOGO BUT CONVERT IT TO SVG." | Traced the PNG logo into SVG. Restyled all 31 admin screens as new frames, leaving the originals untouched. Rebuilt the tables as real cells. | Required that the original drafts be kept. |
+| 6 | "Now start applying the style to the other 24 admin screens next, starting with the Gate Log and Document Review?" | Continued the batch restyle in the requested order. | Spot-checked the Gate Log and Document Review screens. |
+| 7 | "CAN YOU REMOVE THE BACKGROUND COLOR OF THE LOGO. and put protoypes for navigations." | Made transparent full-colour and reversed logo variants. Wired the sidebar navigation as prototype links across all admin screens. | Clicked through the prototype. |
+| 8 | "Now access this resident portal and I want you to redesign it with the same style but have the sense of separation for the admin dashboard so it is not carbon copy or not confusing. Apply the laws the ui/ux still: [Figma link]" | Redesigned the resident portal (13 screens) with its own look: top pill navigation, a warm orange accent, a HOMEOWNER tag and roomier cards. | Accepted the separation approach. |
+| 9 | "where is the redesigned one? give me the link" | Sent the page and prototype links. | n/a |
+| 10 | "Now access this guard dashboard and I want you to redesign it with the same style but have the sense of separation for the admin dashboard so it is not carbon copy or not confusing. THIS IS A MOBILE APP ESPECIALLY FOR A TABLET. THIS IS ONLY A DRAFT SO I WANT YOU TO IMRPOVE IT IF THERE ARE FEATURES THAT ARE MISSING. Finally, Apply the laws the ui/ux still: [Figma link]" | Redesigned the guard tablet app (28 screens), with Night and Day colour modes and a navigation rail with a large Scan button. Added missing features: SOS, patrol rounds, expected arrivals, and offline / denied / no-response states. | Reviewed the added features (see #11). |
+| 11 | "REMOVE THE PARCEL FEATURE" | Removed the parcel desk screen and its navigation item. | **Team scope decision:** parcels are out of scope. |
+| 12 | "[screenshot] PLEASE FIX THE WAL IN ICON" → "REDESIGN THE WALKIN LOGO NOT STICKMAN" | First version: a stick figure. Second version: a person-plus icon. | **Team rejected the first version**; the second was accepted. |
+
+### Phase 2: Meeting the activity requirements
+
+| # | Prompt | What the AI produced | Team decision / verification |
+|---|---|---|---|
+| 13 | *[Pasted the semi-final activity instructions.] Asked that the guard, admin and resident dashboards meet the instructions.* | Ran a WCAG contrast audit: 3 pairs failed and were fixed, so 68 of 68 now pass. Added notes and spacing measurements to the key Figma screens. Built the Figma "Design Handoff" page (ISO 9241-210 process, foundations, components, accessibility, user journeys) and set up exports. | Reviewed the handoff page. |
+| 14 | "CAN YOU DO IT IN MY GITHUB" → "Do not touch the camella guardtrack repo but rather create a new repo named VVistara" → *(repo name confirmed as "Vistara")* → "i already created vistara repo" | Copied the project into the new repo without the `.env` secrets. Exported the Figma colours into code tokens, built the three role-based layouts, and recoded the dashboards. | **Team decision:** keep the original repo untouched. The team created the GitHub repo. |
+| 15 | "help me deploy it." → "actually backend is not really necessary for this submission bin, is there no github feature wherein i can just deploy it and paste the site" | Set up GitHub Pages with automatic deploys. Added a demo mode that runs on sample data in the browser, with one-click role login. Ran headless browser checks for all three roles. | **Team decision:** host the frontend on GitHub Pages. |
+| 16 | "[screenshot] where ive already made it public and chose github actions" | Found that the first deploy had failed because it ran before Pages was turned on. Re-triggered it and confirmed the site was live. | The team made the repo public and turned on Pages. |
+| 17 | "why the deployed github frontend ui design does not follow the redesign dashboards from figma" | Explained the gap: the first coded version only covered features the existing backend supported. Rebuilt the admin, resident and guard dashboards to match the Figma frames, and checked them against the Figma screenshots. | **The team caught this mismatch.** |
+| 18 | *Asked whether the work met the instructions and the UI/UX laws, and how to submit on Google Classroom.* | Self-assessment with the remaining gaps listed, and submission steps. | n/a |
+| 19 | "yes" (apply the fixes) | Fixed two UX-law issues: dropdown arrows on links that open no menu, and badge counts that didn't match. Restyled the scanner and walk-in screens for Night and Day mode. | Rechecked in screenshots. |
+| 20 | "is the handoff design shoould be in figma?" → "yes please" | Built a 16-page handoff PDF. The redlines are measured from the running app. | Reviewed the PDF. |
+| 21 | "it does not mean ai feature inside the app. Emmanuel Gallego, Dhan Mykell Cruz, John Daniel Esplago, and Me" | Added the team names to the README, the handoff document and the PDF cover. | **The team clarified** that the AI requirement means AI-assisted development, not an AI feature inside the app. |
+| 22 | *Asked for document sections to use plain names instead of the activity's assessment labels.* | Renamed the sections in the README, the PDF and the Figma handoff page. | n/a |
+
+### Phase 3: Making the system functional
+
+| # | Prompt | What the AI produced | Team decision / verification |
+|---|---|---|---|
+| 23 | "apply the backend to make the system all functional." → *(chose "Core flows, deployed")* | Built the backend for the core flows: live data for all three dashboards; walk-in approval (guard requests, resident approves or denies, guard admits, with a written reason required after a timeout); incident reports and SOS; and logging of refused QR scans. Tested the full flow end to end on a local database. | **Team scope choice:** the core flows only. |
+| 24 | "this is just for compliance for my instructor so it wont be deployed really." | Kept the live site in demo mode, with the full backend in the repo and steps to run it locally. | **Team decision:** no paid or online hosting. |
+| 25 | "remove the things that the instructor does not need to see or things that are unnecessary" | Removed unused pages, starter-template images and hosting configuration. Both builds still passed. | n/a |
+| 26 | *Asked to update this file so it fully meets the activity's requirement to document the prompts used.* | Rewrote this file as a complete prompt log. | n/a |
+
+## 3. How prompts were written (prompting techniques)
+
+| Technique | Example |
+|---|---|
+| **Reference-based prompting:** give an example instead of describing the style | #4, the reference video |
+| **Constraint prompts:** state what must not change | #5 "do not replace it make a new frames", #14 "Do not touch the camella guardtrack repo" |
+| **Context and audience prompts** | #10 "THIS IS A MOBILE APP ESPECIALLY FOR A TABLET", #8 "not carbon copy or not confusing" |
+| **Principle-driven prompts:** ask for named design principles | #4, #8 and #10, "apply the laws of ui/ux" |
+| **Iterative correction:** reject a result and say why | #12 "NOT STICKMAN", #17 "does not follow the redesign" |
+| **Scope control:** remove or limit features | #11 "REMOVE THE PARCEL FEATURE", #23 choosing core flows only |
+| **Verification prompts:** ask the AI to check its own work against the requirements | #18 |
+
+## 4. Decisions made by the team
+
+- Chose the reference style (#4).
+- Required that the original Figma drafts be kept (#5).
+- Required each portal to look distinct from the others (#8, #10).
+- Removed the parcel feature from scope (#11).
+- Rejected the stick-figure icon (#12).
+- Kept the original repository untouched and created a new one (#14).
+- Hosted the frontend on GitHub Pages with sample data, with no paid server (#15, #24).
+- Caught the mismatch between the coded dashboards and the Figma frames (#17).
+- Limited backend work to the core flows (#23).
+
+## 5. Techniques the AI used (coding difficulty)
+
+- **Programmatic design through the Figma Plugin API:**
+  - variables with Night and Day modes;
+  - component sets with properties;
+  - instance swapping;
+  - prototype links;
+  - Dev Mode annotations and measurements.
+- **Colour remapping:** draft colours were converted to design tokens by hue, saturation and lightness, skipping colours already bound to a token.
+- **Table reconstruction:** rows of padded monospace text were parsed into real layout cells.
+- **Logo vectorisation:** colour quantisation, then a light blur, then spline tracing to SVG.
+- **Automated WCAG contrast audit** (`docs/contrast_audit.py`). Its results fed back into the token values.
+- **Token pipeline:** Figma variables → `build_tokens.py` → CSS variables and JSON → Tailwind.
+- **Design to code:** role-based layouts and three dashboards rebuilt to match the Figma frames.
+- **Backend:**
+  - three new models: walk-in request, incident, and refused scan;
+  - one combined data request per dashboard;
+  - walk-in approval with status tracking and timeout handling.
+- **Demo mode:** a fake API in the browser that returns the same data shapes as the real server, so the site works on GitHub Pages.
+- **Automated checks:**
+  - production builds;
+  - headless-browser screenshots compared with the Figma frames;
+  - an end-to-end test of walk-in → approve → admit, SOS, and resolving an incident.
+
+## 6. Verification and limits
+
+- Every AI result was checked with screenshots, builds or tests before it was accepted, and the team reviewed the key screens.
+- **Not done yet:** usability testing with real guards, residents and HOA staff. This is the next step under ISO 9241-210; see `docs/ISO-9241-210_and_Accessibility.md` §1.5.
+- Screens that are designed but not coded yet open a placeholder page. It says the screen isn't built and links to its Figma prototype.
+- Demo mode uses sample data, which resets when the page is reloaded.
+
+## 7. Responsible use
+
+- AI was used as a design and development assistant.
+- All AI output was reviewed by the team, and the product decisions in §4 were made by the team.
+- No secrets or personal data were shared with the AI or committed to the repository: the `.env` file is excluded, and the resident names in the demo are fictional.
