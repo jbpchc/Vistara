@@ -136,6 +136,11 @@ The prototypes are **design intent**, not code. When the app is implemented:
    - **768–1279 px (tablets):** the rail stays. Wide tables become cards (two columns for the gate log).
    - **1280 px and up:** full tables.
    - All guard tap targets are at least 44 px.
+6. **Admin portal breakpoints:**
+   - **Under 1024 px:** a menu button opens the sidebar as a drawer. It closes on navigation, on Escape or when you tap outside it. The breadcrumb shortens, and "New" becomes an icon on small phones.
+   - **Under 1280 px:** tables become one labelled card per row. The 11-column gate log switches at 1360 px.
+   - **Phones:** needs-attention rows stack with a full-width action, and the document preview fits the screen at 100% zoom.
+   - Table icon buttons are 40 px with accessible names.
 
 See also:
 - `design-handoff/docs/ISO-9241-210_and_Accessibility.md`

@@ -115,15 +115,16 @@ export const DocumentReview = () => {
         <Btn disabled={idx <= 0} onClick={() => nav(`/admin/documents/${queue[idx - 1].id}`)}>Previous</Btn>
         <Btn variant="primary" disabled={idx < 0 || idx >= queue.length - 1} onClick={() => nav(`/admin/documents/${queue[idx + 1].id}`)}>Next</Btn>
       </>}>
-      <div className="grid xl:grid-cols-[1fr_420px] gap-6 items-start">
+      <div className="grid xl:grid-cols-[1fr_420px] gap-6 items-start [&>*]:min-w-0">
         <Panel title="Document viewer" aside={<span className="text-[13px] text-muted-foreground">Version {doc.version}</span>}>
           <div className="flex flex-wrap gap-2 mb-4">
             <Btn onClick={() => setZoom((z) => Math.max(50, z - 25))} aria-label="Zoom out">−</Btn>
             <span className="h-11 px-4 rounded-full border border-border flex items-center text-[15px] tabular-nums">{zoom}%</span>
             <Btn onClick={() => setZoom((z) => Math.min(200, z + 25))} aria-label="Zoom in">+</Btn>
           </div>
-          <div className="rounded-[18px] bg-muted p-6 overflow-auto max-h-[560px]">
-            <div className="mx-auto bg-card border border-border rounded-lg p-8 shadow-card" style={{ width: `${(zoom / 100) * 480}px`, fontSize: `${(zoom / 100) * 15}px` }}>
+          <div className="rounded-[18px] bg-muted p-3 sm:p-6 overflow-auto max-h-[560px]">
+            {/* Up to 100% the page fits the viewer; zooming in past that scrolls */}
+            <div className="mx-auto bg-card border border-border rounded-lg p-5 sm:p-8 shadow-card" style={{ width: zoom <= 100 ? `min(100%, ${(zoom / 100) * 480}px)` : `${(zoom / 100) * 480}px`, fontSize: `${(zoom / 100) * 15}px` }}>
               <p className="text-[0.75em] font-bold tracking-[0.08em] text-success">SAMPLE DOCUMENT — NOT AN OFFICIAL RECORD</p>
               <p className="mt-3 text-[1.35em] font-semibold text-foreground">{doc.type === 'Lease contract' ? 'Lease contract sample' : doc.type === 'OR/CR' ? 'Vehicle registration sample' : 'Driver’s license sample'}</p>
               <hr className="my-4 border-foreground" />
@@ -351,7 +352,7 @@ export const Reports = () => {
       <LoadError error={error} />
       <Tabs value={range} onChange={setRange} label="Range" items={[{ k: '3', label: 'Last 3 days' }, { k: '7', label: 'Last 7 days' }]} />
       <Stats items={[{ label: 'Visitors', value: total, sub: `Last ${range} days` }, { label: 'Daily average', value: series.length ? Math.round(total / series.length) : 0 }, { label: 'Active passes', value: count(passes, 'status', 'active') ?? '—' }, { label: 'Documents pending', value: count(docs, 'status', 'pending') ?? '—', tone: 'warning' }]} />
-      <div className="grid xl:grid-cols-2 gap-6">
+      <div className="grid xl:grid-cols-2 gap-6 [&>*]:min-w-0">
         <Panel title="Visitors per day">
           <div className="h-64" role="img" aria-label={`Visitors per day: ${series.map((d) => `${d.date} ${d.visitors}`).join(', ')}`}>
             <ResponsiveContainer width="100%" height="100%"><AreaChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>

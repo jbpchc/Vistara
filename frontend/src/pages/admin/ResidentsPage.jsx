@@ -198,7 +198,7 @@ const ResidentsPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm stack-table">
             <thead className="bg-card border-b border-border">
               <tr>
                 {['ID', 'Full Name', 'Contact Info', 'App Login', 'Properties', 'Status', 'Actions'].map(h => (
@@ -216,10 +216,10 @@ const ResidentsPage = () => {
               ) : (
                 filteredResidents.map(r => (
                   <tr key={r.id} className="hover:bg-muted transition-colors">
-                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{r.id}</td>
-                    <td className="px-4 py-3 font-semibold text-foreground">{r.full_name}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{r.contact_number || '—'}</td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td data-label="ID" className="px-4 py-3 text-muted-foreground font-mono text-xs">{r.id}</td>
+                    <td data-label="Full name" className="px-4 py-3 font-semibold text-foreground">{r.full_name}</td>
+                    <td data-label="Contact" className="px-4 py-3 text-muted-foreground">{r.contact_number || '—'}</td>
+                    <td data-label="App login" className="px-4 py-3 text-muted-foreground">
                       {r.User ? (
                         <div className="text-xs">
                           <p className="font-semibold">{r.User.username}</p>
@@ -229,14 +229,14 @@ const ResidentsPage = () => {
                         <span className="text-xs text-muted-foreground italic">No App Access (Directory Only)</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td data-label="Properties" className="px-4 py-3 text-muted-foreground">
                       {r.Properties && r.Properties.length > 0 ? (
                         r.Properties.map(p => <div key={p.id} className="text-xs">Blk {p.block}, Lot {p.lot}</div>)
                       ) : (
                         <span className="text-xs text-warning">Unassigned</span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
+                    <td data-label="Status" className="px-4 py-3">
                       {r.User ? (
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
                           ${r.User.is_active ? 'bg-success-bg text-success' : 'bg-danger-bg text-danger'}`}>
@@ -248,15 +248,15 @@ const ResidentsPage = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
+                    <td data-label="Actions" className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => handleOpenPropModal(r)} className="p-1 text-muted-foreground hover:text-success transition-colors" title="Manage Properties">
+                        <button onClick={() => handleOpenPropModal(r)} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-success hover:bg-muted transition-colors" title="Manage Properties" aria-label="Manage Properties">
                           <Home className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleOpenModal(r)} className="p-1 text-muted-foreground hover:text-info transition-colors" title="Edit">
+                        <button onClick={() => handleOpenModal(r)} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-info hover:bg-muted transition-colors" title="Edit" aria-label="Edit">
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(r.id)} className="p-1 text-muted-foreground hover:text-danger transition-colors" title="Delete">
+                        <button onClick={() => handleDelete(r.id)} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-muted transition-colors" title="Delete" aria-label="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

@@ -167,7 +167,7 @@ const PropertiesPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm stack-table">
             <thead className="bg-card border-b border-border">
               <tr>
                 {['Block', 'Lot', 'Street', 'Household Members', 'Actions'].map(h => (
@@ -185,10 +185,10 @@ const PropertiesPage = () => {
               ) : (
                 filteredGrouped.map(prop => (
                   <tr key={`${prop.block}-${prop.lot}-${prop.street}`} className="hover:bg-muted/60 transition-colors">
-                    <td className="px-4 py-4 font-semibold text-foreground">{prop.block}</td>
-                    <td className="px-4 py-4 text-foreground">{prop.lot}</td>
-                    <td className="px-4 py-4 text-muted-foreground">{prop.street || '—'}</td>
-                    <td className="px-4 py-4">
+                    <td data-label="Block" className="px-4 py-4 font-semibold text-foreground">{prop.block}</td>
+                    <td data-label="Lot" className="px-4 py-4 text-foreground">{prop.lot}</td>
+                    <td data-label="Street" className="px-4 py-4 text-muted-foreground">{prop.street || '—'}</td>
+                    <td data-label="Household" className="px-4 py-4">
                       <div className="flex flex-wrap gap-2">
                         {prop.members.length > 0 ? (
                           prop.members.map((m, index) => (
@@ -204,15 +204,15 @@ const PropertiesPage = () => {
                               <div className="flex items-center gap-1 border-l border-border pl-1.5 ml-1 shrink-0">
                                 <button 
                                   onClick={() => handleOpenModal({ id: m.property_id, ResidentId: m.id, block: prop.block, lot: prop.lot, street: prop.street, Resident: m })} 
-                                  className="text-muted-foreground hover:text-info p-0.5 rounded transition-all"
-                                  title="Edit Assignment"
+                                  className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-info hover:bg-card rounded-lg transition-all"
+                                  title="Edit Assignment" aria-label={`Edit ${m.full_name}'s assignment`}
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
                                 </button>
                                 <button 
                                   onClick={() => handleDelete(m.property_id)} 
-                                  className="text-muted-foreground hover:text-danger p-0.5 rounded transition-all"
-                                  title="Remove Member"
+                                  className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-card rounded-lg transition-all"
+                                  title="Remove Member" aria-label={`Remove ${m.full_name}`}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
@@ -224,10 +224,10 @@ const PropertiesPage = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td data-label="Actions" className="px-4 py-4">
                       <button
                         onClick={() => handleAddMemberToHouse(prop)}
-                        className="inline-flex items-center justify-center gap-1.5 h-8 px-3 bg-success-bg hover:bg-success-bg text-success text-xs font-bold rounded-lg border border-success/30 transition-all active:scale-95"
+                        className="inline-flex items-center justify-center gap-1.5 h-10 px-3 bg-success-bg hover:bg-success-bg text-success text-xs font-bold rounded-lg border border-success/30 transition-all active:scale-95"
                         title="Add Member to Household"
                       >
                         <Plus className="w-3.5 h-3.5" /> Add Member

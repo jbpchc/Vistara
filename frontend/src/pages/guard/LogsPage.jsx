@@ -370,7 +370,7 @@ const LogsPage = () => {
           <div className="py-16 text-center text-sm text-muted-foreground">No log entries found.</div>
         ) : (
           <>
-          <ul className="xl:hidden grid md:grid-cols-2 divide-y md:divide-y-0 divide-border md:gap-px md:bg-border">
+          <ul className="min-[1360px]:hidden grid md:grid-cols-2 divide-y md:divide-y-0 divide-border md:gap-px md:bg-border">
             {logs.map((log) => {
               const parsed = parseNotes(log);
               const tin = log.scanned_at || log.createdAt;
@@ -395,7 +395,7 @@ const LogsPage = () => {
               );
             })}
           </ul>
-          <div className="hidden xl:block overflow-x-auto">
+          <div className="hidden min-[1360px]:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-muted border-b border-border">
                 <tr>

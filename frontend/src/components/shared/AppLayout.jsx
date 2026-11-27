@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
+  Menu, X as CloseIcon,
   LogOut, ChevronRight, Plus, Search, Bell, PanelLeft, Sun, Moon,
   LayoutGrid, Ticket, Clock3, Users, ShieldAlert, FileText, Package, TriangleAlert,
   House, User, KeyRound, Car, ChartColumn, History, SlidersHorizontal,
@@ -98,7 +99,7 @@ const ADMIN_TITLES = {
   '/admin/settings': 'Settings', '/admin/notifications': 'Notifications',
 };
 
-const AdminSidebar = ({ open, onToggle, counts }) => {
+const AdminSidebar = ({ open, onToggle, counts, drawer = false }) => {
   const { user } = useAuth();
   const loc = useLocation();
   const [menu, setMenu] = useState(false);
@@ -108,7 +109,7 @@ const AdminSidebar = ({ open, onToggle, counts }) => {
   const isActive = (it) => (it.match ? it.match(loc) : loc.pathname === it.to || loc.pathname.startsWith(`${it.to}/`));
 
   return (
-    <aside className={`hidden lg:flex flex-col h-screen sticky top-0 shrink-0 bg-brand-forest transition-all duration-300 ${open ? 'w-[260px]' : 'w-[84px]'}`}>
+    <aside className={drawer ? 'flex flex-col h-full w-[min(300px,85vw)] bg-brand-forest shadow-modal' : `hidden lg:flex flex-col h-screen sticky top-0 shrink-0 bg-brand-forest transition-all duration-300 ${open ? 'w-[260px]' : 'w-[84px]'}`}>
       <div className="flex items-start justify-between px-4 pt-6 pb-4">
         {open && (
           <div className="pl-2">
@@ -116,9 +117,9 @@ const AdminSidebar = ({ open, onToggle, counts }) => {
             <p className="mt-1.5 text-[11px] font-bold tracking-[0.12em] text-side-text/80">VISTARA · ADMIN PORTAL</p>
           </div>
         )}
-        <button onClick={onToggle} aria-label={open ? 'Collapse sidebar' : 'Expand sidebar'}
+        <button onClick={onToggle} aria-label={drawer ? 'Close menu' : open ? 'Collapse sidebar' : 'Expand sidebar'}
           className={`w-11 h-11 rounded-xl border border-white/15 flex items-center justify-center text-side-text hover:text-side-active hover:bg-white/5 ${open ? '' : 'mx-auto'}`}>
-          <PanelLeft className="w-5 h-5" />
+          {drawer ? <CloseIcon className="w-5 h-5" aria-hidden="true" /> : <PanelLeft className="w-5 h-5" aria-hidden="true" />}
         </button>
       </div>
 
@@ -183,8 +184,8 @@ const NewMenu = () => {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open}
-        className="inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
-        <Plus className="w-4 h-4" aria-hidden="true" /> New
+        aria-label="New" className="inline-flex items-center gap-2 h-11 px-3.5 sm:px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
+        <Plus className="w-4 h-4" aria-hidden="true" /> <span className="hidden sm:inline">New</span>
       </button>
       {open && (
         <div role="menu" className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-line bg-surface-card shadow-modal overflow-hidden z-50">
@@ -199,6 +200,7 @@ const NewMenu = () => {
 
 const AdminShell = ({ children }) => {
   const [open, setOpen] = useState(true);
+  const [drawer, setDrawer] = useState(false); // below 1024 px the sidebar opens as a drawer
   const now = useNow(30000);
   const online = useOnline();
   const loc = useLocation();
@@ -214,6 +216,15 @@ const AdminShell = ({ children }) => {
     document.addEventListener('keydown', h);
     return () => document.removeEventListener('keydown', h);
   }, []);
+
+  useEffect(() => { setDrawer(false); }, [loc.pathname]);
+  useEffect(() => {
+    if (!drawer) return undefined;
+    const k = (e) => e.key === 'Escape' && setDrawer(false);
+    document.addEventListener('keydown', k);
+    const prev = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', k); document.body.style.overflow = prev; };
+  }, [drawer]);
 
   const title = loc.pathname.startsWith('/admin/documents/') ? 'Documents › Review' : ADMIN_TITLES[loc.pathname] || 'Dashboard';
 
@@ -237,14 +248,26 @@ const AdminShell = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-surface-canvas">
       <AdminSidebar open={open} onToggle={() => setOpen((o) => !o)} counts={counts} />
+      {drawer && (
+        <div className="lg:hidden fixed inset-0 z-[90] flex" role="dialog" aria-modal="true" aria-label="Admin menu">
+          <AdminSidebar drawer open onToggle={() => setDrawer(false)} counts={counts} />
+          <button className="flex-1 bg-black/50" aria-label="Close menu" tabIndex={-1} onClick={() => setDrawer(false)} />
+        </div>
+      )}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-[76px] px-6 lg:px-10 flex items-center justify-between gap-4 sticky top-0 z-30 bg-surface-canvas/90 backdrop-blur">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[14px]">
-            <span className="text-ink-muted">Admin</span>
-            <ChevronRight className="w-4 h-4 text-ink-muted" aria-hidden="true" />
-            <span className="font-semibold text-ink">{title}</span>
-          </nav>
-          <div className="flex items-center gap-3">
+        <header className="h-16 md:h-[76px] px-4 md:px-6 lg:px-10 flex items-center justify-between gap-2 md:gap-4 sticky top-0 z-30 bg-surface-canvas/90 backdrop-blur">
+          <div className="flex items-center gap-2 min-w-0">
+            <button onClick={() => setDrawer(true)} aria-label="Open menu" aria-expanded={drawer}
+              className="lg:hidden w-11 h-11 shrink-0 rounded-xl border border-line bg-surface-card flex items-center justify-center text-ink hover:bg-surface-subtle">
+              <Menu className="w-5 h-5" aria-hidden="true" />
+            </button>
+            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[14px] min-w-0">
+              <span className="hidden sm:inline text-ink-muted">Admin</span>
+              <ChevronRight className="hidden sm:block w-4 h-4 text-ink-muted shrink-0" aria-hidden="true" />
+              <span className="font-semibold text-ink truncate">{title}</span>
+            </nav>
+          </div>
+          <div className="flex items-center gap-2 md:gap-3 shrink-0">
             {/* Doherty: gate status + data freshness always visible */}
             <span className="hidden xl:inline-flex items-center gap-2.5 h-11 pl-2 pr-4 rounded-full border border-line bg-surface-card text-[14px]">
               <span className={`w-7 h-7 rounded-full flex items-center justify-center ${online ? 'bg-status-ok-bg' : 'bg-status-warn-bg'}`}>
@@ -266,7 +289,7 @@ const AdminShell = ({ children }) => {
             </Link>
           </div>
         </header>
-        <main className="flex-1 overflow-auto px-6 lg:px-10 pb-10">{children || <Outlet />}</main>
+        <main className="flex-1 overflow-auto px-4 md:px-6 lg:px-10 pb-10">{children || <Outlet />}</main>
       </div>
     </div>
   );

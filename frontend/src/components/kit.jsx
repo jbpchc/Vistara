@@ -27,7 +27,7 @@ export const Page = ({ title, subtitle, actions, back, children, width = 'max-w-
     )}
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="text-[34px] sm:text-[40px] leading-tight font-semibold text-foreground">{title}</h1>
+        <h1 className="text-[30px] sm:text-[40px] leading-tight font-semibold text-foreground break-words">{title}</h1>
         {subtitle && <p className="mt-1 text-[15px] text-muted-foreground">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -47,7 +47,7 @@ export const Btn = ({ variant = 'secondary', className = '', children, ...rest }
 };
 
 export const Panel = ({ title, aside, className = '', children, ...rest }) => (
-  <section className={`rounded-card border border-border bg-card p-6 ${className}`} {...rest}>
+  <section className={`min-w-0 rounded-card border border-border bg-card p-5 sm:p-6 ${className}`} {...rest}>
     {(title || aside) && <div className="flex items-center justify-between gap-3 mb-4">{title && <h2 className="text-[19px] font-semibold text-foreground">{title}</h2>}{aside}</div>}
     {children}
   </section>
@@ -112,7 +112,7 @@ export const Table = ({ cols, rows, onRow, rowTone, empty = 'Nothing here yet.',
   return (
     <div className="rounded-card border border-border bg-card overflow-hidden">
       {/* Phones: one card per row, first column as the title (no sideways scrolling) */}
-      <ul className="lg:hidden divide-y divide-border" aria-label={label}>
+      <ul className="xl:hidden divide-y divide-border" aria-label={label}>
         {shown.length === 0 && <li className="px-4 py-10 text-center text-muted-foreground">{empty}</li>}
         {shown.map((r, i) => {
           const tone = rowTone?.(r);
@@ -134,17 +134,17 @@ export const Table = ({ cols, rows, onRow, rowTone, empty = 'Nothing here yet.',
           );
         })}
       </ul>
-      <div className="hidden lg:block overflow-x-auto">
+      <div className="hidden xl:block overflow-x-auto">
         <table className="w-full text-left min-w-[760px]" aria-label={label}>
           <thead className="bg-muted">
-            <tr>{cols.map((c) => <th key={c.k} scope="col" className="px-4 py-3.5 text-[13px] font-semibold text-muted-foreground whitespace-nowrap" style={c.w ? { width: c.w } : undefined}>{c.label}</th>)}</tr>
+            <tr>{cols.map((c) => <th key={c.k} scope="col" className="px-3 py-3.5 text-[13px] font-semibold text-muted-foreground whitespace-nowrap" style={c.w ? { width: c.w } : undefined}>{c.label}</th>)}</tr>
           </thead>
           <tbody>
             {shown.length === 0 && <tr><td colSpan={cols.length} className="px-4 py-10 text-center text-muted-foreground">{empty}</td></tr>}
             {shown.map((r, i) => (
               <tr key={r.id ?? i} onClick={onRow ? () => onRow(r) : undefined}
                 className={`border-t border-border ${onRow ? 'cursor-pointer hover:bg-muted/60' : ''} ${rowTone?.(r) === 'danger' ? 'bg-danger-bg/60' : rowTone?.(r) === 'warning' ? 'bg-warning-bg/50' : ''}`}>
-                {cols.map((c) => <td key={c.k} className={`px-4 py-3.5 text-[15px] text-foreground align-middle ${c.mono ? 'font-mono text-[14px]' : ''}`}>{c.render ? c.render(r) : r[c.k] ?? '—'}</td>)}
+                {cols.map((c) => <td key={c.k} className={`px-3 py-3.5 text-[15px] text-foreground align-middle ${c.mono ? 'font-mono text-[14px]' : ''}`}>{c.render ? c.render(r) : r[c.k] ?? '—'}</td>)}
               </tr>
             ))}
           </tbody>

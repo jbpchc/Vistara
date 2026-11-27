@@ -113,7 +113,7 @@ const UsersPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm stack-table">
             <thead className="bg-card border-b border-border">
               <tr>
                 {['Username', 'Email', 'Role', 'Status', 'Created', 'Actions'].map(h => (
@@ -131,30 +131,30 @@ const UsersPage = () => {
               ) : (
                 filteredUsers.map(user => (
                   <tr key={user.id} className="hover:bg-muted transition-colors">
-                    <td className="px-4 py-3 font-semibold text-foreground">{user.username}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-                    <td className="px-4 py-3">
+                    <td data-label="Username" className="px-4 py-3 font-semibold text-foreground">{user.username}</td>
+                    <td data-label="Email" className="px-4 py-3 text-muted-foreground">{user.email}</td>
+                    <td data-label="Role" className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium capitalize
                         ${user.role === 'admin' ? 'bg-info-bg text-info' : 
                           user.role === 'guard' ? 'bg-info-bg text-info' : 'bg-success-bg text-success'}`}>
                         {user.role}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td data-label="Status" className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
                         ${user.is_active ? 'bg-success-bg text-success' : 'bg-danger-bg text-danger'}`}>
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                    <td data-label="Created" className="px-4 py-3 text-muted-foreground text-xs">
                       {format(new Date(user.createdAt), 'MMM d, yyyy')}
                     </td>
-                    <td className="px-4 py-3">
+                    <td data-label="Actions" className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => handleOpenModal(user)} className="p-1 text-muted-foreground hover:text-info transition-colors" title="Edit">
+                        <button onClick={() => handleOpenModal(user)} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-info hover:bg-muted transition-colors" title="Edit" aria-label="Edit">
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(user.id)} className="p-1 text-muted-foreground hover:text-danger transition-colors" title="Delete">
+                        <button onClick={() => handleDelete(user.id)} className="w-10 h-10 rounded-lg flex items-center justify-center text-muted-foreground hover:text-danger hover:bg-muted transition-colors" title="Delete" aria-label="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

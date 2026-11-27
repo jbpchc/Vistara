@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
  */
 
 const Card = ({ className = '', children, ...rest }) => (
-  <section className={`rounded-card border border-line bg-surface-card shadow-card p-7 ${className}`} {...rest}>{children}</section>
+  <section className={`rounded-card border border-line bg-surface-card shadow-card p-5 sm:p-7 min-w-0 ${className}`} {...rest}>{children}</section>
 );
 const Eyebrow = ({ children }) => <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-ink-muted">{children}</p>;
 const H2 = ({ children, id }) => <h2 id={id} className="mt-1 text-[22px] font-semibold text-ink">{children}</h2>;
@@ -55,18 +55,18 @@ const NeedsAttention = ({ items }) => (
         const critical = it.severity === 'critical';
         return (
           <li key={it.id}
-            className={`flex items-center gap-4 rounded-[18px] px-4 py-3.5 ${critical ? 'bg-status-danger-bg border-[1.5px] border-status-danger' : 'bg-surface-subtle'}`}>
+            className={`flex flex-wrap sm:flex-nowrap items-center gap-x-4 gap-y-3 rounded-[18px] px-4 py-3.5 ${critical ? 'bg-status-danger-bg border-[1.5px] border-status-danger' : 'bg-surface-subtle'}`}>
             <span className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${critical ? 'bg-status-danger text-brand-on' : 'bg-surface-card text-ink'}`}>
               <Icon className="w-5 h-5" aria-hidden="true" />
             </span>
             <div className="flex-1 min-w-0">
-              <p className={`text-[16px] font-semibold truncate ${critical ? 'text-status-danger' : 'text-ink'}`}>{it.title}</p>
-              <p className="text-[13px] text-ink-muted truncate">{it.meta}</p>
+              <p className={`text-[16px] font-semibold sm:truncate ${critical ? 'text-status-danger' : 'text-ink'}`}>{it.title}</p>
+              <p className="text-[13px] text-ink-muted sm:truncate">{it.meta}</p>
             </div>
             <Badge variant={sev.variant} className="hidden md:inline-flex bg-transparent">{sev.label}</Badge>
             {/* Von Restorff + Hick: only the critical item gets the primary button */}
             <Link to={KIND_LINK[it.kind] || '/admin/dashboard'}
-              className={`shrink-0 inline-flex items-center h-11 px-5 rounded-full text-[14px] font-semibold ${critical ? 'bg-brand text-brand-on hover:bg-brand/90' : 'bg-surface-card border border-line text-ink hover:bg-surface-subtle'}`}>
+              className={`shrink-0 w-full sm:w-auto justify-center whitespace-nowrap inline-flex items-center h-11 px-5 rounded-full text-[14px] font-semibold ${critical ? 'bg-brand text-brand-on hover:bg-brand/90' : 'bg-surface-card border border-line text-ink hover:bg-surface-subtle'}`}>
               {it.action}
             </Link>
           </li>
@@ -212,8 +212,8 @@ const RecentActivity = ({ rows, totals }) => {
     <Card aria-labelledby="ra-title">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div><Eyebrow>Recent gate activity</Eyebrow><H2 id="ra-title">Latest scans at the main gate</H2></div>
-        <div className="flex items-center gap-3">
-          <div role="tablist" aria-label="Filter scans" className="flex p-1 rounded-full bg-surface-subtle">
+        <div className="flex flex-wrap items-center gap-3">
+          <div role="tablist" aria-label="Filter scans" className="flex flex-wrap p-1 rounded-[22px] bg-surface-subtle">
             {[['all', `All · ${totals.all}`], ['denied', `Denied · ${totals.denied}`], ['walkin', `Walk-ins · ${totals.walkins}`]].map(([k, l]) => (
               <button key={k} role="tab" aria-selected={filter === k} onClick={() => setFilter(k)}
                 className={`h-10 px-4 rounded-full text-[14px] font-semibold ${filter === k ? 'bg-brand text-brand-on' : 'text-ink-muted hover:text-ink'}`}>{l}</button>
@@ -224,7 +224,26 @@ const RecentActivity = ({ rows, totals }) => {
           </Link>
         </div>
       </div>
-      <div className="mt-5 overflow-x-auto">
+      {/* Below 1280 px: one card per scan instead of a 7-column grid */}
+      <ul className="xl:hidden mt-5 grid md:grid-cols-2 gap-2" aria-label="Latest gate scans">
+        {shown.map((r, i) => {
+          const res = RESULT[r.result] || RESULT.allowed;
+          return (
+            <li key={i} className={`rounded-[14px] px-4 py-3 ${r.result === 'denied' ? 'bg-status-danger-bg/70' : 'bg-surface-subtle'}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[15px] font-semibold text-ink">{r.visitor}</p>
+                  <p className="text-[13px] text-ink-muted"><span className="font-mono">{format(new Date(r.time), 'h:mm a')}</span> · {r.dir} · {r.dest}</p>
+                  <p className="text-[13px] text-ink-muted">{r.plate && r.plate !== '—' ? <><span className="font-mono">{r.plate}</span> · </> : null}Guard: {r.guard}</p>
+                </div>
+                <Badge variant={res.variant} className="shrink-0">{res.label(r.reason)}</Badge>
+              </div>
+            </li>
+          );
+        })}
+        {shown.length === 0 && <li className="py-8 text-center text-ink-muted">Nothing matches this filter.</li>}
+      </ul>
+      <div className="hidden xl:block mt-5 overflow-x-auto">
         <div role="table" aria-label="Latest gate scans" className="min-w-[860px]">
           <div role="row" className={`${cols} rounded-[14px] bg-surface-subtle px-4 py-3.5 text-[13px] font-semibold text-ink-muted`}>
             {['Time', 'Direction', 'Visitor', 'Plate', 'Destination', 'Guard', 'Result'].map((h) => <span key={h} role="columnheader">{h}</span>)}
@@ -298,7 +317,7 @@ const AdminDashboard = () => {
     <div className="max-w-[1480px] mx-auto space-y-6 anim-fade-in">
       <div className="flex flex-wrap items-end justify-between gap-4 pt-2">
         <div>
-          <h1 className="text-[44px] leading-tight font-semibold text-ink">
+          <h1 className="text-[32px] sm:text-[44px] leading-tight font-semibold text-ink">
             {greeting(now)}, {displayFirst(user)}
           </h1>
           <p className="mt-1 text-[16px] text-ink-muted">
@@ -307,7 +326,7 @@ const AdminDashboard = () => {
             {d && overdueDocs && <> and {overdueDocs.title.split(' ')[0]} overdue documents need you today.</>}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 [&>*]:whitespace-nowrap">
           <button onClick={exportSnapshot} disabled={!d} className="inline-flex items-center gap-2 h-11 px-5 rounded-full border border-line bg-surface-card text-[15px] font-semibold text-ink hover:bg-surface-subtle disabled:opacity-50">
             <Download className="w-4 h-4" aria-hidden="true" /> Export snapshot
           </button>
@@ -327,12 +346,12 @@ const AdminDashboard = () => {
 
       {d && (
         <>
-          <div className="flex flex-col xl:flex-row gap-6">
+          <div className="flex flex-col xl:flex-row gap-6 [&>*]:min-w-0">
             <NeedsAttention items={d.attention} />
             <GateToday t={d.today} />
           </div>
           {(d.queues.length > 0 || d.upcoming.length > 0 || d.mix.length > 0) && (
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
               {d.queues.length > 0 && <ReviewQueues queues={d.queues} />}
               {d.upcoming.length > 0 && <ComingUp items={d.upcoming} />}
               {d.mix.length > 0 && <EntryMix mix={d.mix} total={d.today.entries} note={d.deniedNote} />}
