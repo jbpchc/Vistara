@@ -75,7 +75,7 @@ const GuardDashboard = () => {
               return (
                 <button key={k} role="radio" aria-checked={on} onClick={() => setDir(k)}
                   className={`h-[68px] rounded-[22px] text-[24px] font-bold flex items-center justify-center gap-2 border-2 transition-colors ${
-                    on ? (k === 'entry' ? 'bg-g-fab text-g-on-fab border-g-fab' : 'bg-g-info text-g-on-fab border-g-info') : (k === 'entry' ? 'border-g-border text-g-text-2' : 'bg-g-info-bg border-g-info/50 text-g-info')
+                    on ? (k === 'entry' ? 'bg-g-fab text-g-on-fab border-g-fab' : 'bg-g-danger-solid text-g-bar-text border-g-danger-solid') : (k === 'entry' ? 'border-g-border text-g-text-2' : 'bg-g-danger-bg border-g-danger/50 text-g-danger')
                   }`}>
                   <Icon className="w-6 h-6" aria-hidden="true" /> {l}
                 </button>
@@ -123,7 +123,7 @@ const GuardDashboard = () => {
               {(d?.lastScans || []).map((s, i) => (
                 <li key={i} className="flex items-center justify-between">
                   <span><span className="block text-[16px] font-semibold text-g-text">{s.name}</span><span className="block text-[14px] text-g-text-2">{format(new Date(s.time), 'h:mm a')} · <Link to="/guard/logs" className="underline relative after:absolute after:-inset-x-2 after:-inset-y-3 after:content-['']">Details</Link></span></span>
-                  <span className={`h-8 px-3 rounded-full text-[14px] font-semibold flex items-center ${s.dir === 'entry' ? 'bg-g-ok-bg text-g-ok' : 'bg-g-info-bg text-g-info'}`}>{s.dir === 'entry' ? 'Entry' : 'Exit'}</span>
+                  <span className={`h-8 px-3 rounded-full text-[14px] font-semibold flex items-center ${s.dir === 'entry' ? 'bg-g-ok-bg text-g-ok' : 'bg-g-danger-bg text-g-danger'}`}>{s.dir === 'entry' ? 'Entry' : 'Exit'}</span>
                 </li>
               ))}
               {d && d.lastScans.length === 0 && <li className="text-g-text-2">No scans yet this shift.</li>}
