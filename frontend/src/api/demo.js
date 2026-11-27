@@ -7,6 +7,7 @@
  */
 
 import { hubRoutes } from '@/api/demoHub';
+import { stableId, parsePassText } from '@/lib/passCode';
 
 const uuid = () =>
   (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -42,7 +43,8 @@ const properties = [
 ];
 
 const mkPass = (o) => ({
-  id: o.id, pass_id: uuid(), qr_token: uuid(), guest_name: o.guest, expected_date: o.date || ymd(new Date()),
+  // Sample passes get a stable id so the same QR works on every device; new passes get a random one.
+  id: o.id, pass_id: o.seed ? stableId(`vistara-sample-${o.id}-${o.date || ymd(new Date())}`) : uuid(), qr_token: uuid(), guest_name: o.guest, expected_date: o.date || ymd(new Date()),
   purpose: o.purpose || 'Visit', status: o.status, PropertyId: o.prop,
   scanned_at: o.in != null ? minutesAgo(o.in) : null, scanned_by: o.in != null ? 2 : null,
   exited_at: o.out != null ? minutesAgo(o.out) : null, plate_number: o.plate || null, notes: null, guard_notes: null,
@@ -50,15 +52,15 @@ const mkPass = (o) => ({
 });
 
 let passes = [
-  mkPass({ id: 1, guest: 'Ana Villanueva',   prop: 1, status: 'checked_in', in: 12,  purpose: 'Family visit', plate: 'NBC 4821' }),
-  mkPass({ id: 2, guest: 'LBC Express',      prop: 2, status: 'used',       in: 55, out: 40, purpose: 'Delivery' }),
-  mkPass({ id: 3, guest: 'Carlo Mendoza',    prop: 3, status: 'checked_in', in: 70,  purpose: 'Plumbing repair' }),
-  mkPass({ id: 4, guest: 'Rosa Bautista',    prop: 1, status: 'used',       in: 180, out: 120, purpose: 'Visit' }),
-  mkPass({ id: 5, guest: 'Grab Food',        prop: 2, status: 'used',       in: 240, out: 236, purpose: 'Food delivery' }),
-  mkPass({ id: 6, guest: 'Liza Ramos',       prop: 1, status: 'active',     date: daysFromNow(0), purpose: 'Birthday party' }),
-  mkPass({ id: 7, guest: 'Mark Tan',         prop: 1, status: 'active',     date: daysFromNow(2), purpose: 'Visit' }),
-  mkPass({ id: 8, guest: 'Joy Fernandez',    prop: 1, status: 'expired',    date: daysFromNow(-3), purpose: 'Visit' }),
-  mkPass({ id: 9, guest: 'Ben Aquino',       prop: 1, status: 'used',       in: 3000, out: 2900, date: daysFromNow(-2), purpose: 'Visit' }),
+  mkPass({ seed: true, id: 1, guest: 'Ana Villanueva',   prop: 1, status: 'checked_in', in: 12,  purpose: 'Family visit', plate: 'NBC 4821' }),
+  mkPass({ seed: true, id: 2, guest: 'LBC Express',      prop: 2, status: 'used',       in: 55, out: 40, purpose: 'Delivery' }),
+  mkPass({ seed: true, id: 3, guest: 'Carlo Mendoza',    prop: 3, status: 'checked_in', in: 70,  purpose: 'Plumbing repair' }),
+  mkPass({ seed: true, id: 4, guest: 'Rosa Bautista',    prop: 1, status: 'used',       in: 180, out: 120, purpose: 'Visit' }),
+  mkPass({ seed: true, id: 5, guest: 'Grab Food',        prop: 2, status: 'used',       in: 240, out: 236, purpose: 'Food delivery' }),
+  mkPass({ seed: true, id: 6, guest: 'Liza Ramos',       prop: 1, status: 'active',     date: daysFromNow(0), purpose: 'Birthday party' }),
+  mkPass({ seed: true, id: 7, guest: 'Mark Tan',         prop: 1, status: 'active',     date: daysFromNow(2), purpose: 'Visit' }),
+  mkPass({ seed: true, id: 8, guest: 'Joy Fernandez',    prop: 1, status: 'expired',    date: daysFromNow(-3), purpose: 'Visit' }),
+  mkPass({ seed: true, id: 9, guest: 'Ben Aquino',       prop: 1, status: 'used',       in: 3000, out: 2900, date: daysFromNow(-2), purpose: 'Visit' }),
 ];
 let nextId = 100;
 
@@ -211,9 +213,20 @@ const routes = [
     return [201, { success: true, message: 'Walk-in visitor logged.', data: p }];
   }],
   ['post', /^\/qr\/validate$/, (_, b) => {
-    const token = String(b.qr_token || '').trim().toLowerCase();
-    const p = passes.find((x) => x.qr_token === token || x.pass_id === token || x.pass_id.startsWith(token) || token.includes(x.qr_token));
-    if (!p) return [200, { success: false, valid: false, reason: 'not_found', message: 'Pass not found or invalid.' }];
+    const raw = String(b.qr_token || '').trim();
+    const scanned = parsePassText(raw);
+    // Full id from the Ref line, else the short id printed on the pass, else whatever was typed.
+    const token = (scanned?.pass_id || scanned?.short || raw).toLowerCase();
+    let p = token && passes.find((x) => x.pass_id === token || x.qr_token === token || x.pass_id.startsWith(token));
+    if (!p && scanned?.pass_id) {
+      if (!scanned.intact) return [200, { success: false, valid: false, reason: 'invalid', message: 'This QR code has been altered or misread. Ask the visitor to show the pass again.' }];
+      if (!properties.some((x) => x.id === scanned.property_id)) return [200, { success: false, valid: false, reason: 'invalid', message: 'This pass is for a property that is not in this subdivision.' }];
+      // Demo only: the pass was made on the resident's own device, which keeps its own data.
+      p = mkPass({ id: nextId++, guest: scanned.guest_name || 'Visitor', prop: scanned.property_id, status: 'active', date: scanned.expected_date, purpose: 'Visit' });
+      p.pass_id = scanned.pass_id;
+      passes.unshift(p);
+    }
+    if (!p) return [200, { success: false, valid: false, reason: 'not_found', message: 'Pass not found. Check the code, or ask the visitor for the QR code.' }];
     if (p.status === 'used' || p.status === 'checked_in') return [200, { success: false, valid: false, reason: 'already_used', message: 'This pass has already been used.', data: { guest_name: p.guest_name, scanned_at: p.scanned_at } }];
     if (p.status === 'expired') return [200, { success: false, valid: false, reason: 'expired', message: 'This pass is expired.' }];
     if (p.expected_date !== ymd(new Date())) return [200, { success: false, valid: false, reason: 'wrong_date', message: `This pass is valid on ${p.expected_date}, not today.` }];

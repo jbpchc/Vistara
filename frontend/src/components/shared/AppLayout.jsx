@@ -304,7 +304,7 @@ const ResidentShell = ({ children }) => {
   const prop = user?.primary_property;
 
   const pill = ({ isActive }) =>
-    `inline-flex items-center gap-2 h-11 px-4 rounded-full text-[15px] whitespace-nowrap transition-colors ${isActive ? 'bg-home-bg text-home-ink font-bold' : 'text-ink-muted font-semibold hover:bg-surface-subtle hover:text-ink'}`;
+    `inline-flex items-center gap-2 h-11 px-3 2xl:px-4 rounded-full text-[15px] whitespace-nowrap transition-colors ${isActive ? 'bg-home-bg text-home-ink font-bold' : 'text-ink-muted font-semibold hover:bg-surface-subtle hover:text-ink'}`;
 
   return (
     <div className="min-h-screen bg-home-canvas flex flex-col">
@@ -312,7 +312,7 @@ const ResidentShell = ({ children }) => {
         <div className="max-w-[1320px] mx-auto h-[84px] px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 shrink-0">
             <img src={`${BASE}camella-naga-logo.svg`} alt="Camella Naga" className="h-10 w-auto" />
-            <span className="hidden sm:inline-flex h-7 items-center px-2.5 rounded-full bg-home-bg text-home-ink text-[11px] font-bold tracking-[0.1em]">HOMEOWNER</span>
+            <span className="hidden sm:inline-flex lg:hidden min-[1360px]:inline-flex h-7 items-center px-2.5 rounded-full bg-home-bg text-home-ink text-[11px] font-bold tracking-[0.1em]">HOMEOWNER</span>
           </div>
           {/* Hick: five top-level destinations */}
           <nav aria-label="Resident" className="hidden lg:flex items-center gap-1">
@@ -324,13 +324,13 @@ const ResidentShell = ({ children }) => {
           </nav>
           <div className="flex items-center gap-2 shrink-0">
             {prop && (
-              <span className="hidden xl:inline-flex items-center gap-1.5 h-11 px-4 rounded-full bg-surface-subtle text-[14px] font-semibold text-ink" title="Your property">
+              <span className="hidden min-[1360px]:inline-flex items-center gap-1.5 h-11 px-4 rounded-full bg-surface-subtle text-[14px] font-semibold text-ink" title="Your property">
                 <House className="w-4 h-4" aria-hidden="true" /> B{prop.block} L{prop.lot}
               </span>
             )}
             {/* Fitts: the most frequent resident task is on every screen */}
-            <Link to="/resident/passes#new-pass" className="hidden sm:inline-flex items-center gap-2 h-11 px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90">
-              <Plus className="w-4 h-4" aria-hidden="true" /> New visitor pass
+            <Link to="/resident/passes#new-pass" aria-label="New visitor pass" className="hidden sm:inline-flex items-center gap-2 h-11 px-4 xl:px-5 rounded-full bg-brand text-brand-on text-[15px] font-semibold hover:bg-brand/90 whitespace-nowrap">
+              <Plus className="w-4 h-4" aria-hidden="true" /> <span className="lg:hidden xl:inline">New visitor pass</span><span className="hidden lg:inline xl:hidden">New pass</span>
             </Link>
             <Link to="/resident/activity/notifications" aria-label="Notifications" className="relative w-11 h-11 rounded-full border border-line flex items-center justify-center hover:bg-surface-subtle">
               <Bell className="w-5 h-5 text-ink" aria-hidden="true" />

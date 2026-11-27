@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
+import { refLine } from '@/lib/passCode';
 import { Download, Share2, X, Pin } from 'lucide-react';
 
 const PassCard = ({ pass, onClose }) => {
@@ -18,7 +19,8 @@ ID: ${pass.pass_id?.slice(0, 8).toUpperCase()}
 Guest: ${pass.guest_name}
 Dest: Blk ${pass.block || pass.Property?.block} Lot ${pass.lot || pass.Property?.lot}
 Date: ${formattedDate}
-Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
+Purpose: ${pass.purpose || pass.notes || 'Visit'}
+${refLine({ pass_id: pass.pass_id, expected_date: pass.expected_date, property_id: pass.PropertyId ?? pass.Property?.id, guest_name: pass.guest_name })}`;
 
   const handleDownload = () => {
     const canvas = cardRef.current?.querySelector('canvas');
@@ -46,7 +48,8 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
       {onClose && (
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 bg-muted hover:bg-muted rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors no-print"
+          aria-label="Close pass"
+          className="absolute top-5 right-5 w-11 h-11 bg-muted hover:bg-muted rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors no-print"
         >
           <X className="w-4 h-4" />
         </button>
@@ -62,12 +65,15 @@ Purpose: ${pass.purpose || pass.notes || 'Visit'}`;
         
         {/* Left: QR Code Box */}
         <div className="shrink-0 flex flex-col items-center">
-          <div className="border-[1.5px] border-foreground p-3 bg-card rounded-sm">
+          <div className="border-[1.5px] border-foreground p-1 bg-white rounded-sm">
             <QRCodeCanvas
               value={qrPayload}
-              size={130}
-              level="H"
-              includeMargin={false}
+              title={`QR code for ${pass.guest_name}'s visitor pass`}
+              role="img"
+              aria-label={`QR code for ${pass.guest_name}'s visitor pass`}
+              size={200}
+              level="M"
+              marginSize={2}
             />
           </div>
           <p className="text-[11px] font-bold text-muted-foreground mt-3 tracking-widest uppercase">

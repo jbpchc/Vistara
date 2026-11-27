@@ -282,23 +282,22 @@ const QRScanner = () => {
     element.innerHTML = '';
 
     let isRunning = false;
-    const html5QrCode = new Html5Qrcode("qr-reader");
+    // Use the browser's native barcode reader when available (faster, handles dense codes better).
+    const html5QrCode = new Html5Qrcode("qr-reader", { experimentalFeatures: { useBarCodeDetectorIfSupported: true }, verbose: false });
 
     const startScanner = async () => {
       try {
         await html5QrCode.start(
           { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 300, height: 300 } },
+          // Scan box scales with the camera view (85% of its short side), so a pass held close still fits.
+          { fps: 10, qrbox: (w, h) => { const side = Math.max(160, Math.floor(Math.min(w, h) * 0.85)); return { width: side, height: side }; } },
           async (text) => {
             const now = Date.now();
             if (now - lastScan.current < 3000) return;
             lastScan.current = now;
             
-            let tokenToSend = text;
-            const match = text.match(/ID:\s*([A-Z0-9\-]+)/i);
-            if (match && match[1]) {
-              tokenToSend = match[1];
-            }
+            // Send the whole QR text: the server reads the full pass id from its Ref line.
+            const tokenToSend = text;
             
             if (isRunning && html5QrCode) {
               try { html5QrCode.pause(); } catch (e) {}

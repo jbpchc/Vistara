@@ -137,9 +137,11 @@ const validatePass = async (req, res) => {
         });
       }
     } else {
-      // Treat as a manually entered short Pass ID (e.g. A93E82A6)
-      // Force lowercase because UUIDs are stored in lowercase and DB lookups might be case-sensitive
-      searchPassId = qr_token.trim().toLowerCase();
+      // A scanned pass QR carries "Ref: <full pass id>~…" and "ID: <short id>"; a typed code is just the short id.
+      // Lowercase because UUIDs are stored in lowercase and lookups may be case-sensitive.
+      const ref = qr_token.match(/Ref:\s*([0-9a-f-]{36})/i);
+      const short = qr_token.match(/ID:\s*([A-Z0-9-]+)/i);
+      searchPassId = (ref ? ref[1] : short ? short[1] : qr_token).trim().toLowerCase();
     }
 
     // Find the GatePass
