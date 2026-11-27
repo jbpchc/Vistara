@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Check, TriangleAlert, ScanLine, Clock3, Car, Users, ShieldAlert, ClipboardList, PackageCheck, ArrowLeft, Search } from 'lucide-react';
+import { Check, TriangleAlert, ScanLine, Clock3, Car, Users, ShieldAlert, ClipboardList, PackageCheck, ArrowLeft, Search, Route } from 'lucide-react';
 import api from '@/api/axios';
 import { useToast } from '@/hooks/use-toast';
 import { Notice, Pill, Table, Tabs, Modal, Field, areaCls, useResource, fmtDate } from '@/components/kit';
@@ -53,13 +53,13 @@ export const Patrol = () => {
       <div className="grid lg:grid-cols-[1fr_400px] gap-5 items-start">
         <ol className="rounded-card border border-g-border bg-g-surface p-4 space-y-1">
           {cps.map((c) => (
-            <li key={c.id} className={`flex items-center gap-4 min-h-[56px] px-3 rounded-[18px] ${c.status === 'current' ? 'border-2 border-g-accent bg-g-accent-soft' : ''}`}>
+            <li key={c.id} className={`flex flex-wrap items-center gap-x-4 gap-y-1 min-h-[56px] px-3 py-2 rounded-[18px] ${c.status === 'current' ? 'border-2 border-g-accent bg-g-accent-soft' : ''}`}>
               <span className={`w-9 h-9 rounded-full flex items-center justify-center ${c.status === 'done' ? 'bg-g-ok-bg text-g-ok' : c.status === 'issue' ? 'bg-g-warn-bg text-g-warn' : c.status === 'current' ? 'bg-g-accent text-g-on-accent' : 'bg-g-surface-2'}`}>
                 {c.status === 'done' ? <Check className="w-5 h-5" aria-hidden="true" /> : c.status === 'issue' ? <TriangleAlert className="w-5 h-5" aria-hidden="true" /> : c.status === 'current' ? <ScanLine className="w-5 h-5" aria-hidden="true" /> : null}
               </span>
-              <span className={`flex-1 text-[17px] ${c.status === 'todo' ? 'text-g-text-2' : 'text-g-text font-semibold'}`}>{c.name}<span className="sr-only"> — {c.status === 'todo' ? 'not yet' : c.status}</span></span>
+              <span className={`flex-1 min-w-[120px] text-[17px] ${c.status === 'todo' ? 'text-g-text-2' : 'text-g-text font-semibold'}`}>{c.name}<span className="sr-only"> — {c.status === 'todo' ? 'not yet' : c.status}</span></span>
               {c.status === 'issue' && <Pill tone="warning">{c.note} · noted</Pill>}
-              {c.status === 'current' ? <span className="text-g-accent-ink font-semibold">Now</span> : <span className="font-mono text-[15px] text-g-text-2">{time(c.at)}</span>}
+              {c.status === 'current' ? <span className="ml-auto text-g-accent-ink font-semibold">Now</span> : <span className="ml-auto font-mono text-[15px] text-g-text-2 whitespace-nowrap">{time(c.at)}</span>}
             </li>
           ))}
         </ol>
@@ -238,6 +238,13 @@ export const More = () => {
     return (
       <Shell title="More" subtitle="Shift tools and lookups.">
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {/* On phones the rail is gone, so its extra destinations live here */}
+          {[{ to: '/guard/incidents', icon: TriangleAlert, label: 'Incidents', desc: 'Report an incident and see open reports.' }, { to: '/guard/patrol', icon: Route, label: 'Patrol', desc: 'Walk the checkpoints for this round.' }].map((m) => (
+            <Link key={m.to} to={m.to} className="md:hidden rounded-card border border-g-border bg-g-surface p-5 min-h-[120px] flex flex-col gap-3 hover:border-g-accent">
+              <span className="w-12 h-12 rounded-full bg-g-surface-2 text-g-accent-ink flex items-center justify-center"><m.icon className="w-6 h-6" aria-hidden="true" /></span>
+              <span className="text-[19px] font-semibold text-g-text">{m.label}</span><span className="text-[15px] text-g-text-2">{m.desc}</span>
+            </Link>
+          ))}
           {MORE.map((m) => (
             <Link key={m.k} to={`/guard/more/${m.k}`} className="rounded-card border border-g-border bg-g-surface p-6 min-h-[140px] flex flex-col gap-3 hover:border-g-accent">
               <span className="w-12 h-12 rounded-full bg-g-surface-2 text-g-accent-ink flex items-center justify-center"><m.icon className="w-6 h-6" aria-hidden="true" /></span>

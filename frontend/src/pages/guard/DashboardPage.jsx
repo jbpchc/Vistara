@@ -122,7 +122,7 @@ const GuardDashboard = () => {
             <ul className="mt-3 space-y-3">
               {(d?.lastScans || []).map((s, i) => (
                 <li key={i} className="flex items-center justify-between">
-                  <span><span className="block text-[16px] font-semibold text-g-text">{s.name}</span><span className="block text-[14px] text-g-text-2">{format(new Date(s.time), 'h:mm a')} · <Link to="/guard/logs" className="underline">Details</Link></span></span>
+                  <span><span className="block text-[16px] font-semibold text-g-text">{s.name}</span><span className="block text-[14px] text-g-text-2">{format(new Date(s.time), 'h:mm a')} · <Link to="/guard/logs" className="underline relative after:absolute after:-inset-x-2 after:-inset-y-3 after:content-['']">Details</Link></span></span>
                   <span className={`h-8 px-3 rounded-full text-[14px] font-semibold flex items-center ${s.dir === 'entry' ? 'bg-g-ok-bg text-g-ok' : 'bg-g-info-bg text-g-info'}`}>{s.dir === 'entry' ? 'Entry' : 'Exit'}</span>
                 </li>
               ))}

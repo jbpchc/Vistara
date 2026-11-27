@@ -365,7 +365,7 @@ const ResidentShell = ({ children }) => {
 };
 
 /* ═══ GUARD (G02) ════════════════════════════════════════════════════════════ */
-const SosButton = () => {
+const SosButton = ({ compact = false }) => {
   const [state, setState] = useState('idle'); // idle | holding | sent
   const timer = useRef(null);
   const send = async () => {
@@ -380,12 +380,12 @@ const SosButton = () => {
       onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel}
       onKeyDown={(e) => { if ((e.key === ' ' || e.key === 'Enter') && state === 'idle') start(); }} onKeyUp={cancel}
       aria-label="SOS — press and hold for 2 seconds to alert the HOA office"
-      className={`relative overflow-hidden flex flex-col items-center justify-center gap-0.5 w-[88px] h-[76px] rounded-[20px] text-g-bar-text select-none ${state === 'sent' ? 'bg-g-ok-bg text-g-ok' : state === 'failed' ? 'bg-g-warn-bg text-g-warn' : 'bg-g-danger-solid'}`}
+      className={`relative overflow-hidden flex flex-col items-center justify-center gap-0.5 ${compact ? 'w-[68px] h-[68px] rounded-full shadow-modal touch-none' : 'w-[88px] h-[76px] rounded-[20px]'} text-g-bar-text select-none ${state === 'sent' ? 'bg-g-ok-bg text-g-ok' : state === 'failed' ? 'bg-g-warn-bg text-g-warn' : 'bg-g-danger-solid'}`}
     >
       {state === 'holding' && <span className="absolute inset-y-0 left-0 bg-black/25 animate-[sosfill_2s_linear_forwards]" />}
       <Siren className="relative w-6 h-6" aria-hidden="true" />
       <span className="relative text-[14px] font-bold">{state === 'sent' ? 'Sent' : state === 'failed' ? 'Retry' : 'SOS'}</span>
-      <span className="relative text-[11px]">{state === 'sent' ? 'Office alerted' : state === 'failed' ? 'Call office' : state === 'holding' ? 'Keep holding' : 'Hold 2s'}</span>
+      <span className={`relative text-[11px] ${compact ? 'sr-only' : ''}`}>{state === 'sent' ? 'Office alerted' : state === 'failed' ? 'Call office' : state === 'holding' ? 'Keep holding' : 'Hold 2s'}</span>
       <span role="status" className="sr-only">{state === 'sent' ? 'SOS alert sent to the HOA office' : state === 'failed' ? 'SOS could not be sent. Call the HOA office.' : ''}</span>
     </button>
   );
@@ -434,7 +434,7 @@ const GuardShell = ({ children }) => {
     <div data-app="guard" data-theme={theme} className="flex min-h-screen bg-g-canvas text-g-text">
       <style>{'@keyframes sosfill{from{width:0}to{width:100%}}'}</style>
       {/* Navigation rail — Jakob (tablet rail), Fitts (Scan is the biggest target, top-left) */}
-      <nav aria-label="Guard" className="w-[104px] shrink-0 bg-g-rail flex flex-col items-center gap-1.5 py-4 sticky top-0 h-screen">
+      <nav aria-label="Guard" className="hidden md:flex w-[104px] shrink-0 bg-g-rail flex-col items-center gap-1.5 py-4 sticky top-0 h-screen">
         <NavLink to="/guard/dashboard"
           className={({ isActive }) => `flex flex-col items-center justify-center gap-1 w-[88px] h-[88px] rounded-[28px] bg-g-fab text-g-on-fab text-[14px] font-bold transition-transform active:scale-95 ${isActive || loc.pathname === '/guard/scan' ? 'ring-4 ring-g-fab/35' : ''}`}>
           <ScanLine className="w-8 h-8" aria-hidden="true" /> Scan
@@ -455,23 +455,24 @@ const GuardShell = ({ children }) => {
 
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Status bar — visibility of system status */}
-        <header className="h-[72px] shrink-0 bg-g-rail flex items-center justify-between gap-3 px-5 sticky top-0 z-30">
+        <header className="h-16 md:h-[72px] shrink-0 bg-g-rail flex items-center justify-between gap-2 md:gap-3 px-3 md:px-5 sticky top-0 z-30">
           <div className="flex items-center gap-3 min-w-0">
             <img src={`${BASE}camella-naga-logo-reversed.svg`} alt="Camella Naga" className="h-8 w-auto hidden md:block" />
             <span className="inline-flex h-6 items-center px-2 rounded-full bg-g-accent-soft text-g-accent-ink text-[11px] font-bold tracking-[0.12em]">GUARD</span>
-            <span className="hidden md:block rounded-xl bg-g-bar-chip px-3 py-1.5 leading-tight">
+            <span className="hidden lg:block rounded-xl bg-g-bar-chip px-3 py-1.5 leading-tight whitespace-nowrap">
               <span className="block text-[14px] font-bold text-g-bar-text">Main Gate</span>
               <span className="block text-[12px] text-g-bar-text-2">Day shift · 7 AM–7 PM</span>
             </span>
           </div>
-          <div className="flex items-center gap-2.5">
-            <span className="text-right leading-tight mr-1">
-              <span className="block font-semibold text-[24px] text-g-bar-text tabular-nums">{format(now, 'h:mm a')}</span>
-              <span className="block text-[12px] text-g-bar-text-2">{format(now, 'EEE, d MMM yyyy')}</span>
+          <div className="flex items-center gap-1.5 md:gap-2.5 min-w-0">
+            <span className="text-right leading-tight mr-1 whitespace-nowrap">
+              <span className="block font-semibold text-[18px] md:text-[24px] text-g-bar-text tabular-nums">{format(now, 'h:mm a')}</span>
+              <span className="hidden sm:block text-[12px] text-g-bar-text-2">{format(now, 'EEE, d MMM yyyy')}</span>
             </span>
-            <span role="status" className={`inline-flex items-center gap-2 h-11 px-4 rounded-full text-[14px] font-bold ${online ? 'bg-g-ok-bg text-g-ok' : 'bg-g-warn-bg text-g-warn'}`}>
+            <span role="status" className={`inline-flex items-center gap-2 h-11 px-3 md:px-4 rounded-full text-[14px] font-bold whitespace-nowrap ${online ? 'bg-g-ok-bg text-g-ok' : 'bg-g-warn-bg text-g-warn'}`}>
               <span className={`w-2 h-2 rounded-full ${online ? 'bg-g-ok' : 'bg-g-warn'}`} aria-hidden="true" />
-              {online ? 'Online · synced' : 'Offline · queued'}
+              <span className="sm:hidden">{online ? 'Online' : 'Offline'}</span>
+              <span className="hidden sm:inline">{online ? 'Online · synced' : 'Offline · queued'}</span>
             </span>
             {live.approvals > 0 && (
               <Link to="/guard/manual-entry" className="hidden lg:inline-flex items-center h-11 px-4 rounded-full bg-g-warn-bg text-g-warn text-[14px] font-bold">{live.approvals} approval{live.approvals > 1 ? 's' : ''} waiting</Link>
@@ -482,7 +483,7 @@ const GuardShell = ({ children }) => {
             </button>
             <div ref={ref} className="relative">
               <button onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu}
-                className="flex items-center gap-2.5 h-11 pl-1.5 pr-4 rounded-full bg-g-bar-chip">
+                className="flex items-center gap-2.5 h-11 pl-1.5 pr-1.5 xl:pr-4 rounded-full bg-g-bar-chip">
                 <span className="w-8 h-8 rounded-full bg-g-accent text-g-on-accent text-[12px] font-bold flex items-center justify-center">{initialsOf(user)}</span>
                 <span className="hidden xl:block text-[14px] font-semibold text-g-bar-text">{displayName(user)}</span>
               </button>
@@ -498,8 +499,30 @@ const GuardShell = ({ children }) => {
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-auto p-6">{children || <Outlet />}</main>
+        <main className="flex-1 overflow-auto p-4 pb-[120px] md:p-6">{children || <Outlet />}</main>
       </div>
+
+      {/* Phones: bottom tab bar + floating SOS (the rail would take a third of the screen) */}
+      <div className="md:hidden fixed right-4 bottom-[88px] z-40"><SosButton compact /></div>
+      <nav aria-label="Guard" className="md:hidden fixed inset-x-0 bottom-0 z-40 bg-g-rail border-t border-g-border grid grid-cols-5 px-1 pt-1.5 pb-[max(6px,env(safe-area-inset-bottom))]">
+        {[
+          { to: '/guard/dashboard', icon: ScanLine, label: 'Scan', active: loc.pathname === '/guard/dashboard' || loc.pathname === '/guard/scan' },
+          items[0], items[1], items[2],
+          { to: '/guard/more', icon: LayoutGrid, label: 'More', active: ['/guard/more', '/guard/incidents', '/guard/patrol'].some((p) => loc.pathname.startsWith(p)) },
+        ].map(({ to, icon: Icon, label, badge, active }) => {
+          const on = active ?? (loc.pathname === to);
+          return (
+            <Link key={label} to={to} aria-current={on ? 'page' : undefined}
+              className={`relative flex flex-col items-center justify-center gap-0.5 h-[60px] rounded-2xl text-[12px] font-semibold ${on ? 'bg-g-accent-soft text-g-accent-ink' : 'text-g-bar-text-2'}`}>
+              <span className="relative">
+                <Icon className="w-6 h-6" aria-hidden="true" />
+                {badge != null && <span className="absolute -top-2 -right-3 min-w-[20px] h-5 px-1 rounded-full bg-g-warn text-g-on-fab text-[11px] font-bold flex items-center justify-center">{badge}</span>}
+              </span>
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 };

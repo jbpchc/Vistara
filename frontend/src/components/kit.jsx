@@ -111,7 +111,30 @@ export const Table = ({ cols, rows, onRow, rowTone, empty = 'Nothing here yet.',
   const shown = rows.slice((page - 1) * pageSize, page * pageSize);
   return (
     <div className="rounded-card border border-border bg-card overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Phones: one card per row, first column as the title (no sideways scrolling) */}
+      <ul className="lg:hidden divide-y divide-border" aria-label={label}>
+        {shown.length === 0 && <li className="px-4 py-10 text-center text-muted-foreground">{empty}</li>}
+        {shown.map((r, i) => {
+          const tone = rowTone?.(r);
+          const [first, ...rest] = cols.filter((c) => c.label);
+          return (
+            <li key={r.id ?? i} onClick={onRow ? () => onRow(r) : undefined}
+              className={`p-4 space-y-2 ${onRow ? 'cursor-pointer active:bg-muted/60' : ''} ${tone === 'danger' ? 'bg-danger-bg/60' : tone === 'warning' ? 'bg-warning-bg/50' : ''}`}>
+              <div className={`text-[16px] font-semibold text-foreground ${first.mono ? 'font-mono' : ''}`}>{first.render ? first.render(r) : r[first.k] ?? '—'}</div>
+              <dl className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-3 gap-y-1.5 text-[14px]">
+                {rest.map((c) => (
+                  <div key={c.k} className="contents">
+                    <dt className="text-muted-foreground">{c.label}</dt>
+                    <dd className={`text-foreground min-w-0 break-words ${c.mono ? 'font-mono text-[13px]' : ''}`}>{c.render ? c.render(r) : r[c.k] ?? '—'}</dd>
+                  </div>
+                ))}
+              </dl>
+              {cols.filter((c) => !c.label).map((c) => <div key={c.k}>{c.render ? c.render(r) : null}</div>)}
+            </li>
+          );
+        })}
+      </ul>
+      <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-left min-w-[760px]" aria-label={label}>
           <thead className="bg-muted">
             <tr>{cols.map((c) => <th key={c.k} scope="col" className="px-4 py-3.5 text-[13px] font-semibold text-muted-foreground whitespace-nowrap" style={c.w ? { width: c.w } : undefined}>{c.label}</th>)}</tr>

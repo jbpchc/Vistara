@@ -131,6 +131,11 @@ The prototypes are **design intent**, not code. When the app is implemented:
 2. Match the auto-layout order to the DOM order, which is also the focus order.
 3. Inputs use the `border-input` class, which maps to `border/strong` at 3.41:1. This fixes the WCAG 1.4.11 gap found in the prototype.
 4. Verify the resident portal at 200% zoom and at 320 px reflow.
+5. **Guard console breakpoints** (designed for a landscape tablet, usable on any device):
+   - **Under 768 px (phones):** the rail becomes a 5-tab bottom bar (Scan, Walk-in, Inside, Gate log, More). SOS floats above it as a 68 px hold-to-send button. Incidents and Patrol move into More. The status bar drops the date and shift chip.
+   - **768–1279 px (tablets):** the rail stays. Wide tables become cards (two columns for the gate log).
+   - **1280 px and up:** full tables.
+   - All guard tap targets are at least 44 px.
 
 See also:
 - `design-handoff/docs/ISO-9241-210_and_Accessibility.md`

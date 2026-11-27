@@ -196,6 +196,58 @@ const LogsPage = () => {
     }
   };
 
+  // Shared by the table (tablet/desktop) and the card list (phones).
+  const renderExit = (log) => (
+    log.exited_at ? (
+                          <span className="text-muted-foreground">{format(new Date(log.exited_at), 'MM/dd hh:mm a')}</span>
+                        ) : log.status === 'checked_in' ? (
+                          user?.role !== 'admin' ? (
+                            <div className="flex items-center gap-2 whitespace-nowrap">
+                              {exitingId === log.pass_id ? (
+                                // Loading state
+                                <span className="flex items-center gap-1 text-muted-foreground h-8">
+                                  <Loader2 className="w-3 h-3 animate-spin" /> Exiting…
+                                </span>
+                              ) : exitConfirmId === log.pass_id ? (
+                                // Inline confirm state
+                                <div className="flex items-center gap-2 animate-in fade-in duration-200">
+                                  <button
+                                    onClick={() => handleExitConfirm(log.pass_id)}
+                                    className="flex items-center gap-1 px-2 py-1 bg-destructive text-destructive-foreground text-[11px] font-bold rounded-lg hover:bg-destructive/90 transition-colors h-11 px-3 text-xs"
+                                  >
+                                    <CheckCircle2 className="w-3 h-3" /> Confirm
+                                  </button>
+                                  <button
+                                    onClick={() => setExitConfirmId(null)}
+                                    className="flex items-center gap-1 px-2 py-1 bg-muted text-foreground text-[11px] font-bold rounded-lg hover:bg-muted transition-colors h-11 px-3 text-xs"
+                                  >
+                                    <X className="w-3 h-3" /> Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                // Default Exit button
+                                <button
+                                  onClick={() => handleExitRequest(log.pass_id)}
+                                  className="px-3 py-1 bg-destructive text-destructive-foreground font-sans text-xs font-semibold rounded-lg hover:bg-destructive/90 transition-colors active:scale-95 h-11 px-4 flex items-center justify-center"
+                                >
+                                  Exit
+                                </button>
+                              )}
+                              {/* Inline error for this row */}
+                              {exitError?.id === log.pass_id && (
+                                <span className="text-danger text-[10px] font-medium">{exitError.msg}</span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-danger-bg text-danger border border-danger/30">
+                              Inside
+                            </span>
+                          )
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )
+  );
+
   return (
     <div className="max-w-7xl mx-auto w-full pt-8 space-y-6 anim-fade-in">
       {/* Back Button (Hidden for Admin) */}
@@ -267,8 +319,8 @@ const LogsPage = () => {
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <div className="relative flex-1">
+      <form onSubmit={handleSearch} className="flex flex-wrap gap-2">
+        <div className="relative basis-full sm:basis-auto sm:flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             id="logs-search-input"
@@ -276,7 +328,7 @@ const LogsPage = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by visitor name…"
-            className="w-full h-10 pl-9 pr-3 border border-input rounded-lg text-sm text-foreground bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            className="w-full h-11 pl-9 pr-3 border border-input rounded-lg text-sm text-foreground bg-card placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
         <select
@@ -287,7 +339,7 @@ const LogsPage = () => {
             setStatusFilter(val);
             setPage(1);
           }}
-          className="h-11 px-3 border border-input rounded-xl text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+          className="flex-1 sm:flex-none min-w-0 h-11 px-3 border border-input rounded-xl text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
         >
           <option value="used,checked_in">All Entries</option>
           <option value="checked_in">Inside Now</option>
@@ -301,7 +353,7 @@ const LogsPage = () => {
             setSort(val);
             setPage(1);
           }}
-          className="h-11 px-3 border border-input rounded-xl text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+          className="flex-1 sm:flex-none min-w-0 h-11 px-3 border border-input rounded-xl text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
         >
           <option value="desc">Newest First</option>
           <option value="asc">Oldest First</option>
@@ -317,7 +369,33 @@ const LogsPage = () => {
         ) : logs.length === 0 ? (
           <div className="py-16 text-center text-sm text-muted-foreground">No log entries found.</div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <ul className="xl:hidden grid md:grid-cols-2 divide-y md:divide-y-0 divide-border md:gap-px md:bg-border">
+            {logs.map((log) => {
+              const parsed = parseNotes(log);
+              const tin = log.scanned_at || log.createdAt;
+              return (
+                <li key={log.id} className="p-4 space-y-2 bg-card md:odd:last:col-span-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground">{log.guest_name}</p>
+                      <p className="text-sm text-muted-foreground">{log.Property ? `Blk ${log.Property.block}, Lot ${log.Property.lot}` : '—'}{log.Property?.Resident?.full_name ? ` · ${log.Property.Resident.full_name}` : ''}</p>
+                    </div>
+                    <StatusBadge status={log.status} />
+                  </div>
+                  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                    <dt className="text-muted-foreground">Purpose</dt><dd className="text-foreground">{parsed.purpose || '—'}</dd>
+                    <dt className="text-muted-foreground">Time in</dt><dd className="font-mono text-foreground">{tin ? format(new Date(tin), 'MM/dd hh:mm a') : '—'}</dd>
+                    {parsed.plate_number && <><dt className="text-muted-foreground">Plate</dt><dd className="font-mono text-foreground">{parsed.plate_number}</dd></>}
+                    {log.exited_at && <><dt className="text-muted-foreground">Time out</dt><dd className="font-mono text-foreground">{format(new Date(log.exited_at), 'MM/dd hh:mm a')}</dd></>}
+                    {parsed.notes && <><dt className="text-muted-foreground">Notes</dt><dd className="italic text-muted-foreground">{parsed.notes}</dd></>}
+                  </dl>
+                  {!log.exited_at && <div className="text-xs">{renderExit(log)}</div>}
+                </li>
+              );
+            })}
+          </ul>
+          <div className="hidden xl:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-muted border-b border-border">
                 <tr>
@@ -356,54 +434,7 @@ const LogsPage = () => {
                           : '—'}
                       </td>
                       <td className="px-4 py-3 text-xs font-mono w-[180px] min-w-[180px]">
-                        {log.exited_at ? (
-                          <span className="text-muted-foreground">{format(new Date(log.exited_at), 'MM/dd hh:mm a')}</span>
-                        ) : log.status === 'checked_in' ? (
-                          user?.role !== 'admin' ? (
-                            <div className="flex items-center gap-2 whitespace-nowrap">
-                              {exitingId === log.pass_id ? (
-                                // Loading state
-                                <span className="flex items-center gap-1 text-muted-foreground h-8">
-                                  <Loader2 className="w-3 h-3 animate-spin" /> Exiting…
-                                </span>
-                              ) : exitConfirmId === log.pass_id ? (
-                                // Inline confirm state
-                                <div className="flex items-center gap-1 animate-in fade-in duration-200 h-8">
-                                  <button
-                                    onClick={() => handleExitConfirm(log.pass_id)}
-                                    className="flex items-center gap-1 px-2 py-1 bg-destructive text-destructive-foreground text-[11px] font-bold rounded hover:bg-destructive/90 transition-colors h-8"
-                                  >
-                                    <CheckCircle2 className="w-3 h-3" /> Confirm
-                                  </button>
-                                  <button
-                                    onClick={() => setExitConfirmId(null)}
-                                    className="flex items-center gap-1 px-2 py-1 bg-muted text-foreground text-[11px] font-bold rounded hover:bg-muted transition-colors h-8"
-                                  >
-                                    <X className="w-3 h-3" /> Cancel
-                                  </button>
-                                </div>
-                              ) : (
-                                // Default Exit button
-                                <button
-                                  onClick={() => handleExitRequest(log.pass_id)}
-                                  className="px-3 py-1 bg-destructive text-destructive-foreground font-sans text-xs font-semibold rounded hover:bg-destructive/90 transition-colors active:scale-95 h-8 flex items-center justify-center"
-                                >
-                                  Exit
-                                </button>
-                              )}
-                              {/* Inline error for this row */}
-                              {exitError?.id === log.pass_id && (
-                                <span className="text-danger text-[10px] font-medium">{exitError.msg}</span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-danger-bg text-danger border border-danger/30">
-                              Inside
-                            </span>
-                          )
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
+                        {renderExit(log)}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground text-xs italic max-w-xs truncate" title={parsed.notes}>
                         {parsed.notes || '—'}
@@ -414,6 +445,7 @@ const LogsPage = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
